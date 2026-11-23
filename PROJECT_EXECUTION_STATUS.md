@@ -376,6 +376,9 @@ deployment, a live Supabase run, or a real GitHub OAuth run. Those are blocked o
 | Sanitization suite                      | 6 tests passed                                              |
 | Keychain stdin behavior                 | Add/read/delete of a temporary generic-password item passed |
 
+Branch checkpoint: commit `8c91666` (`feat: add optional cloud dashboard and explicit CLI upload`).
+The branch is local; it has not been pushed or merged.
+
 The RLS suite executes the real migration under PGlite with `auth.uid()` derived from a request
 claim. It covers own-row access, cross-tenant reads and primary-key lookups, spoofed inserts,
 cross-tenant foreign keys, update/delete isolation, the aggregate view, and anonymous denial. It is
