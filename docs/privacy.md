@@ -74,6 +74,7 @@ The public website pages are prerendered. They do not run scans or collect analy
 report viewer fetches a committed JSON file from the same origin.
 
 An optional cloud dashboard is implemented but not deployed. Its hosted database schema and RLS have
-been verified, but real GitHub sign-in and CLI uploads have not been exercised. It accepts GitHub
-sign-in and explicit CLI uploads of sanitized scan summaries; it is not required for local scanning.
+been verified, and the hosted project currently contains zero auth users and zero tenant rows, but
+real GitHub sign-in and CLI uploads have not been exercised. It accepts GitHub sign-in and explicit
+CLI uploads of sanitized scan summaries; it is not required for local scanning.
 The full field-level data flow is documented in [PRIVACY_DATA_FLOW.md](../PRIVACY_DATA_FLOW.md).

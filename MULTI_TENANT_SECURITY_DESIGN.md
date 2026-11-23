@@ -5,8 +5,9 @@ actions, GitHub connection flow, and CLI uploads.
 
 **Status:** implemented and locally tested with PGlite. The migration and grant hardening were applied
 to a hosted Supabase project, where the two-identity PostgREST/RLS run passed 17/17 adversarial
-checks. **No deployed application exists**, so runtime routes, cookies, real OAuth, and live CLI
-uploads remain untested. The local CLI remains usable without any of this.
+checks, including a re-run after the OAuth secret rotation in Phase 21.2. The hosted project contains
+zero auth users and zero tenant rows. **No deployed application exists**, so runtime routes, cookies,
+real OAuth, and live CLI uploads remain untested. The local CLI remains usable without any of this.
 
 ## 1. Security objective
 
@@ -193,8 +194,8 @@ data. The CLI builds the payload from structured findings, never from raw source
 
 ## 6. Verified test evidence
 
-The local test suite is the evidence currently available. It uses PGlite to execute the real
-migration SQL; it is not a hosted Supabase test.
+The local test suite uses PGlite to execute the real migration SQL. Hosted Supabase evidence is
+recorded separately below; it exercises PostgREST with real JWT claims and disposable identities.
 
 `packages/core/test/cloud-dashboard-rls.test.ts` — **9 tests passed**:
 
@@ -216,6 +217,12 @@ rejection, server secret/path normalization, safe relative paths, gate recomputa
 
 `npm run build:web` on the same tree: passed. Public pages prerendered; dashboard and API routes
 dynamic.
+
+On Phase 21.2, `npm run verify` passed with 15 test files and 68 tests; the production web build,
+format, lint, and typecheck also passed. `npm audit --audit-level=high` reported 0 vulnerabilities. A
+secret scan of 200 tracked files and 19 client static files for exact secret values found 0 hits.
+The hosted RLS run was repeated after OAuth rotation and passed 17/17; both disposable identities were
+deleted. These checks do not substitute for a deployed-application isolation test.
 
 ## 7. Residual risks and unverified areas
 
@@ -242,8 +249,9 @@ dynamic.
 11. **No repository authorization model beyond the connecting user.** There are no teams, roles, or
     invitations. Each connection belongs to one account.
 12. **No deployment has been verified.** Vercel requires a new project's first deployment to be
-    Production, and production is not authorized. The preview callback, Vercel runtime, real GitHub
-    OAuth consent/sign-in, and live CLI upload remain untested.
+    Production, and the initial Production deployment is awaiting explicit owner authorization. The
+    OAuth secret rotation is complete, but the production callback, Vercel runtime, real GitHub OAuth
+    consent/sign-in, and live CLI upload remain untested.
 
 These limitations are also recorded in [LIVE_DEPLOYMENT_REPORT.md](LIVE_DEPLOYMENT_REPORT.md) and the
 project execution status. None of them are presented as completed work.

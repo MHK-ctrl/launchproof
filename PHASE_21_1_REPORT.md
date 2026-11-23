@@ -7,6 +7,13 @@
 deployment is blocked by Vercel's mandatory first-Production-deployment rule, and live OAuth must wait
 for client-secret rotation.
 
+> **Phase 21.2 follow-up (2026-11-23):** the exposed GitHub OAuth client secret was rotated and the
+> old secret was deleted; the Supabase provider was updated without recording the value. Hosted RLS
+> was re-run and passed 17/17, and Vercel now has Preview and Production variables. No Vercel
+> deployment exists; the initial Production deployment still requires explicit owner authorization.
+> See [PHASE_21_2_REPORT.md](PHASE_21_2_REPORT.md). The statements below describe the earlier Phase
+> 21.1 checkpoint and are retained as history.
+
 ## 1. Executive summary
 
 This phase continued from the Phase 21 checkpoint without rebuilding the dashboard. It:

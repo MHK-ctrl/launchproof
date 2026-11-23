@@ -12,10 +12,11 @@ badge you have to trust.
 > **Status: v0.1.0 source preview.** The source is public at
 > [github.com/MHK-ctrl/launchproof](https://github.com/MHK-ctrl/launchproof). The package is **not
 > published to npm**. The optional cloud dashboard is implemented and backed by a hosted Supabase
-> database whose RLS passed 17/17 adversarial checks, but it is **not deployed**: Vercel requires a
-> new project's first deployment to be Production, and production is not authorized. Real GitHub
-> OAuth and CLI upload remain untested. The prerendered public pages remain available without an
-> account. Read [limitations](docs/limitations.md) before relying on a result.
+> database whose RLS passed 17/17 adversarial checks after the OAuth secret was rotated. It is **not
+> deployed**: Vercel requires a new project's first deployment to be Production, and the initial
+> Production deployment is awaiting explicit owner authorization. Real GitHub OAuth and CLI upload
+> remain untested. The prerendered public pages remain available without an account. Read
+> [limitations](docs/limitations.md) before relying on a result.
 
 ## Why
 

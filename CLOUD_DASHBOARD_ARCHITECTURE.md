@@ -1,7 +1,8 @@
 # Cloud Dashboard Architecture
 
-**Status:** implemented; hosted Supabase schema and RLS verified; not deployed. Local scanning remains
-fully functional without any cloud configuration.
+**Status:** implemented; hosted Supabase schema and RLS verified after OAuth secret rotation; not
+deployed. The initial Vercel Production deployment is awaiting explicit owner authorization. Local
+scanning remains fully functional without any cloud configuration.
 
 This document describes what is actually implemented, not a future design. The dashboard is optional:
 the public site is static, and every local CLI scan still works with no account, database, or network
@@ -216,6 +217,9 @@ All tenant responses set private/no-store cache headers. API errors use a stable
   dynamic.
 - Required server environment: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
   `SUPABASE_SERVICE_ROLE_KEY`, `APP_BASE_URL`, `LAUNCHPROOF_ENCRYPTION_KEY`.
+- Vercel currently has the first four values in Preview and Production except `APP_BASE_URL`, which
+  is intentionally unset until the real deployment origin exists. The service-role and encryption
+  keys are server-only Secret variables; the two `NEXT_PUBLIC_*` values are Config variables.
 - Optional CLI environment: `LAUNCHPROOF_API_URL` (defaults to `http://127.0.0.1:3000`).
 - Plain HTTP API URLs are refused for non-loopback hosts.
 
@@ -235,5 +239,8 @@ evidence.
 - No analytics, telemetry, background jobs, or email notifications.
 - No billing or paid plan setup.
 
-Deployment is currently blocked on owner-provided Supabase and Vercel credentials; see
-[LIVE_DEPLOYMENT_REPORT.md](LIVE_DEPLOYMENT_REPORT.md).
+Deployment is currently blocked on the explicit owner authorization required for Vercel's initial
+Production deployment. The Supabase and Vercel credentials are configured, and `APP_BASE_URL` will be
+set only after the real origin exists. See [LIVE_DEPLOYMENT_REPORT.md](LIVE_DEPLOYMENT_REPORT.md)
+for the no-deployment state and [PHASE_21_2_REPORT.md](PHASE_21_2_REPORT.md) for the readiness
+evidence.

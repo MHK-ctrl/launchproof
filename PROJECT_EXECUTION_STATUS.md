@@ -19,8 +19,9 @@ GitHub release or tag exists. No external security audit has been performed. The
 been applied to a hosted Supabase project and the hosted RLS suite passed 17/17 checks with two
 disposable identities. The Supabase GitHub provider is configured, but real GitHub OAuth has not
 been exercised, no live CLI upload has run, and no Vercel deployment exists because Vercel requires
-a new project's first deployment to be Production, which is not authorized. No large third-party
-application has been validated.
+a new project's first deployment to be Production, which is not authorized. The compromised GitHub
+OAuth client secret was rotated in Phase 21.2, the old secret was deleted, and the Supabase provider
+was updated without recording the new value. No large third-party application has been validated.
 
 ## Environment
 
@@ -29,9 +30,9 @@ application has been validated.
 - Project root: `LaunchProof/`
 - GitHub CLI authenticated as `MHK-ctrl`; public repository published and CI verified
 - Vercel CLI authenticated as `mdhamzakhan2k6-4663` (team `hamza-recallai`); project `launchproof`
-  is linked but has no deployments
-- Hosted Supabase project `launchproof` (`ypqpqgnviphwxddrpieq`); migrations applied; local `.env`
-  configured and gitignored
+  is linked but has no deployments; Preview and Production variables configured
+- Hosted Supabase project `launchproof` (`ypqpqgnviphwxddrpieq`); migrations applied manually; local
+  `.env` configured and gitignored; no auth users or tenant rows
 - No system Chrome; Playwright Chromium headless shell installed for tests
 
 ## Phase checklist
@@ -60,6 +61,7 @@ application has been validated.
 | 19. Public GitHub publication  | Done         | 137 files published; Node 22/24 CI passed; repository metadata and clone verified    |
 | 20. Cloud dashboard            | Done locally | Auth, repo connect, private scans, CLI upload, RLS tests; **not deployed**           |
 | 21. Hosted Supabase + preview  | Partial      | Hosted RLS 17/17; OAuth configured; Vercel preview blocked by first-deploy rule      |
+| 21.2 OAuth rotation + gate     | Ready        | Secret rotated, hosted RLS 17/17, Production vars set; deployment approval pending   |
 
 ## Initial implementation verification (historical)
 
@@ -489,3 +491,72 @@ sign-in, a live CLI upload, or a production URL.
    redeploy, and run the real GitHub OAuth, CLI, two-account, dashboard, header, and performance
    checks.
 4. No production deployment, merge, tag, release, npm publication, or custom domain has occurred.
+
+## Phase 21.2 — OAuth secret rotation and initial Production gate
+
+Continued on 2026-11-23 from `ded30b5` on `feat/cloud-dashboard`. This phase does **not** claim a
+Vercel deployment, a production URL, or a live OAuth/CLI test. The initial Production deployment
+remains **BLOCKED pending explicit owner authorization**.
+
+### OAuth rotation — completed
+
+- The GitHub OAuth App `LaunchProof` (app ID `4046464`, client ID `Ov23li2D78osdcDjz84Y`) was
+  confirmed before modification.
+- A new client secret was generated without DOM extraction or snapshot capture, saved into the
+  Supabase GitHub provider, and the old secret was **deleted**. One masked secret remains.
+- The clipboard was cleared and generated snapshots removed. The secret was not read back, printed,
+  committed, or placed in a report. No secret value is recorded in this repository.
+- Supabase provider re-check: client ID matches; callback remains
+  `https://ypqpqgnviphwxddrpieq.supabase.co/auth/v1/callback`; provider enabled.
+
+### Supabase after rotation — verified
+
+- Hosted RLS/PostgREST suite re-run: **17/17 passed** with two disposable identities, then both
+  identities were deleted.
+- Hosted SQL audit: six tables all with RLS enabled, 16 policies, zero `anon` grants, zero
+  `authenticated` `TRUNCATE` grants, zero auth users, and zero profile/repository/scan/finding rows.
+- Site URL remains `http://127.0.0.1:3000`; redirect allowlist contains only
+  `http://127.0.0.1:3000/auth/callback`.
+- No unexpected migration or production data exists. The project has no
+  `supabase_migrations.schema_migrations` ledger because both migrations were applied manually in the
+  SQL editor; this is a documented operational gap.
+
+### Vercel — prepared, not deployed
+
+- Account `mdhamzakhan2k6-4663`, team `hamza-recallai`; project `launchproof`
+  (`prj_OMc6CDEwAcGppuZFhEqa3j0X95u3`), root `.`, Next.js, `npm ci`, `npm run build:web`, no Git
+  connection, **no deployments**.
+- Four variables now exist in both Preview and Production without values being printed:
+  `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` (Config);
+  `SUPABASE_SERVICE_ROLE_KEY` and `LAUNCHPROOF_ENCRYPTION_KEY` (Secret).
+- `APP_BASE_URL` remains unset. It must be set to the real Vercel production origin after deployment
+  and the app must then be redeployed.
+- Vercel assigns the first deployment of this project to Production. A preview-only first deployment
+  is not possible; no temporary deployment, alternate project, or account switch was used.
+
+### Production readiness checks
+
+| Check                                      | Result                                                          |
+| ------------------------------------------ | --------------------------------------------------------------- |
+| `npm run verify`                           | Exit 0; 15 files / 68 tests; lint, typecheck, builds, web build |
+| `npm audit --audit-level=high`             | 0 vulnerabilities                                               |
+| Secret scan (exact values, tracked/client) | 200 tracked + 19 client static files; 0 hits                    |
+| Production web build                       | Passed; Proxy recognized as middleware; server output           |
+| Local `next start`                         | `/api/health` 200; public routes 200                            |
+| axe WCAG A/AA, eight public pages          | 0 violations after logo and mobile-overflow fixes               |
+| Mobile 390 px, five public pages           | No horizontal overflow                                          |
+| Signed-out `/dashboard`                    | Redirects to `/login?next=%2Fdashboard`                         |
+
+UI fixes in this phase: the logo link now uses its visible text as the accessible name, and
+`/get-started` grid children use `min-w-0` so long code blocks do not widen the mobile viewport.
+
+### Approval gate and remaining work
+
+1. **No production deployment has been created.** The exact requested authorization is:
+   **"Authorize the initial LaunchProof Production deployment to Vercel."**
+2. After approval: verify the final commit and clean tree, deploy the initial Production build,
+   capture the real URL, set `APP_BASE_URL`, add the exact Supabase callback, and redeploy if needed.
+3. Then run live GitHub sign-in, repository consent, CLI login/upload/download/logout, two-account
+   isolation, account deletion, deployed headers, mobile, and lightweight performance checks.
+4. Not tested: deployed runtime, OAuth provider exchange, CLI upload, CSP/HSTS behavior, monitoring,
+   external audit, and distributed rate limits. No URL is claimed.

@@ -1,14 +1,17 @@
 # Deployment Readiness — LaunchProof Website and Cloud Dashboard
 
-**Status:** implemented locally; hosted Supabase applied and RLS verified; **not deployed**.
+**Status:** implemented locally; hosted Supabase applied and RLS verified; OAuth secret rotated;
+**not deployed**.
 **Recommended host:** Vercel with the Next.js server runtime.
 **Required services:** Supabase (Auth + PostgreSQL) and a GitHub OAuth App (configured).
 **Deployment gate:** Vercel requires a new project's first deployment to be Production; a Preview-only
-first deployment is not possible. Production approval has not been given.
+first deployment is not possible. The initial Production deployment is **BLOCKED pending explicit
+owner authorization**.
 **Production URL / preview URL:** none. Do not announce one until a real deployment has been verified.
 
-> The public marketing pages can still be hosted without a database; the private dashboard and CLI
-> upload require Supabase. This document does not claim that any of those services are configured.
+> The public marketing pages can be hosted without a database; the private dashboard and CLI upload
+> require Supabase. This document distinguishes verified hosted evidence from untested deployed
+> behavior.
 
 ## 1. What is ready
 
@@ -17,33 +20,38 @@ first deployment is not possible. Production approval has not been given.
   - `/dashboard/*`, `/login`, `/cli/*`, `/auth/*`, and `/api/*` are dynamic;
   - no `output: "export"`;
   - `trailingSlash` is false so API paths do not redirect.
-- `vercel.json` uses `framework: "nextjs"`, `npm ci`, and `npm run build:web`, with security and
-  no-store headers.
+- `vercel.json` uses `framework: "nextjs"`, `npm ci`, `npm run build:web`, and security/no-store
+  headers.
 - The PostgreSQL migration defines the schema, composite tenant foreign keys, RLS, grants, and the
-  aggregate view.
-- GitHub sign-in through Supabase, repository consent through GitHub OAuth, encrypted short-lived
-  provider-token cookie, and server-side repository metadata verification.
-- Private dashboard and APIs with server-side ownership checks.
-- CLI login via browser loopback + PKCE, hashed seven-day tokens, revocation, explicit upload preview,
-  and local sanitization.
-- PGlite tenant-isolation tests and upload-sanitization tests pass locally.
+  aggregate view. The corrective grant migration is applied.
+- GitHub sign-in through Supabase, a separate repository consent flow, an encrypted short-lived
+  provider-token cookie, and server-side repository metadata verification are implemented.
+- Private dashboard and APIs use server-side ownership checks.
+- CLI login uses browser loopback + PKCE, hashed seven-day tokens, revocation, explicit upload
+  preview, and local sanitization.
+- Local PGlite tenant-isolation tests, upload-sanitization tests, and the hosted 17/17 RLS suite pass.
+- The compromised GitHub OAuth client secret was rotated; the old secret was deleted; Supabase was
+  updated without recording the value.
+- Vercel has Production-scoped variables for the four required application values, and Preview-scoped
+  variables remain.
 
 ## 2. What is not ready
 
-- Hosted Supabase project exists, migrations applied, and hosted RLS passed 17/17 checks, but there
-  is no deployed application runtime.
-- GitHub OAuth App is configured in Supabase, but real sign-in, consent, and provider-token exchange
-  are not tested. The client secret must be rotated after being rendered unmasked in automation.
-- Vercel project is linked with Preview variables, but **no deployment** exists because Vercel
-  requires the first deployment to be Production.
-- No preview or production hostname, so `APP_BASE_URL`, preview redirects, and canonical metadata do
-  not exist.
-- No live auth, repository connection, CLI login, upload, download, revocation, or account deletion
-  test.
+- No deployed application runtime. Vercel's first deployment for this project is Production, and
+  production is not authorized.
+- Real GitHub sign-in, consent, provider-token exchange, and sign-out are not tested because no
+  application origin exists.
+- No production `APP_BASE_URL` or Supabase production callback; inventing either before the host
+  exists would be inaccurate.
+- No live CLI login, upload, download, revocation, or account deletion test.
 - No deployed two-account browser isolation test; only hosted database RLS and local PGlite tests.
+- No deployed header, cookie, CSP, HSTS, or performance measurement.
 - GitHub Actions/OIDC upload is not implemented.
-- The cloud dashboard does not have a custom domain, monitoring, audit logging, or a scheduled cleanup
-  job for expired CLI authorization rows.
+- No custom domain, monitoring, alerting, audit logging, MFA requirement, or scheduled cleanup job
+  for expired CLI authorization rows.
+- The hosted project has no migration ledger; migrations were applied manually.
+- The GitHub `repo` scope is broad for private repositories; the app only issues GETs and does not
+  store the provider token.
 
 ## 3. Required configuration
 
@@ -51,18 +59,21 @@ first deployment is not possible. Production approval has not been given.
 
 - Project `launchproof` (`ypqpqgnviphwxddrpieq`) exists on the free plan.
 - `202611230001_cloud_dashboard.sql` and `202611230002_revoke_default_table_privileges.sql` are
-  applied.
-- GitHub provider is enabled with the OAuth App client ID and callback. Rotate the client secret
-  before live use; it was exposed in automation output.
-- Set Site URL and a narrow redirect allowlist:
-  - local: `http://127.0.0.1:3000/auth/callback`
-  - preview/production: `https://<host>/auth/callback` (only after the host exists)
+  applied manually. No `supabase_migrations.schema_migrations` ledger exists.
+- GitHub provider is enabled with the matching OAuth App client ID and the callback
+  `https://ypqpqgnviphwxddrpieq.supabase.co/auth/v1/callback`. The secret was rotated in Phase 21.2.
+- Site URL remains `http://127.0.0.1:3000`; redirect allowlist contains only
+  `http://127.0.0.1:3000/auth/callback`.
+- After the production origin exists, add only `https://<production-origin>/auth/callback` and update
+  the Site URL if appropriate; do not use wildcard hosts.
 - Record the project URL, anon key, and service-role key outside git.
 
 ### GitHub OAuth App
 
-- Homepage URL: the application origin.
-- Authorization callback URL: `https://<project-ref>.supabase.co/auth/v1/callback`.
+- OAuth App `LaunchProof`, app ID `4046464`, client ID `Ov23li2D78osdcDjz84Y`.
+- Authorization callback URL: `https://ypqpqgnviphwxddrpieq.supabase.co/auth/v1/callback` (unchanged;
+  do not point it at Vercel).
+- Homepage URL should be the real application origin once it exists.
 - Consent includes the broad `repo` scope if private repositories are connected. LaunchProof issues
   only GETs and does not store the token, but the permission itself is broad.
 
@@ -76,7 +87,13 @@ APP_BASE_URL=https://<host>
 LAUNCHPROOF_ENCRYPTION_KEY=<base64-32-byte-key>
 ```
 
-Generate the key with:
+Current Vercel state, names and scopes only:
+
+- Preview and Production: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` (Config).
+- Preview and Production: `SUPABASE_SERVICE_ROLE_KEY`, `LAUNCHPROOF_ENCRYPTION_KEY` (Secret).
+- `APP_BASE_URL`: unset until the real deployment origin exists.
+
+Generate the encryption key with:
 
 ```bash
 node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
@@ -99,56 +116,39 @@ Run from a clean dependency state:
 
 ```bash
 npm ci
-npm run build
-npm run typecheck -w @launchproof/web
-npm run build:web
-npm test
+npm run verify
+npm audit --audit-level=high
 ```
 
-Then, with a local Supabase project configured:
+Current results:
 
-```bash
-npm run dev:web
-```
+- `npm run verify`: exit 0; format, lint, typecheck, core/browser/CLI builds, 15 test files / 68
+  tests, and production web build passed.
+- `npm audit --audit-level=high`: 0 vulnerabilities.
+- Secret scan of 200 tracked files and 19 client static files for exact secret values: 0 hits.
+- Production `next start` health: `/api/health` 200; public pages 200.
+- Signed-out `/dashboard`: redirects to `/login?next=%2Fdashboard`.
+- axe WCAG A/AA on eight public pages: 0 violations after fixing the logo accessible name and
+  `/get-started` mobile overflow.
+- Mobile 390 px on five public pages: no horizontal document overflow.
 
-Verify:
-
-- public pages load without a session;
-- `/dashboard` redirects to `/login` when signed out;
-- GitHub sign-in returns to the intended path;
-- repository consent and connection work;
-- `launchproof login` stores a token;
-- `launchproof scan . --upload` shows the preview and respects confirmation;
-- cancellation and upload failure preserve the local report;
-- a second account cannot see or mutate the first account's data;
-- logout revokes the token.
-
-Current results: build, web typecheck, production web build, and `npm test` (15 files, 68 tests)
-pass. Hosted Supabase RLS passed 17/17 checks. Live GitHub OAuth, deployed browser flows, and CLI
-upload remain untested.
+Live GitHub OAuth, deployed browser flows, and CLI upload remain untested.
 
 ## 5. Deployment steps after approval
 
-1. Confirm the working tree and all checks are final.
-2. Complete `vercel login` through the official flow.
-3. Import the repository at the **repository root** (npm workspace), not `apps/web`.
-4. Add the five web environment variables to Preview and Production as appropriate.
-5. Resolve the first-deployment gate. Vercel assigns a new project's first deployment to Production
-   even when Preview is requested; a Preview-only first deployment is impossible. Use a host/plan
-   that supports it, or obtain explicit approval for that first Production deployment. Do not treat
-   an unapproved first deployment as a preview.
-6. After a deployment exists, create a Preview deployment from `feat/cloud-dashboard` and record the
-   exact URL and commit.
-7. Set `APP_BASE_URL` to the preview origin and redeploy.
-8. Add the exact preview `/auth/callback` URL to Supabase.
-9. Run the full checklist in `CLOUD_DASHBOARD_SETUP.md` against the preview.
-10. Obtain explicit approval for production.
-11. Deploy production only after that approval.
-12. Record the exact hostname and verification date in `PROJECT_EXECUTION_STATUS.md` and
-    `LIVE_DEPLOYMENT_REPORT.md` only after it exists.
+1. Confirm the exact final commit, branch, clean worktree, and successful production build.
+2. Complete `vercel login` through the official flow and confirm
+   `mdhamzakhan2k6-4663` / `hamza-recallai`. Do not switch accounts.
+3. Confirm the linked project `launchproof`, root `.`, and the four Production variables.
+4. Create the initial Production deployment. Record the real URL, commit, branch, and build log.
+5. Set `APP_BASE_URL` to the exact production origin and redeploy.
+6. Add exactly `https://<production-origin>/auth/callback` to Supabase. Keep the GitHub OAuth
+   callback at the Supabase callback URL.
+7. Run the full checklist in `CLOUD_DASHBOARD_SETUP.md` and section 6 below.
+8. Update `PROJECT_EXECUTION_STATUS.md` and `LIVE_DEPLOYMENT_REPORT.md` with only observed results.
 
-Do not connect a custom domain, enable a paid plan, or create a GitHub release as part of this step
-without separate approval.
+Do not connect a custom domain, enable a paid plan, merge to `main`, or create a GitHub release as
+part of this step without separate approval.
 
 ## 6. Post-deployment checklist
 
@@ -164,27 +164,27 @@ without separate approval.
 - [ ] Anonymous requests return 401 and no data.
 - [ ] Revoke-all CLI tokens invalidates an active token.
 - [ ] Account deletion removes auth identity, tenant rows, session, and connect cookie.
-- [ ] Security headers are present on the deployed host.
+- [ ] Security headers are present on the deployed host; CSP status is recorded honestly.
 - [ ] No secrets, source contents, full local paths, or `.env` values appear in requests or logs.
+- [ ] Console errors, failed requests, mobile layout, and basic performance are checked.
 - [ ] A rollback target exists and is understood.
 
 ## 7. Risks
 
-- RLS passed local PGlite tests and 17/17 hosted PostgREST checks, but no deployed application
-  runtime or real two-browser-session test exists.
+- RLS passed local PGlite tests and 17/17 hosted PostgREST checks, but no deployed application runtime
+  or real two-browser-session test exists.
 - The service-role key bypasses RLS if it leaks; it is a high-value server secret.
 - The GitHub `repo` scope is broad and cannot be made read-only for private repositories through
   GitHub OAuth. A GitHub App would be required for finer permissions.
 - In-memory rate limits are per instance and reset on deploy.
-- No MFA, audit log, monitoring, or alerting is implemented.
+- No CSP, MFA, audit log, monitoring, or alerting is implemented.
 - Sanitization is heuristic; review finding text before uploading.
-- Vercel's runtime, proxy, header, and cookie behavior are unverified until a real preview exists.
-- No deployment has occurred, so no preview/production availability, performance, or recovery claim is
-  made. Hosted database RLS is verified; deployed runtime behavior is not.
+- Vercel's runtime, proxy, header, and cookie behavior are unverified until a real deployment exists.
+- No deployment has occurred, so no production availability, performance, or recovery claim is made.
 
 ## 8. Rollback
 
-- Promote a previous Vercel deployment if a preview/production regression is found.
+- Promote a previous Vercel deployment if a production regression is found, or remove the bad one.
 - The database schema should be tested on a fresh project first; do not mutate production tables
   blindly.
 - Rotating `LAUNCHPROOF_ENCRYPTION_KEY` invalidates connect cookies only.
@@ -193,8 +193,13 @@ without separate approval.
 
 ## 9. Approval boundary
 
-Deployment requires owner approval after credentials are configured and the preview passes. This
-document prepares the work; it does not authorize a production deployment.
+The exact action that requires owner approval is:
 
-See [CLOUD_DASHBOARD_SETUP.md](CLOUD_DASHBOARD_SETUP.md) for step-by-step setup and
-[LIVE_DEPLOYMENT_REPORT.md](LIVE_DEPLOYMENT_REPORT.md) for current blockers.
+> **Authorize the initial LaunchProof Production deployment to Vercel.**
+
+This document prepares the work; it does not authorize a production deployment. No deployment will
+be created until that authorization is explicitly given in a subsequent message.
+
+See [CLOUD_DASHBOARD_SETUP.md](CLOUD_DASHBOARD_SETUP.md) for step-by-step setup,
+[PHASE_21_2_REPORT.md](PHASE_21_2_REPORT.md) for this phase's evidence, and
+[LIVE_DEPLOYMENT_REPORT.md](LIVE_DEPLOYMENT_REPORT.md) for the current no-deployment state.

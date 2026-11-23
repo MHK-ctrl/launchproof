@@ -27,12 +27,13 @@ serve the dashboard or API routes.
 - build: `npm run build:web`;
 - security headers and private/no-store headers for dashboard and API paths.
 
-The repository root is the project root because this is an npm workspace. Configure the environment
-variables from `.env.example`, including `APP_BASE_URL`, before deploying. A Vercel project is linked
-with Preview variables, but **no deployment exists**. Vercel assigns a new project's first deployment
-to Production even when Preview is requested, and production is not authorized; preview-only hosting
-requires a different host/plan or explicit approval for that first Production deployment. No preview
-or production URL is claimed.
+The repository root is the project root because this is an npm workspace. A Vercel project is linked
+with the four Supabase/encryption variables in Preview and Production. `APP_BASE_URL` is intentionally
+unset until the real deployment origin exists, then must be added to Production and followed by a
+redeploy. **No deployment exists.** Vercel assigns a new project's first deployment to Production even
+when Preview is requested; the initial Production deployment is awaiting explicit owner approval, and
+no preview or production URL is claimed. The OAuth client secret was rotated and the old secret was
+deleted in Phase 21.2; no secret value is recorded.
 
 ## Netlify
 

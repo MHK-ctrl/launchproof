@@ -57,7 +57,7 @@ export default function GetStartedPage() {
       </div>
 
       <div className="mt-10 grid gap-4 lg:grid-cols-[1fr_360px]">
-        <div className="space-y-4">
+        <div className="min-w-0 space-y-4">
           <section className="panel p-6">
             <div className="flex items-center justify-between gap-3">
               <h2 className="text-[16px] font-semibold text-[#e8eff9]">
@@ -141,7 +141,7 @@ node packages/cli/bin/launchproof.mjs scan https://staging.example.com \\
           </section>
         </div>
 
-        <aside className="space-y-4">
+        <aside className="min-w-0 space-y-4">
           <div className="panel p-5">
             <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#8499b0]">
               What you get

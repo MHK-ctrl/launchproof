@@ -150,6 +150,11 @@ not want that consent should not connect private repositories.
 | Application requests/logs  | Hosting platform (Vercel or equivalent)      | Hosting provider |
 | GitHub repository metadata | GitHub REST API responses in memory          | GitHub           |
 
+**Current deployment state:** as of Phase 21.2, no Vercel deployment exists. The hosted Supabase
+project contains zero auth users and zero profile, repository, scan, or finding rows. There is no
+production application traffic, deployed access log, or real-user data to retain. This will change
+only after an approved deployment and first real use.
+
 Supabase and the hosting provider have their own retention, logging, and subprocessors. Review their
 terms and settings before production. LaunchProof does not sell data or use it for advertising.
 
