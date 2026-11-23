@@ -636,3 +636,52 @@ this is **not fixed hosted** until the owner authorizes and applies 003.
 - Vercel deployment, deployed CSP/OAuth/CLI, and two-account browser isolation remain **NOT TESTED**.
 
 Full evidence and the exact approval request are in [`PHASE_21_4_REPORT.md`](PHASE_21_4_REPORT.md).
+
+## Phase 21.5 — Authorized hosted migration application and synthetic validation
+
+Continued on 2026-11-23 on `feat/cloud-dashboard`. The owner explicitly authorized the reviewed
+hosted operations without a provider backup after confirming the project was empty and accepting the
+limited risk. The operations ran in the authorized order, each from the exact committed file with a
+pre-execution SHA-256 check. No guard was bypassed and no reviewed SQL was altered hosted.
+
+### Completed — VERIFIED — HOSTED
+
+- Ledger reconciliation recorded only `202611230001` and `202611230002` (HTTP 201).
+- Migration `202611230003` applied (HTTP 201); `rate_limits`, its expiry index, and the three
+  security-definer functions were created; service-role DML, function ACLs, default ACL hardening,
+  and RLS were verified independently.
+- The guarded record script recorded `202611230003` (HTTP 201). The final ledger contains exactly
+  three rows with zero unexpected versions.
+- Low-volume hosted synthetic validation passed **60/60** checks: service-role PostgREST reads,
+  anonymous/authenticated denials, profile-trigger creation, repository/scan/finding tenant
+  isolation, `security_invoker` view isolation, rate-limit counting/window reset/isolation, bounded
+  rate-limit cleanup (2 then 1), and CLI token cleanup (2 removed, active preserved).
+- Cleanup left zero auth users and zero rows in all seven tables and the view. No real user or
+  application data was introduced.
+
+### Resolved / residual
+
+- The Phase 21.4 `service_role` 403 defect is resolved; server-side PostgREST reads return 200.
+- `service_role` also retains bootstrap `REFERENCES`/`TRIGGER`/`TRUNCATE` (and `MAINTAIN` where
+  supported) privileges and a broad `arwdDxtm` default ACL. It is server-only, but broader than strict DML least privilege; a future
+  least-privilege migration is a separate decision.
+- `supabase_admin` defaults remain broad; application objects must stay `postgres`-owned.
+- No scheduled cleanup job exists, and no provider backup exists. The saved baseline is catalog
+  evidence, not a data backup.
+
+### Verification and artifacts
+
+- `supabase/manual/PHASE_21_5_ROLLBACK_BASELINE.json` — pre-mutation baseline, 63,394 bytes.
+- `supabase/manual/PHASE_21_5_HOSTED_VALIDATION.json` — sanitized 60/60 hosted results.
+- `npm run verify` passed after documentation updates: format, lint, builds, typecheck, 20 test files
+  / 109 tests, and production web build. `npm audit --audit-level=high` remains 0 vulnerabilities; no
+  dependency changed in this phase.
+
+### Blocked / not tested
+
+- Hosted concurrency/load, `supabase` CLI list/dry-run, deployed Vercel runtime, live GitHub OAuth,
+  live CLI, deployed CSP/HSTS/cookies, and two-browser isolation remain **NOT TESTED**.
+- The initial Vercel Production deployment remains **BLOCKED pending separate explicit owner
+  authorization**. Database readiness does not authorize deployment.
+
+Full evidence is in [`PHASE_21_5_REPORT.md`](PHASE_21_5_REPORT.md).

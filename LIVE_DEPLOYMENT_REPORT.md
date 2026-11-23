@@ -6,8 +6,9 @@
 **Phase 21.3:** pre-production hardening implemented locally on `feat/cloud-dashboard`; no deployment.
 **Phase 21.4:** hosted schema re-audited read-only; migration 003 revised; no hosted mutation or
 deployment.
-**Status:** **NO VERCEL DEPLOYMENT — HOSTED MIGRATION 003 AND INITIAL PRODUCTION DEPLOYMENT AWAITING
-OWNER APPROVAL**
+**Phase 21.5:** authorized hosted ledger reconciliation, migration 003 application and record, and
+60/60 low-volume synthetic hosted checks completed; no deployment.
+**Status:** **NO VERCEL DEPLOYMENT — INITIAL PRODUCTION DEPLOYMENT AWAITING OWNER APPROVAL**
 **Production URL / preview URL:** none. No production deployment, alias, custom domain, or public
 preview URL exists.
 
@@ -75,30 +76,38 @@ Phase 21.4 re-audited the hosted catalog read-only. The 001/002 effects still ma
 expected relations, RLS, 16 policies, triggers, composite foreign keys, and the `security_invoker`
 view. There are zero auth users and zero application rows.
 
-**Critical finding:** hosted `service_role` has `bypassrls` but no `SELECT`/`INSERT`/`UPDATE`/`DELETE`
-on the application tables. A real PostgREST read with the service-role key returned HTTP 403
-`permission denied for table profiles` (42501). Server-side admin paths would fail in a deployment.
-Migration 003 is revised to grant only the DML the application uses, but it is **not applied**.
+Phase 21.5 then applied the authorized sequence: the ledger recorded 001/002, migration 003 applied,
+and the guarded record script recorded 003. The final ledger contains exactly three rows. The
+hosted catalog now has seven tables plus the view, `rate_limits` and its expiry index, three
+security-definer functions with empty `search_path`, service-role DML, and hardened postgres
+default ACLs. An independent readback and a 60/60 low-volume synthetic suite confirmed the effects,
+including two disposable identities and verified teardown. Zero application rows and zero auth users
+remain.
 
-**Known gap:** `supabase_migrations.schema_migrations` does not exist in the hosted project because
-the migrations were applied manually. The reconciliation SQL
-(`supabase/manual/20261123_reconcile_migration_ledger.sql`), the guarded 003 record script
-(`supabase/manual/20261123_record_security_hardening.sql`), and the workflow
-(`supabase/MIGRATION_TRACKING.md`) are prepared and locally validated. **No hosted ledger mutation or
-migration 003 was run.** No unexpected migration or production data was found.
+**Resolved in Phase 21.5:** the hosted `service_role` 403 defect is fixed. Real PostgREST reads with
+the service-role key now return 200 on all eight application relations. `service_role` also retains
+Supabase bootstrap `REFERENCES`/`TRIGGER`/`TRUNCATE` (and `MAINTAIN` where supported) privileges and
+the postgres default ACL grants it `arwdDxtm` for future tables; this is server-only but broader than strict DML least privilege and
+is documented as a residual hardening item.
+
+**Ledger:** `supabase_migrations.schema_migrations` now contains exactly `202611230001`,
+`202611230002`, and `202611230003`, with zero unexpected versions. The reconciliation and guarded
+record scripts are retained under `supabase/manual/`; the canonical state is
+`supabase/MIGRATION_TRACKING.md`. No unexpected migration or production data was found.
 
 ## 4. Local production verification
 
-| Check                                  | Result                                                                        |
-| -------------------------------------- | ----------------------------------------------------------------------------- |
-| `npm run verify`                       | Exit 0; 20 files / 109 tests; lint, typecheck, builds, web build              |
-| `npm audit --audit-level=high`         | 0 vulnerabilities                                                             |
-| Secret scan (project scanner, tracked) | 216 tracked; 0 hardcoded-secret findings; one expected `.env` hygiene finding |
-| `npm run build:web`                    | Passed; Proxy recognized as middleware                                        |
-| Local `next start`                     | `/api/health` 200; public routes 200                                          |
-| axe WCAG A/AA, eight public pages      | 0 violations                                                                  |
-| Mobile 390 px, five public pages       | No horizontal overflow                                                        |
-| Signed-out `/dashboard`                | Redirects to `/login?next=%2Fdashboard`                                       |
+| Check                                  | Result                                                           |
+| -------------------------------------- | ---------------------------------------------------------------- |
+| `npm run verify`                       | Exit 0; 20 files / 109 tests; lint, typecheck, builds, web build |
+| `npm audit --audit-level=high`         | 0 vulnerabilities                                                |
+| Hosted synthetic validation            | 60/60 passed; zero app rows and auth users after cleanup         |
+| Secret scan (project scanner, tracked) | 0 hardcoded-secret findings; one expected `.env` hygiene finding |
+| `npm run build:web`                    | Passed; Proxy recognized as middleware                           |
+| Local `next start`                     | `/api/health` 200; public routes 200                             |
+| axe WCAG A/AA, eight public pages      | 0 violations                                                     |
+| Mobile 390 px, five public pages       | No horizontal overflow                                           |
+| Signed-out `/dashboard`                | Redirects to `/login?next=%2Fdashboard`                          |
 
 The axe pass found two genuine UI issues, which were fixed before the final run:
 
@@ -161,10 +170,12 @@ Only after explicit approval:
   production-server header/browser checks and tests. Deployed CSP/HSTS/cookie behavior is **NOT TESTED**.
 - Rate limits use an atomic Postgres fixed-window function when migration 003 is available, with a
   bounded per-process memory fallback. The DB path is shared across instances; the fallback is not.
-  Migration 003 is prepared and locally verified (including 40 real concurrent connections) but
-  **NOT APPLIED** to hosted Supabase.
-- Hosted `service_role` lacks application DML until 003 is applied. No hosted rate-limiter, token
-  cleanup, or service-role REST success is claimed.
+  Migration 003 is **APPLIED** hosted, and the DB limiter path passed synthetic hosted checks. The
+  prior 40-connection result was local PostgreSQL evidence, not hosted concurrency proof.
+- Hosted `service_role` DML works and real PostgREST reads returned 200. It also retains bootstrap
+  `REFERENCES`/`TRIGGER`/`TRUNCATE` (and `MAINTAIN` where supported) privileges and a broad
+  `arwdDxtm` default ACL; least-privilege
+  tightening remains a future decision.
 - The GitHub `repo` scope is broad; the application only issues GETs and does not persist the
   provider token.
 - No monitoring, alerting, MFA requirement, audit log, or scheduled cleanup of expired CLI
@@ -184,15 +195,16 @@ Only after explicit approval:
 
 ## 10. Honest conclusion
 
-The compromised OAuth secret was rotated and the old secret deleted. Hosted Supabase 001/002 schema
-effects remain internally consistent, with RLS and grant hardening passing 17/17 in Phase 21.2. Phase
-21.4 found a separate, critical hosted defect: `service_role` lacks application DML, so server-side
-admin paths would fail with 403. Migration 003 is revised and locally verified but not applied.
+The compromised OAuth secret was rotated and the old secret deleted. Hosted Supabase now has an
+accurate three-row ledger and applied 001/002/003. The Phase 21.4 `service_role` 403 defect is
+resolved; real PostgREST reads return 200. The 60/60 low-volume synthetic suite verified anonymous
+and authenticated denials, tenant isolation, limiter behavior, bounded cleanup, and token cleanup,
+with zero rows or identities left behind.
 
 The local production build, 20-file/109-test suite, dependency audit, secret scan, and a true
-40-connection limiter test pass. Hosted rate limiting, token cleanup, post-003 RLS, and service-role
-REST success are **NOT TESTED**.
+40-connection local limiter test pass. Hosted concurrency/load, the `supabase` CLI dry-run, live
+OAuth, live CLI, deployed CSP/HSTS/cookies, and two-browser isolation remain **NOT TESTED**.
 
 The application is **not deployed**. Vercel classifies the initial deployment as Production, and the
 owner has not authorized it. No live URL, GitHub sign-in, CLI upload, deployed dashboard, or
-two-account browser test is claimed.
+two-account browser test is claimed. Database readiness does not authorize deployment.

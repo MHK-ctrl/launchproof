@@ -1,0 +1,2506 @@
+{
+  "roles": [
+    {
+      "name": "anon",
+      "super": false,
+      "inherit": true,
+      "can_login": false,
+      "bypass_rls": false
+    },
+    {
+      "name": "authenticated",
+      "super": false,
+      "inherit": true,
+      "can_login": false,
+      "bypass_rls": false
+    },
+    {
+      "name": "authenticator",
+      "super": false,
+      "inherit": false,
+      "can_login": true,
+      "bypass_rls": false
+    },
+    {
+      "name": "postgres",
+      "super": false,
+      "inherit": true,
+      "can_login": true,
+      "bypass_rls": true
+    },
+    {
+      "name": "service_role",
+      "super": false,
+      "inherit": true,
+      "can_login": false,
+      "bypass_rls": true
+    },
+    {
+      "name": "supabase_admin",
+      "super": true,
+      "inherit": true,
+      "can_login": true,
+      "bypass_rls": true
+    }
+  ],
+  "ledger": {
+    "exists": false
+  },
+  "columns": [
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "cli_auth_requests",
+      "schema": "public",
+      "ordinal": 1,
+      "nullable": "NO",
+      "udt_name": "uuid",
+      "default_value": "gen_random_uuid()"
+    },
+    {
+      "name": "user_id",
+      "type": "uuid",
+      "table": "cli_auth_requests",
+      "schema": "public",
+      "ordinal": 2,
+      "nullable": "NO",
+      "udt_name": "uuid",
+      "default_value": null
+    },
+    {
+      "name": "state",
+      "type": "text",
+      "table": "cli_auth_requests",
+      "schema": "public",
+      "ordinal": 3,
+      "nullable": "NO",
+      "udt_name": "text",
+      "default_value": null
+    },
+    {
+      "name": "code_hash",
+      "type": "text",
+      "table": "cli_auth_requests",
+      "schema": "public",
+      "ordinal": 4,
+      "nullable": "NO",
+      "udt_name": "text",
+      "default_value": null
+    },
+    {
+      "name": "code_challenge",
+      "type": "text",
+      "table": "cli_auth_requests",
+      "schema": "public",
+      "ordinal": 5,
+      "nullable": "NO",
+      "udt_name": "text",
+      "default_value": null
+    },
+    {
+      "name": "redirect_port",
+      "type": "integer",
+      "table": "cli_auth_requests",
+      "schema": "public",
+      "ordinal": 6,
+      "nullable": "NO",
+      "udt_name": "int4",
+      "default_value": null
+    },
+    {
+      "name": "expires_at",
+      "type": "timestamp with time zone",
+      "table": "cli_auth_requests",
+      "schema": "public",
+      "ordinal": 7,
+      "nullable": "NO",
+      "udt_name": "timestamptz",
+      "default_value": null
+    },
+    {
+      "name": "approved_at",
+      "type": "timestamp with time zone",
+      "table": "cli_auth_requests",
+      "schema": "public",
+      "ordinal": 8,
+      "nullable": "YES",
+      "udt_name": "timestamptz",
+      "default_value": null
+    },
+    {
+      "name": "consumed_at",
+      "type": "timestamp with time zone",
+      "table": "cli_auth_requests",
+      "schema": "public",
+      "ordinal": 9,
+      "nullable": "YES",
+      "udt_name": "timestamptz",
+      "default_value": null
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "table": "cli_auth_requests",
+      "schema": "public",
+      "ordinal": 10,
+      "nullable": "NO",
+      "udt_name": "timestamptz",
+      "default_value": "now()"
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "cli_tokens",
+      "schema": "public",
+      "ordinal": 1,
+      "nullable": "NO",
+      "udt_name": "uuid",
+      "default_value": "gen_random_uuid()"
+    },
+    {
+      "name": "user_id",
+      "type": "uuid",
+      "table": "cli_tokens",
+      "schema": "public",
+      "ordinal": 2,
+      "nullable": "NO",
+      "udt_name": "uuid",
+      "default_value": null
+    },
+    {
+      "name": "token_hash",
+      "type": "text",
+      "table": "cli_tokens",
+      "schema": "public",
+      "ordinal": 3,
+      "nullable": "NO",
+      "udt_name": "text",
+      "default_value": null
+    },
+    {
+      "name": "label",
+      "type": "text",
+      "table": "cli_tokens",
+      "schema": "public",
+      "ordinal": 4,
+      "nullable": "YES",
+      "udt_name": "text",
+      "default_value": null
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "table": "cli_tokens",
+      "schema": "public",
+      "ordinal": 5,
+      "nullable": "NO",
+      "udt_name": "timestamptz",
+      "default_value": "now()"
+    },
+    {
+      "name": "last_used_at",
+      "type": "timestamp with time zone",
+      "table": "cli_tokens",
+      "schema": "public",
+      "ordinal": 6,
+      "nullable": "YES",
+      "udt_name": "timestamptz",
+      "default_value": null
+    },
+    {
+      "name": "expires_at",
+      "type": "timestamp with time zone",
+      "table": "cli_tokens",
+      "schema": "public",
+      "ordinal": 7,
+      "nullable": "NO",
+      "udt_name": "timestamptz",
+      "default_value": null
+    },
+    {
+      "name": "revoked_at",
+      "type": "timestamp with time zone",
+      "table": "cli_tokens",
+      "schema": "public",
+      "ordinal": 8,
+      "nullable": "YES",
+      "udt_name": "timestamptz",
+      "default_value": null
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "findings",
+      "schema": "public",
+      "ordinal": 1,
+      "nullable": "NO",
+      "udt_name": "uuid",
+      "default_value": "gen_random_uuid()"
+    },
+    {
+      "name": "user_id",
+      "type": "uuid",
+      "table": "findings",
+      "schema": "public",
+      "ordinal": 2,
+      "nullable": "NO",
+      "udt_name": "uuid",
+      "default_value": null
+    },
+    {
+      "name": "scan_id",
+      "type": "uuid",
+      "table": "findings",
+      "schema": "public",
+      "ordinal": 3,
+      "nullable": "NO",
+      "udt_name": "uuid",
+      "default_value": null
+    },
+    {
+      "name": "finding_key",
+      "type": "text",
+      "table": "findings",
+      "schema": "public",
+      "ordinal": 4,
+      "nullable": "NO",
+      "udt_name": "text",
+      "default_value": null
+    },
+    {
+      "name": "rule_id",
+      "type": "text",
+      "table": "findings",
+      "schema": "public",
+      "ordinal": 5,
+      "nullable": "NO",
+      "udt_name": "text",
+      "default_value": null
+    },
+    {
+      "name": "severity",
+      "type": "text",
+      "table": "findings",
+      "schema": "public",
+      "ordinal": 6,
+      "nullable": "NO",
+      "udt_name": "text",
+      "default_value": null
+    },
+    {
+      "name": "title",
+      "type": "text",
+      "table": "findings",
+      "schema": "public",
+      "ordinal": 7,
+      "nullable": "NO",
+      "udt_name": "text",
+      "default_value": null
+    },
+    {
+      "name": "description",
+      "type": "text",
+      "table": "findings",
+      "schema": "public",
+      "ordinal": 8,
+      "nullable": "NO",
+      "udt_name": "text",
+      "default_value": null
+    },
+    {
+      "name": "category",
+      "type": "text",
+      "table": "findings",
+      "schema": "public",
+      "ordinal": 9,
+      "nullable": "YES",
+      "udt_name": "text",
+      "default_value": null
+    },
+    {
+      "name": "remediation",
+      "type": "text",
+      "table": "findings",
+      "schema": "public",
+      "ordinal": 10,
+      "nullable": "YES",
+      "udt_name": "text",
+      "default_value": null
+    },
+    {
+      "name": "relative_file_path",
+      "type": "text",
+      "table": "findings",
+      "schema": "public",
+      "ordinal": 11,
+      "nullable": "YES",
+      "udt_name": "text",
+      "default_value": null
+    },
+    {
+      "name": "line_number",
+      "type": "integer",
+      "table": "findings",
+      "schema": "public",
+      "ordinal": 12,
+      "nullable": "YES",
+      "udt_name": "int4",
+      "default_value": null
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "table": "findings",
+      "schema": "public",
+      "ordinal": 13,
+      "nullable": "NO",
+      "udt_name": "timestamptz",
+      "default_value": "now()"
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "profiles",
+      "schema": "public",
+      "ordinal": 1,
+      "nullable": "NO",
+      "udt_name": "uuid",
+      "default_value": null
+    },
+    {
+      "name": "github_user_id",
+      "type": "bigint",
+      "table": "profiles",
+      "schema": "public",
+      "ordinal": 2,
+      "nullable": "YES",
+      "udt_name": "int8",
+      "default_value": null
+    },
+    {
+      "name": "github_username",
+      "type": "text",
+      "table": "profiles",
+      "schema": "public",
+      "ordinal": 3,
+      "nullable": "YES",
+      "udt_name": "text",
+      "default_value": null
+    },
+    {
+      "name": "avatar_url",
+      "type": "text",
+      "table": "profiles",
+      "schema": "public",
+      "ordinal": 4,
+      "nullable": "YES",
+      "udt_name": "text",
+      "default_value": null
+    },
+    {
+      "name": "email",
+      "type": "text",
+      "table": "profiles",
+      "schema": "public",
+      "ordinal": 5,
+      "nullable": "YES",
+      "udt_name": "text",
+      "default_value": null
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "table": "profiles",
+      "schema": "public",
+      "ordinal": 6,
+      "nullable": "NO",
+      "udt_name": "timestamptz",
+      "default_value": "now()"
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamp with time zone",
+      "table": "profiles",
+      "schema": "public",
+      "ordinal": 7,
+      "nullable": "NO",
+      "udt_name": "timestamptz",
+      "default_value": "now()"
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "repositories",
+      "schema": "public",
+      "ordinal": 1,
+      "nullable": "NO",
+      "udt_name": "uuid",
+      "default_value": "gen_random_uuid()"
+    },
+    {
+      "name": "user_id",
+      "type": "uuid",
+      "table": "repositories",
+      "schema": "public",
+      "ordinal": 2,
+      "nullable": "NO",
+      "udt_name": "uuid",
+      "default_value": null
+    },
+    {
+      "name": "github_repository_id",
+      "type": "bigint",
+      "table": "repositories",
+      "schema": "public",
+      "ordinal": 3,
+      "nullable": "NO",
+      "udt_name": "int8",
+      "default_value": null
+    },
+    {
+      "name": "owner",
+      "type": "text",
+      "table": "repositories",
+      "schema": "public",
+      "ordinal": 4,
+      "nullable": "NO",
+      "udt_name": "text",
+      "default_value": null
+    },
+    {
+      "name": "name",
+      "type": "text",
+      "table": "repositories",
+      "schema": "public",
+      "ordinal": 5,
+      "nullable": "NO",
+      "udt_name": "text",
+      "default_value": null
+    },
+    {
+      "name": "full_name",
+      "type": "text",
+      "table": "repositories",
+      "schema": "public",
+      "ordinal": 6,
+      "nullable": "NO",
+      "udt_name": "text",
+      "default_value": null
+    },
+    {
+      "name": "html_url",
+      "type": "text",
+      "table": "repositories",
+      "schema": "public",
+      "ordinal": 7,
+      "nullable": "NO",
+      "udt_name": "text",
+      "default_value": null
+    },
+    {
+      "name": "default_branch",
+      "type": "text",
+      "table": "repositories",
+      "schema": "public",
+      "ordinal": 8,
+      "nullable": "YES",
+      "udt_name": "text",
+      "default_value": null
+    },
+    {
+      "name": "visibility",
+      "type": "text",
+      "table": "repositories",
+      "schema": "public",
+      "ordinal": 9,
+      "nullable": "NO",
+      "udt_name": "text",
+      "default_value": null
+    },
+    {
+      "name": "connection_status",
+      "type": "text",
+      "table": "repositories",
+      "schema": "public",
+      "ordinal": 10,
+      "nullable": "NO",
+      "udt_name": "text",
+      "default_value": "'active'::text"
+    },
+    {
+      "name": "connected_at",
+      "type": "timestamp with time zone",
+      "table": "repositories",
+      "schema": "public",
+      "ordinal": 11,
+      "nullable": "NO",
+      "udt_name": "timestamptz",
+      "default_value": "now()"
+    },
+    {
+      "name": "updated_at",
+      "type": "timestamp with time zone",
+      "table": "repositories",
+      "schema": "public",
+      "ordinal": 12,
+      "nullable": "NO",
+      "udt_name": "timestamptz",
+      "default_value": "now()"
+    },
+    {
+      "name": "repository_id",
+      "type": "uuid",
+      "table": "repository_scan_stats",
+      "schema": "public",
+      "ordinal": 1,
+      "nullable": "YES",
+      "udt_name": "uuid",
+      "default_value": null
+    },
+    {
+      "name": "user_id",
+      "type": "uuid",
+      "table": "repository_scan_stats",
+      "schema": "public",
+      "ordinal": 2,
+      "nullable": "YES",
+      "udt_name": "uuid",
+      "default_value": null
+    },
+    {
+      "name": "scan_count",
+      "type": "bigint",
+      "table": "repository_scan_stats",
+      "schema": "public",
+      "ordinal": 3,
+      "nullable": "YES",
+      "udt_name": "int8",
+      "default_value": null
+    },
+    {
+      "name": "last_scan_at",
+      "type": "timestamp with time zone",
+      "table": "repository_scan_stats",
+      "schema": "public",
+      "ordinal": 4,
+      "nullable": "YES",
+      "udt_name": "timestamptz",
+      "default_value": null
+    },
+    {
+      "name": "last_successful_scan_at",
+      "type": "timestamp with time zone",
+      "table": "repository_scan_stats",
+      "schema": "public",
+      "ordinal": 5,
+      "nullable": "YES",
+      "udt_name": "timestamptz",
+      "default_value": null
+    },
+    {
+      "name": "latest_gate",
+      "type": "text",
+      "table": "repository_scan_stats",
+      "schema": "public",
+      "ordinal": 6,
+      "nullable": "YES",
+      "udt_name": "text",
+      "default_value": null
+    },
+    {
+      "name": "id",
+      "type": "uuid",
+      "table": "scans",
+      "schema": "public",
+      "ordinal": 1,
+      "nullable": "NO",
+      "udt_name": "uuid",
+      "default_value": "gen_random_uuid()"
+    },
+    {
+      "name": "user_id",
+      "type": "uuid",
+      "table": "scans",
+      "schema": "public",
+      "ordinal": 2,
+      "nullable": "NO",
+      "udt_name": "uuid",
+      "default_value": null
+    },
+    {
+      "name": "repository_id",
+      "type": "uuid",
+      "table": "scans",
+      "schema": "public",
+      "ordinal": 3,
+      "nullable": "NO",
+      "udt_name": "uuid",
+      "default_value": null
+    },
+    {
+      "name": "client_scan_id",
+      "type": "text",
+      "table": "scans",
+      "schema": "public",
+      "ordinal": 4,
+      "nullable": "NO",
+      "udt_name": "text",
+      "default_value": null
+    },
+    {
+      "name": "scan_status",
+      "type": "text",
+      "table": "scans",
+      "schema": "public",
+      "ordinal": 5,
+      "nullable": "NO",
+      "udt_name": "text",
+      "default_value": "'completed'::text"
+    },
+    {
+      "name": "security_gate",
+      "type": "text",
+      "table": "scans",
+      "schema": "public",
+      "ordinal": 6,
+      "nullable": "NO",
+      "udt_name": "text",
+      "default_value": null
+    },
+    {
+      "name": "scanner_version",
+      "type": "text",
+      "table": "scans",
+      "schema": "public",
+      "ordinal": 7,
+      "nullable": "NO",
+      "udt_name": "text",
+      "default_value": null
+    },
+    {
+      "name": "commit_sha",
+      "type": "text",
+      "table": "scans",
+      "schema": "public",
+      "ordinal": 8,
+      "nullable": "YES",
+      "udt_name": "text",
+      "default_value": null
+    },
+    {
+      "name": "branch",
+      "type": "text",
+      "table": "scans",
+      "schema": "public",
+      "ordinal": 9,
+      "nullable": "YES",
+      "udt_name": "text",
+      "default_value": null
+    },
+    {
+      "name": "started_at",
+      "type": "timestamp with time zone",
+      "table": "scans",
+      "schema": "public",
+      "ordinal": 10,
+      "nullable": "YES",
+      "udt_name": "timestamptz",
+      "default_value": null
+    },
+    {
+      "name": "completed_at",
+      "type": "timestamp with time zone",
+      "table": "scans",
+      "schema": "public",
+      "ordinal": 11,
+      "nullable": "YES",
+      "udt_name": "timestamptz",
+      "default_value": null
+    },
+    {
+      "name": "uploaded_at",
+      "type": "timestamp with time zone",
+      "table": "scans",
+      "schema": "public",
+      "ordinal": 12,
+      "nullable": "NO",
+      "udt_name": "timestamptz",
+      "default_value": "now()"
+    },
+    {
+      "name": "total_checks",
+      "type": "integer",
+      "table": "scans",
+      "schema": "public",
+      "ordinal": 13,
+      "nullable": "NO",
+      "udt_name": "int4",
+      "default_value": "0"
+    },
+    {
+      "name": "pass_count",
+      "type": "integer",
+      "table": "scans",
+      "schema": "public",
+      "ordinal": 14,
+      "nullable": "NO",
+      "udt_name": "int4",
+      "default_value": "0"
+    },
+    {
+      "name": "fail_count",
+      "type": "integer",
+      "table": "scans",
+      "schema": "public",
+      "ordinal": 15,
+      "nullable": "NO",
+      "udt_name": "int4",
+      "default_value": "0"
+    },
+    {
+      "name": "warning_count",
+      "type": "integer",
+      "table": "scans",
+      "schema": "public",
+      "ordinal": 16,
+      "nullable": "NO",
+      "udt_name": "int4",
+      "default_value": "0"
+    },
+    {
+      "name": "skipped_count",
+      "type": "integer",
+      "table": "scans",
+      "schema": "public",
+      "ordinal": 17,
+      "nullable": "NO",
+      "udt_name": "int4",
+      "default_value": "0"
+    },
+    {
+      "name": "not_verified_count",
+      "type": "integer",
+      "table": "scans",
+      "schema": "public",
+      "ordinal": 18,
+      "nullable": "NO",
+      "udt_name": "int4",
+      "default_value": "0"
+    },
+    {
+      "name": "error_count",
+      "type": "integer",
+      "table": "scans",
+      "schema": "public",
+      "ordinal": 19,
+      "nullable": "NO",
+      "udt_name": "int4",
+      "default_value": "0"
+    },
+    {
+      "name": "total_findings",
+      "type": "integer",
+      "table": "scans",
+      "schema": "public",
+      "ordinal": 20,
+      "nullable": "NO",
+      "udt_name": "int4",
+      "default_value": "0"
+    },
+    {
+      "name": "severity_counts",
+      "type": "jsonb",
+      "table": "scans",
+      "schema": "public",
+      "ordinal": 21,
+      "nullable": "NO",
+      "udt_name": "jsonb",
+      "default_value": "'{}'::jsonb"
+    },
+    {
+      "name": "summary",
+      "type": "jsonb",
+      "table": "scans",
+      "schema": "public",
+      "ordinal": 22,
+      "nullable": "NO",
+      "udt_name": "jsonb",
+      "default_value": "'{}'::jsonb"
+    },
+    {
+      "name": "checks",
+      "type": "jsonb",
+      "table": "scans",
+      "schema": "public",
+      "ordinal": 23,
+      "nullable": "NO",
+      "udt_name": "jsonb",
+      "default_value": "'[]'::jsonb"
+    },
+    {
+      "name": "limitations",
+      "type": "jsonb",
+      "table": "scans",
+      "schema": "public",
+      "ordinal": 24,
+      "nullable": "NO",
+      "udt_name": "jsonb",
+      "default_value": "'[]'::jsonb"
+    },
+    {
+      "name": "report_format_version",
+      "type": "integer",
+      "table": "scans",
+      "schema": "public",
+      "ordinal": 25,
+      "nullable": "NO",
+      "udt_name": "int4",
+      "default_value": "1"
+    },
+    {
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "table": "scans",
+      "schema": "public",
+      "ordinal": 26,
+      "nullable": "NO",
+      "udt_name": "timestamptz",
+      "default_value": "now()"
+    }
+  ],
+  "indexes": [
+    {
+      "name": "cli_auth_requests_code_hash_key",
+      "table": "cli_auth_requests",
+      "schema": "public",
+      "definition": "CREATE UNIQUE INDEX cli_auth_requests_code_hash_key ON public.cli_auth_requests USING btree (code_hash)"
+    },
+    {
+      "name": "cli_auth_requests_expiry_idx",
+      "table": "cli_auth_requests",
+      "schema": "public",
+      "definition": "CREATE INDEX cli_auth_requests_expiry_idx ON public.cli_auth_requests USING btree (expires_at)"
+    },
+    {
+      "name": "cli_auth_requests_pkey",
+      "table": "cli_auth_requests",
+      "schema": "public",
+      "definition": "CREATE UNIQUE INDEX cli_auth_requests_pkey ON public.cli_auth_requests USING btree (id)"
+    },
+    {
+      "name": "cli_auth_requests_state_key",
+      "table": "cli_auth_requests",
+      "schema": "public",
+      "definition": "CREATE UNIQUE INDEX cli_auth_requests_state_key ON public.cli_auth_requests USING btree (state)"
+    },
+    {
+      "name": "cli_tokens_pkey",
+      "table": "cli_tokens",
+      "schema": "public",
+      "definition": "CREATE UNIQUE INDEX cli_tokens_pkey ON public.cli_tokens USING btree (id)"
+    },
+    {
+      "name": "cli_tokens_token_hash_key",
+      "table": "cli_tokens",
+      "schema": "public",
+      "definition": "CREATE UNIQUE INDEX cli_tokens_token_hash_key ON public.cli_tokens USING btree (token_hash)"
+    },
+    {
+      "name": "cli_tokens_user_id_idx",
+      "table": "cli_tokens",
+      "schema": "public",
+      "definition": "CREATE INDEX cli_tokens_user_id_idx ON public.cli_tokens USING btree (user_id)"
+    },
+    {
+      "name": "findings_pkey",
+      "table": "findings",
+      "schema": "public",
+      "definition": "CREATE UNIQUE INDEX findings_pkey ON public.findings USING btree (id)"
+    },
+    {
+      "name": "findings_scan_id_finding_key_key",
+      "table": "findings",
+      "schema": "public",
+      "definition": "CREATE UNIQUE INDEX findings_scan_id_finding_key_key ON public.findings USING btree (scan_id, finding_key)"
+    },
+    {
+      "name": "findings_scan_severity_idx",
+      "table": "findings",
+      "schema": "public",
+      "definition": "CREATE INDEX findings_scan_severity_idx ON public.findings USING btree (scan_id, severity)"
+    },
+    {
+      "name": "findings_user_id_idx",
+      "table": "findings",
+      "schema": "public",
+      "definition": "CREATE INDEX findings_user_id_idx ON public.findings USING btree (user_id)"
+    },
+    {
+      "name": "profiles_github_user_id_key",
+      "table": "profiles",
+      "schema": "public",
+      "definition": "CREATE UNIQUE INDEX profiles_github_user_id_key ON public.profiles USING btree (github_user_id)"
+    },
+    {
+      "name": "profiles_pkey",
+      "table": "profiles",
+      "schema": "public",
+      "definition": "CREATE UNIQUE INDEX profiles_pkey ON public.profiles USING btree (id)"
+    },
+    {
+      "name": "repositories_id_user_id_key",
+      "table": "repositories",
+      "schema": "public",
+      "definition": "CREATE UNIQUE INDEX repositories_id_user_id_key ON public.repositories USING btree (id, user_id)"
+    },
+    {
+      "name": "repositories_pkey",
+      "table": "repositories",
+      "schema": "public",
+      "definition": "CREATE UNIQUE INDEX repositories_pkey ON public.repositories USING btree (id)"
+    },
+    {
+      "name": "repositories_user_id_full_name_key",
+      "table": "repositories",
+      "schema": "public",
+      "definition": "CREATE UNIQUE INDEX repositories_user_id_full_name_key ON public.repositories USING btree (user_id, full_name)"
+    },
+    {
+      "name": "repositories_user_id_github_repository_id_key",
+      "table": "repositories",
+      "schema": "public",
+      "definition": "CREATE UNIQUE INDEX repositories_user_id_github_repository_id_key ON public.repositories USING btree (user_id, github_repository_id)"
+    },
+    {
+      "name": "repositories_user_id_idx",
+      "table": "repositories",
+      "schema": "public",
+      "definition": "CREATE INDEX repositories_user_id_idx ON public.repositories USING btree (user_id)"
+    },
+    {
+      "name": "repositories_user_status_idx",
+      "table": "repositories",
+      "schema": "public",
+      "definition": "CREATE INDEX repositories_user_status_idx ON public.repositories USING btree (user_id, connection_status)"
+    },
+    {
+      "name": "scans_id_user_id_key",
+      "table": "scans",
+      "schema": "public",
+      "definition": "CREATE UNIQUE INDEX scans_id_user_id_key ON public.scans USING btree (id, user_id)"
+    },
+    {
+      "name": "scans_pkey",
+      "table": "scans",
+      "schema": "public",
+      "definition": "CREATE UNIQUE INDEX scans_pkey ON public.scans USING btree (id)"
+    },
+    {
+      "name": "scans_repository_id_uploaded_at_idx",
+      "table": "scans",
+      "schema": "public",
+      "definition": "CREATE INDEX scans_repository_id_uploaded_at_idx ON public.scans USING btree (repository_id, uploaded_at DESC)"
+    },
+    {
+      "name": "scans_user_gate_idx",
+      "table": "scans",
+      "schema": "public",
+      "definition": "CREATE INDEX scans_user_gate_idx ON public.scans USING btree (user_id, security_gate)"
+    },
+    {
+      "name": "scans_user_id_client_scan_id_key",
+      "table": "scans",
+      "schema": "public",
+      "definition": "CREATE UNIQUE INDEX scans_user_id_client_scan_id_key ON public.scans USING btree (user_id, client_scan_id)"
+    },
+    {
+      "name": "scans_user_id_uploaded_at_idx",
+      "table": "scans",
+      "schema": "public",
+      "definition": "CREATE INDEX scans_user_id_uploaded_at_idx ON public.scans USING btree (user_id, uploaded_at DESC)"
+    }
+  ],
+  "database": "postgres",
+  "policies": [
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "cli_auth_requests",
+      "permissive": "PERMISSIVE",
+      "policyname": "cli_auth_requests_insert_own",
+      "schemaname": "public",
+      "with_check": "(( SELECT auth.uid() AS uid) = user_id)"
+    },
+    {
+      "cmd": "DELETE",
+      "qual": "(( SELECT auth.uid() AS uid) = user_id)",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "findings",
+      "permissive": "PERMISSIVE",
+      "policyname": "findings_delete_own",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "findings",
+      "permissive": "PERMISSIVE",
+      "policyname": "findings_insert_own",
+      "schemaname": "public",
+      "with_check": "(( SELECT auth.uid() AS uid) = user_id)"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(( SELECT auth.uid() AS uid) = user_id)",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "findings",
+      "permissive": "PERMISSIVE",
+      "policyname": "findings_select_own",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "(( SELECT auth.uid() AS uid) = user_id)",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "findings",
+      "permissive": "PERMISSIVE",
+      "policyname": "findings_update_own",
+      "schemaname": "public",
+      "with_check": "(( SELECT auth.uid() AS uid) = user_id)"
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "profiles",
+      "permissive": "PERMISSIVE",
+      "policyname": "profiles_insert_own",
+      "schemaname": "public",
+      "with_check": "(( SELECT auth.uid() AS uid) = id)"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(( SELECT auth.uid() AS uid) = id)",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "profiles",
+      "permissive": "PERMISSIVE",
+      "policyname": "profiles_select_own",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "(( SELECT auth.uid() AS uid) = id)",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "profiles",
+      "permissive": "PERMISSIVE",
+      "policyname": "profiles_update_own",
+      "schemaname": "public",
+      "with_check": "(( SELECT auth.uid() AS uid) = id)"
+    },
+    {
+      "cmd": "DELETE",
+      "qual": "(( SELECT auth.uid() AS uid) = user_id)",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "repositories",
+      "permissive": "PERMISSIVE",
+      "policyname": "repositories_delete_own",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "repositories",
+      "permissive": "PERMISSIVE",
+      "policyname": "repositories_insert_own",
+      "schemaname": "public",
+      "with_check": "(( SELECT auth.uid() AS uid) = user_id)"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(( SELECT auth.uid() AS uid) = user_id)",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "repositories",
+      "permissive": "PERMISSIVE",
+      "policyname": "repositories_select_own",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "(( SELECT auth.uid() AS uid) = user_id)",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "repositories",
+      "permissive": "PERMISSIVE",
+      "policyname": "repositories_update_own",
+      "schemaname": "public",
+      "with_check": "(( SELECT auth.uid() AS uid) = user_id)"
+    },
+    {
+      "cmd": "DELETE",
+      "qual": "(( SELECT auth.uid() AS uid) = user_id)",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "scans",
+      "permissive": "PERMISSIVE",
+      "policyname": "scans_delete_own",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "INSERT",
+      "qual": null,
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "scans",
+      "permissive": "PERMISSIVE",
+      "policyname": "scans_insert_own",
+      "schemaname": "public",
+      "with_check": "(( SELECT auth.uid() AS uid) = user_id)"
+    },
+    {
+      "cmd": "SELECT",
+      "qual": "(( SELECT auth.uid() AS uid) = user_id)",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "scans",
+      "permissive": "PERMISSIVE",
+      "policyname": "scans_select_own",
+      "schemaname": "public",
+      "with_check": null
+    },
+    {
+      "cmd": "UPDATE",
+      "qual": "(( SELECT auth.uid() AS uid) = user_id)",
+      "roles": [
+        "authenticated"
+      ],
+      "tablename": "scans",
+      "permissive": "PERMISSIVE",
+      "policyname": "scans_update_own",
+      "schemaname": "public",
+      "with_check": "(( SELECT auth.uid() AS uid) = user_id)"
+    }
+  ],
+  "triggers": [
+    {
+      "name": "on_auth_user_created",
+      "table": "users",
+      "schema": "auth",
+      "enabled": "O",
+      "definition": "CREATE TRIGGER on_auth_user_created AFTER INSERT ON auth.users FOR EACH ROW EXECUTE FUNCTION handle_new_user()"
+    },
+    {
+      "name": "profiles_touch_updated_at",
+      "table": "profiles",
+      "schema": "public",
+      "enabled": "O",
+      "definition": "CREATE TRIGGER profiles_touch_updated_at BEFORE UPDATE ON profiles FOR EACH ROW EXECUTE FUNCTION touch_updated_at()"
+    },
+    {
+      "name": "repositories_touch_updated_at",
+      "table": "repositories",
+      "schema": "public",
+      "enabled": "O",
+      "definition": "CREATE TRIGGER repositories_touch_updated_at BEFORE UPDATE ON repositories FOR EACH ROW EXECUTE FUNCTION touch_updated_at()"
+    }
+  ],
+  "functions": [
+    {
+      "acl": null,
+      "name": "handle_new_user",
+      "config": [
+        "search_path=\"\""
+      ],
+      "result": "trigger",
+      "schema": "public",
+      "definition": "CREATE OR REPLACE FUNCTION public.handle_new_user()\n RETURNS trigger\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO ''\nAS $function$\nbegin\n  insert into public.profiles (id, github_username, avatar_url, email)\n  values (\n    new.id,\n    coalesce(\n      new.raw_user_meta_data ->> 'user_name',\n      new.raw_user_meta_data ->> 'preferred_username'\n    ),\n    new.raw_user_meta_data ->> 'avatar_url',\n    new.email\n  )\n  on conflict (id) do nothing;\n  return new;\nend;\n$function$\n",
+      "volatility": "v",
+      "identity_args": "",
+      "security_definer": true
+    },
+    {
+      "acl": null,
+      "name": "touch_updated_at",
+      "config": [
+        "search_path=\"\""
+      ],
+      "result": "trigger",
+      "schema": "public",
+      "definition": "CREATE OR REPLACE FUNCTION public.touch_updated_at()\n RETURNS trigger\n LANGUAGE plpgsql\n SET search_path TO ''\nAS $function$\nbegin\n  new.updated_at = now();\n  return new;\nend;\n$function$\n",
+      "volatility": "v",
+      "identity_args": "",
+      "security_definer": false
+    }
+  ],
+  "relations": [
+    {
+      "rls": true,
+      "kind": "table",
+      "name": "cli_auth_requests",
+      "owner": "postgres",
+      "schema": "public",
+      "options": "",
+      "force_rls": false
+    },
+    {
+      "rls": true,
+      "kind": "table",
+      "name": "cli_tokens",
+      "owner": "postgres",
+      "schema": "public",
+      "options": "",
+      "force_rls": false
+    },
+    {
+      "rls": true,
+      "kind": "table",
+      "name": "findings",
+      "owner": "postgres",
+      "schema": "public",
+      "options": "",
+      "force_rls": false
+    },
+    {
+      "rls": true,
+      "kind": "table",
+      "name": "profiles",
+      "owner": "postgres",
+      "schema": "public",
+      "options": "",
+      "force_rls": false
+    },
+    {
+      "rls": true,
+      "kind": "table",
+      "name": "repositories",
+      "owner": "postgres",
+      "schema": "public",
+      "options": "",
+      "force_rls": false
+    },
+    {
+      "rls": false,
+      "kind": "view",
+      "name": "repository_scan_stats",
+      "owner": "postgres",
+      "schema": "public",
+      "options": "security_invoker=true",
+      "force_rls": false
+    },
+    {
+      "rls": true,
+      "kind": "table",
+      "name": "scans",
+      "owner": "postgres",
+      "schema": "public",
+      "options": "",
+      "force_rls": false
+    }
+  ],
+  "row_counts": {
+    "scans": 0,
+    "findings": 0,
+    "profiles": 0,
+    "auth_users": 0,
+    "cli_tokens": 0,
+    "repositories": 0,
+    "cli_auth_requests": 0,
+    "repository_scan_stats": 0
+  },
+  "captured_at": "2026-11-23T16:52:46.204107+00:00",
+  "constraints": [
+    {
+      "name": "cli_auth_requests_code_hash_key",
+      "type": "u",
+      "table": "cli_auth_requests",
+      "schema": "public",
+      "validated": true,
+      "definition": "UNIQUE (code_hash)"
+    },
+    {
+      "name": "cli_auth_requests_pkey",
+      "type": "p",
+      "table": "cli_auth_requests",
+      "schema": "public",
+      "validated": true,
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "name": "cli_auth_requests_redirect_port_check",
+      "type": "c",
+      "table": "cli_auth_requests",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK (redirect_port >= 1024 AND redirect_port <= 65535)"
+    },
+    {
+      "name": "cli_auth_requests_state_key",
+      "type": "u",
+      "table": "cli_auth_requests",
+      "schema": "public",
+      "validated": true,
+      "definition": "UNIQUE (state)"
+    },
+    {
+      "name": "cli_auth_requests_user_id_fkey",
+      "type": "f",
+      "table": "cli_auth_requests",
+      "schema": "public",
+      "validated": true,
+      "definition": "FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "cli_tokens_pkey",
+      "type": "p",
+      "table": "cli_tokens",
+      "schema": "public",
+      "validated": true,
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "name": "cli_tokens_token_hash_key",
+      "type": "u",
+      "table": "cli_tokens",
+      "schema": "public",
+      "validated": true,
+      "definition": "UNIQUE (token_hash)"
+    },
+    {
+      "name": "cli_tokens_user_id_fkey",
+      "type": "f",
+      "table": "cli_tokens",
+      "schema": "public",
+      "validated": true,
+      "definition": "FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "findings_line_number_check",
+      "type": "c",
+      "table": "findings",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK (line_number IS NULL OR line_number > 0)"
+    },
+    {
+      "name": "findings_pkey",
+      "type": "p",
+      "table": "findings",
+      "schema": "public",
+      "validated": true,
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "name": "findings_scan_id_finding_key_key",
+      "type": "u",
+      "table": "findings",
+      "schema": "public",
+      "validated": true,
+      "definition": "UNIQUE (scan_id, finding_key)"
+    },
+    {
+      "name": "findings_scan_id_user_id_fkey",
+      "type": "f",
+      "table": "findings",
+      "schema": "public",
+      "validated": true,
+      "definition": "FOREIGN KEY (scan_id, user_id) REFERENCES scans(id, user_id) ON DELETE CASCADE"
+    },
+    {
+      "name": "findings_severity_check",
+      "type": "c",
+      "table": "findings",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK (severity = ANY (ARRAY['critical'::text, 'high'::text, 'medium'::text, 'low'::text, 'info'::text]))"
+    },
+    {
+      "name": "profiles_github_user_id_key",
+      "type": "u",
+      "table": "profiles",
+      "schema": "public",
+      "validated": true,
+      "definition": "UNIQUE (github_user_id)"
+    },
+    {
+      "name": "profiles_id_fkey",
+      "type": "f",
+      "table": "profiles",
+      "schema": "public",
+      "validated": true,
+      "definition": "FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "profiles_pkey",
+      "type": "p",
+      "table": "profiles",
+      "schema": "public",
+      "validated": true,
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "name": "repositories_connection_status_check",
+      "type": "c",
+      "table": "repositories",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK (connection_status = ANY (ARRAY['active'::text, 'disconnected'::text]))"
+    },
+    {
+      "name": "repositories_github_repository_id_check",
+      "type": "c",
+      "table": "repositories",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK (github_repository_id > 0)"
+    },
+    {
+      "name": "repositories_id_user_id_key",
+      "type": "u",
+      "table": "repositories",
+      "schema": "public",
+      "validated": true,
+      "definition": "UNIQUE (id, user_id)"
+    },
+    {
+      "name": "repositories_pkey",
+      "type": "p",
+      "table": "repositories",
+      "schema": "public",
+      "validated": true,
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "name": "repositories_user_id_fkey",
+      "type": "f",
+      "table": "repositories",
+      "schema": "public",
+      "validated": true,
+      "definition": "FOREIGN KEY (user_id) REFERENCES profiles(id) ON DELETE CASCADE"
+    },
+    {
+      "name": "repositories_user_id_full_name_key",
+      "type": "u",
+      "table": "repositories",
+      "schema": "public",
+      "validated": true,
+      "definition": "UNIQUE (user_id, full_name)"
+    },
+    {
+      "name": "repositories_user_id_github_repository_id_key",
+      "type": "u",
+      "table": "repositories",
+      "schema": "public",
+      "validated": true,
+      "definition": "UNIQUE (user_id, github_repository_id)"
+    },
+    {
+      "name": "repositories_visibility_check",
+      "type": "c",
+      "table": "repositories",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK (visibility = ANY (ARRAY['public'::text, 'private'::text, 'internal'::text]))"
+    },
+    {
+      "name": "scans_error_count_check",
+      "type": "c",
+      "table": "scans",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK (error_count >= 0)"
+    },
+    {
+      "name": "scans_fail_count_check",
+      "type": "c",
+      "table": "scans",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK (fail_count >= 0)"
+    },
+    {
+      "name": "scans_id_user_id_key",
+      "type": "u",
+      "table": "scans",
+      "schema": "public",
+      "validated": true,
+      "definition": "UNIQUE (id, user_id)"
+    },
+    {
+      "name": "scans_not_verified_count_check",
+      "type": "c",
+      "table": "scans",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK (not_verified_count >= 0)"
+    },
+    {
+      "name": "scans_pass_count_check",
+      "type": "c",
+      "table": "scans",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK (pass_count >= 0)"
+    },
+    {
+      "name": "scans_pkey",
+      "type": "p",
+      "table": "scans",
+      "schema": "public",
+      "validated": true,
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "name": "scans_report_format_version_check",
+      "type": "c",
+      "table": "scans",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK (report_format_version = 1)"
+    },
+    {
+      "name": "scans_repository_id_user_id_fkey",
+      "type": "f",
+      "table": "scans",
+      "schema": "public",
+      "validated": true,
+      "definition": "FOREIGN KEY (repository_id, user_id) REFERENCES repositories(id, user_id) ON DELETE CASCADE"
+    },
+    {
+      "name": "scans_scan_status_check",
+      "type": "c",
+      "table": "scans",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK (scan_status = ANY (ARRAY['completed'::text, 'partial'::text, 'failed'::text]))"
+    },
+    {
+      "name": "scans_security_gate_check",
+      "type": "c",
+      "table": "scans",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK (security_gate = ANY (ARRAY['passed'::text, 'failed'::text, 'not-verified'::text]))"
+    },
+    {
+      "name": "scans_skipped_count_check",
+      "type": "c",
+      "table": "scans",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK (skipped_count >= 0)"
+    },
+    {
+      "name": "scans_total_checks_check",
+      "type": "c",
+      "table": "scans",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK (total_checks >= 0)"
+    },
+    {
+      "name": "scans_total_findings_check",
+      "type": "c",
+      "table": "scans",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK (total_findings >= 0)"
+    },
+    {
+      "name": "scans_user_id_client_scan_id_key",
+      "type": "u",
+      "table": "scans",
+      "schema": "public",
+      "validated": true,
+      "definition": "UNIQUE (user_id, client_scan_id)"
+    },
+    {
+      "name": "scans_warning_count_check",
+      "type": "c",
+      "table": "scans",
+      "schema": "public",
+      "validated": true,
+      "definition": "CHECK (warning_count >= 0)"
+    }
+  ],
+  "project_ref": "ypqpqgnviphwxddrpieq",
+  "current_user": "postgres",
+  "database_acl": "{=Tc/postgres,postgres=CTc/postgres,supabase_etl_admin=C/postgres,supabase_storage_admin=C/postgres,dashboard_user=CTc/postgres}",
+  "default_acls": [
+    {
+      "acl": "{postgres=X/postgres}",
+      "role": "postgres",
+      "schema": "public",
+      "object_type": "f"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=Dxtm/postgres,authenticated=Dxtm/postgres,service_role=Dxtm/postgres}",
+      "role": "postgres",
+      "schema": "public",
+      "object_type": "r"
+    },
+    {
+      "acl": "{postgres=rwU/postgres}",
+      "role": "postgres",
+      "schema": "public",
+      "object_type": "S"
+    },
+    {
+      "acl": "{postgres=X/postgres,anon=X/postgres,authenticated=X/postgres,service_role=X/postgres}",
+      "role": "postgres",
+      "schema": "storage",
+      "object_type": "f"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/postgres,anon=arwdDxtm/postgres,authenticated=arwdDxtm/postgres,service_role=arwdDxtm/postgres}",
+      "role": "postgres",
+      "schema": "storage",
+      "object_type": "r"
+    },
+    {
+      "acl": "{postgres=rwU/postgres,anon=rwU/postgres,authenticated=rwU/postgres,service_role=rwU/postgres}",
+      "role": "postgres",
+      "schema": "storage",
+      "object_type": "S"
+    },
+    {
+      "acl": "{postgres=X*/supabase_admin}",
+      "role": "supabase_admin",
+      "schema": "extensions",
+      "object_type": "f"
+    },
+    {
+      "acl": "{postgres=a*r*w*d*D*x*t*m*/supabase_admin}",
+      "role": "supabase_admin",
+      "schema": "extensions",
+      "object_type": "r"
+    },
+    {
+      "acl": "{postgres=r*w*U*/supabase_admin}",
+      "role": "supabase_admin",
+      "schema": "extensions",
+      "object_type": "S"
+    },
+    {
+      "acl": "{postgres=X/supabase_admin,anon=X/supabase_admin,authenticated=X/supabase_admin,service_role=X/supabase_admin}",
+      "role": "supabase_admin",
+      "schema": "graphql",
+      "object_type": "f"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/supabase_admin,anon=arwdDxtm/supabase_admin,authenticated=arwdDxtm/supabase_admin,service_role=arwdDxtm/supabase_admin}",
+      "role": "supabase_admin",
+      "schema": "graphql",
+      "object_type": "r"
+    },
+    {
+      "acl": "{postgres=rwU/supabase_admin,anon=rwU/supabase_admin,authenticated=rwU/supabase_admin,service_role=rwU/supabase_admin}",
+      "role": "supabase_admin",
+      "schema": "graphql",
+      "object_type": "S"
+    },
+    {
+      "acl": "{postgres=X/supabase_admin,anon=X/supabase_admin,authenticated=X/supabase_admin,service_role=X/supabase_admin}",
+      "role": "supabase_admin",
+      "schema": "graphql_public",
+      "object_type": "f"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/supabase_admin,anon=arwdDxtm/supabase_admin,authenticated=arwdDxtm/supabase_admin,service_role=arwdDxtm/supabase_admin}",
+      "role": "supabase_admin",
+      "schema": "graphql_public",
+      "object_type": "r"
+    },
+    {
+      "acl": "{postgres=rwU/supabase_admin,anon=rwU/supabase_admin,authenticated=rwU/supabase_admin,service_role=rwU/supabase_admin}",
+      "role": "supabase_admin",
+      "schema": "graphql_public",
+      "object_type": "S"
+    },
+    {
+      "acl": "{postgres=X/supabase_admin,anon=X/supabase_admin,authenticated=X/supabase_admin,service_role=X/supabase_admin}",
+      "role": "supabase_admin",
+      "schema": "public",
+      "object_type": "f"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/supabase_admin,anon=arwdDxtm/supabase_admin,authenticated=arwdDxtm/supabase_admin,service_role=arwdDxtm/supabase_admin}",
+      "role": "supabase_admin",
+      "schema": "public",
+      "object_type": "r"
+    },
+    {
+      "acl": "{postgres=rwU/supabase_admin,anon=rwU/supabase_admin,authenticated=rwU/supabase_admin,service_role=rwU/supabase_admin}",
+      "role": "supabase_admin",
+      "schema": "public",
+      "object_type": "S"
+    },
+    {
+      "acl": "{postgres=X/supabase_admin,dashboard_user=X/supabase_admin}",
+      "role": "supabase_admin",
+      "schema": "realtime",
+      "object_type": "f"
+    },
+    {
+      "acl": "{postgres=a*r*wdDxtm/supabase_admin,dashboard_user=arwdDxtm/supabase_admin}",
+      "role": "supabase_admin",
+      "schema": "realtime",
+      "object_type": "r"
+    },
+    {
+      "acl": "{postgres=rwU/supabase_admin,dashboard_user=rwU/supabase_admin}",
+      "role": "supabase_admin",
+      "schema": "realtime",
+      "object_type": "S"
+    },
+    {
+      "acl": "{postgres=X/supabase_auth_admin,dashboard_user=X/supabase_auth_admin}",
+      "role": "supabase_auth_admin",
+      "schema": "auth",
+      "object_type": "f"
+    },
+    {
+      "acl": "{postgres=arwdDxtm/supabase_auth_admin,dashboard_user=arwdDxtm/supabase_auth_admin}",
+      "role": "supabase_auth_admin",
+      "schema": "auth",
+      "object_type": "r"
+    },
+    {
+      "acl": "{postgres=rwU/supabase_auth_admin,dashboard_user=rwU/supabase_auth_admin}",
+      "role": "supabase_auth_admin",
+      "schema": "auth",
+      "object_type": "S"
+    }
+  ],
+  "table_grants": [
+    {
+      "table": "cli_auth_requests",
+      "grantee": "authenticated",
+      "grantor": "postgres",
+      "grantable": "NO",
+      "privilege": "INSERT"
+    },
+    {
+      "table": "cli_auth_requests",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "DELETE"
+    },
+    {
+      "table": "cli_auth_requests",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "INSERT"
+    },
+    {
+      "table": "cli_auth_requests",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "REFERENCES"
+    },
+    {
+      "table": "cli_auth_requests",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "SELECT"
+    },
+    {
+      "table": "cli_auth_requests",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "TRIGGER"
+    },
+    {
+      "table": "cli_auth_requests",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "TRUNCATE"
+    },
+    {
+      "table": "cli_auth_requests",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "UPDATE"
+    },
+    {
+      "table": "cli_auth_requests",
+      "grantee": "service_role",
+      "grantor": "postgres",
+      "grantable": "NO",
+      "privilege": "REFERENCES"
+    },
+    {
+      "table": "cli_auth_requests",
+      "grantee": "service_role",
+      "grantor": "postgres",
+      "grantable": "NO",
+      "privilege": "TRIGGER"
+    },
+    {
+      "table": "cli_auth_requests",
+      "grantee": "service_role",
+      "grantor": "postgres",
+      "grantable": "NO",
+      "privilege": "TRUNCATE"
+    },
+    {
+      "table": "cli_tokens",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "DELETE"
+    },
+    {
+      "table": "cli_tokens",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "INSERT"
+    },
+    {
+      "table": "cli_tokens",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "REFERENCES"
+    },
+    {
+      "table": "cli_tokens",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "SELECT"
+    },
+    {
+      "table": "cli_tokens",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "TRIGGER"
+    },
+    {
+      "table": "cli_tokens",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "TRUNCATE"
+    },
+    {
+      "table": "cli_tokens",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "UPDATE"
+    },
+    {
+      "table": "cli_tokens",
+      "grantee": "service_role",
+      "grantor": "postgres",
+      "grantable": "NO",
+      "privilege": "REFERENCES"
+    },
+    {
+      "table": "cli_tokens",
+      "grantee": "service_role",
+      "grantor": "postgres",
+      "grantable": "NO",
+      "privilege": "TRIGGER"
+    },
+    {
+      "table": "cli_tokens",
+      "grantee": "service_role",
+      "grantor": "postgres",
+      "grantable": "NO",
+      "privilege": "TRUNCATE"
+    },
+    {
+      "table": "findings",
+      "grantee": "authenticated",
+      "grantor": "postgres",
+      "grantable": "NO",
+      "privilege": "DELETE"
+    },
+    {
+      "table": "findings",
+      "grantee": "authenticated",
+      "grantor": "postgres",
+      "grantable": "NO",
+      "privilege": "INSERT"
+    },
+    {
+      "table": "findings",
+      "grantee": "authenticated",
+      "grantor": "postgres",
+      "grantable": "NO",
+      "privilege": "SELECT"
+    },
+    {
+      "table": "findings",
+      "grantee": "authenticated",
+      "grantor": "postgres",
+      "grantable": "NO",
+      "privilege": "UPDATE"
+    },
+    {
+      "table": "findings",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "DELETE"
+    },
+    {
+      "table": "findings",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "INSERT"
+    },
+    {
+      "table": "findings",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "REFERENCES"
+    },
+    {
+      "table": "findings",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "SELECT"
+    },
+    {
+      "table": "findings",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "TRIGGER"
+    },
+    {
+      "table": "findings",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "TRUNCATE"
+    },
+    {
+      "table": "findings",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "UPDATE"
+    },
+    {
+      "table": "findings",
+      "grantee": "service_role",
+      "grantor": "postgres",
+      "grantable": "NO",
+      "privilege": "REFERENCES"
+    },
+    {
+      "table": "findings",
+      "grantee": "service_role",
+      "grantor": "postgres",
+      "grantable": "NO",
+      "privilege": "TRIGGER"
+    },
+    {
+      "table": "findings",
+      "grantee": "service_role",
+      "grantor": "postgres",
+      "grantable": "NO",
+      "privilege": "TRUNCATE"
+    },
+    {
+      "table": "profiles",
+      "grantee": "authenticated",
+      "grantor": "postgres",
+      "grantable": "NO",
+      "privilege": "INSERT"
+    },
+    {
+      "table": "profiles",
+      "grantee": "authenticated",
+      "grantor": "postgres",
+      "grantable": "NO",
+      "privilege": "SELECT"
+    },
+    {
+      "table": "profiles",
+      "grantee": "authenticated",
+      "grantor": "postgres",
+      "grantable": "NO",
+      "privilege": "UPDATE"
+    },
+    {
+      "table": "profiles",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "DELETE"
+    },
+    {
+      "table": "profiles",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "INSERT"
+    },
+    {
+      "table": "profiles",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "REFERENCES"
+    },
+    {
+      "table": "profiles",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "SELECT"
+    },
+    {
+      "table": "profiles",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "TRIGGER"
+    },
+    {
+      "table": "profiles",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "TRUNCATE"
+    },
+    {
+      "table": "profiles",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "UPDATE"
+    },
+    {
+      "table": "profiles",
+      "grantee": "service_role",
+      "grantor": "postgres",
+      "grantable": "NO",
+      "privilege": "REFERENCES"
+    },
+    {
+      "table": "profiles",
+      "grantee": "service_role",
+      "grantor": "postgres",
+      "grantable": "NO",
+      "privilege": "TRIGGER"
+    },
+    {
+      "table": "profiles",
+      "grantee": "service_role",
+      "grantor": "postgres",
+      "grantable": "NO",
+      "privilege": "TRUNCATE"
+    },
+    {
+      "table": "repositories",
+      "grantee": "authenticated",
+      "grantor": "postgres",
+      "grantable": "NO",
+      "privilege": "DELETE"
+    },
+    {
+      "table": "repositories",
+      "grantee": "authenticated",
+      "grantor": "postgres",
+      "grantable": "NO",
+      "privilege": "INSERT"
+    },
+    {
+      "table": "repositories",
+      "grantee": "authenticated",
+      "grantor": "postgres",
+      "grantable": "NO",
+      "privilege": "SELECT"
+    },
+    {
+      "table": "repositories",
+      "grantee": "authenticated",
+      "grantor": "postgres",
+      "grantable": "NO",
+      "privilege": "UPDATE"
+    },
+    {
+      "table": "repositories",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "DELETE"
+    },
+    {
+      "table": "repositories",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "INSERT"
+    },
+    {
+      "table": "repositories",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "REFERENCES"
+    },
+    {
+      "table": "repositories",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "SELECT"
+    },
+    {
+      "table": "repositories",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "TRIGGER"
+    },
+    {
+      "table": "repositories",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "TRUNCATE"
+    },
+    {
+      "table": "repositories",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "UPDATE"
+    },
+    {
+      "table": "repositories",
+      "grantee": "service_role",
+      "grantor": "postgres",
+      "grantable": "NO",
+      "privilege": "REFERENCES"
+    },
+    {
+      "table": "repositories",
+      "grantee": "service_role",
+      "grantor": "postgres",
+      "grantable": "NO",
+      "privilege": "TRIGGER"
+    },
+    {
+      "table": "repositories",
+      "grantee": "service_role",
+      "grantor": "postgres",
+      "grantable": "NO",
+      "privilege": "TRUNCATE"
+    },
+    {
+      "table": "repository_scan_stats",
+      "grantee": "authenticated",
+      "grantor": "postgres",
+      "grantable": "NO",
+      "privilege": "SELECT"
+    },
+    {
+      "table": "repository_scan_stats",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "DELETE"
+    },
+    {
+      "table": "repository_scan_stats",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "INSERT"
+    },
+    {
+      "table": "repository_scan_stats",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "REFERENCES"
+    },
+    {
+      "table": "repository_scan_stats",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "SELECT"
+    },
+    {
+      "table": "repository_scan_stats",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "TRIGGER"
+    },
+    {
+      "table": "repository_scan_stats",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "TRUNCATE"
+    },
+    {
+      "table": "repository_scan_stats",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "UPDATE"
+    },
+    {
+      "table": "repository_scan_stats",
+      "grantee": "service_role",
+      "grantor": "postgres",
+      "grantable": "NO",
+      "privilege": "REFERENCES"
+    },
+    {
+      "table": "repository_scan_stats",
+      "grantee": "service_role",
+      "grantor": "postgres",
+      "grantable": "NO",
+      "privilege": "TRIGGER"
+    },
+    {
+      "table": "repository_scan_stats",
+      "grantee": "service_role",
+      "grantor": "postgres",
+      "grantable": "NO",
+      "privilege": "TRUNCATE"
+    },
+    {
+      "table": "scans",
+      "grantee": "authenticated",
+      "grantor": "postgres",
+      "grantable": "NO",
+      "privilege": "DELETE"
+    },
+    {
+      "table": "scans",
+      "grantee": "authenticated",
+      "grantor": "postgres",
+      "grantable": "NO",
+      "privilege": "INSERT"
+    },
+    {
+      "table": "scans",
+      "grantee": "authenticated",
+      "grantor": "postgres",
+      "grantable": "NO",
+      "privilege": "SELECT"
+    },
+    {
+      "table": "scans",
+      "grantee": "authenticated",
+      "grantor": "postgres",
+      "grantable": "NO",
+      "privilege": "UPDATE"
+    },
+    {
+      "table": "scans",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "DELETE"
+    },
+    {
+      "table": "scans",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "INSERT"
+    },
+    {
+      "table": "scans",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "REFERENCES"
+    },
+    {
+      "table": "scans",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "SELECT"
+    },
+    {
+      "table": "scans",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "TRIGGER"
+    },
+    {
+      "table": "scans",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "TRUNCATE"
+    },
+    {
+      "table": "scans",
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "grantable": "YES",
+      "privilege": "UPDATE"
+    },
+    {
+      "table": "scans",
+      "grantee": "service_role",
+      "grantor": "postgres",
+      "grantable": "NO",
+      "privilege": "REFERENCES"
+    },
+    {
+      "table": "scans",
+      "grantee": "service_role",
+      "grantor": "postgres",
+      "grantable": "NO",
+      "privilege": "TRIGGER"
+    },
+    {
+      "table": "scans",
+      "grantee": "service_role",
+      "grantor": "postgres",
+      "grantable": "NO",
+      "privilege": "TRUNCATE"
+    }
+  ],
+  "server_version": "17.12",
+  "public_schema_acl": "{pg_database_owner=UC/pg_database_owner,=U/pg_database_owner,postgres=U/pg_database_owner,anon=U/pg_database_owner,authenticated=U/pg_database_owner,service_role=U/pg_database_owner}",
+  "schema_privileges": [
+    {
+      "schema": "public",
+      "grantee": "PUBLIC",
+      "grantor": "pg_database_owner",
+      "grantable": false,
+      "privilege": "USAGE"
+    },
+    {
+      "schema": "public",
+      "grantee": "anon",
+      "grantor": "pg_database_owner",
+      "grantable": false,
+      "privilege": "USAGE"
+    },
+    {
+      "schema": "public",
+      "grantee": "authenticated",
+      "grantor": "pg_database_owner",
+      "grantable": false,
+      "privilege": "USAGE"
+    },
+    {
+      "schema": "public",
+      "grantee": "pg_database_owner",
+      "grantor": "pg_database_owner",
+      "grantable": false,
+      "privilege": "CREATE"
+    },
+    {
+      "schema": "public",
+      "grantee": "pg_database_owner",
+      "grantor": "pg_database_owner",
+      "grantable": false,
+      "privilege": "USAGE"
+    },
+    {
+      "schema": "public",
+      "grantee": "postgres",
+      "grantor": "pg_database_owner",
+      "grantable": false,
+      "privilege": "USAGE"
+    },
+    {
+      "schema": "public",
+      "grantee": "service_role",
+      "grantor": "pg_database_owner",
+      "grantable": false,
+      "privilege": "USAGE"
+    }
+  ],
+  "routine_privileges": [
+    {
+      "grantee": "PUBLIC",
+      "grantor": "postgres",
+      "routine": "handle_new_user",
+      "grantable": "NO",
+      "privilege": "EXECUTE",
+      "specific_name": "handle_new_user_17804"
+    },
+    {
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "routine": "handle_new_user",
+      "grantable": "YES",
+      "privilege": "EXECUTE",
+      "specific_name": "handle_new_user_17804"
+    },
+    {
+      "grantee": "PUBLIC",
+      "grantor": "postgres",
+      "routine": "touch_updated_at",
+      "grantable": "NO",
+      "privilege": "EXECUTE",
+      "specific_name": "touch_updated_at_17801"
+    },
+    {
+      "grantee": "postgres",
+      "grantor": "postgres",
+      "routine": "touch_updated_at",
+      "grantable": "YES",
+      "privilege": "EXECUTE",
+      "specific_name": "touch_updated_at_17801"
+    }
+  ]
+}

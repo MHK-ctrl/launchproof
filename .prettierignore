@@ -10,5 +10,6 @@ apps/web/data/sample-scan.json
 apps/web/public/sample-report.html
 apps/web/public/sample-report.json
 apps/web/next-env.d.ts
+supabase/manual/*.json
 *.min.js
 *.min.css

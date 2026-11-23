@@ -80,16 +80,17 @@ verification.
 
 ### 2.2 Migration ledger and migration 003
 
-The hosted project has **no** `supabase_migrations.schema_migrations` ledger because migrations 001
-and 002 were applied manually. Do not run `supabase db push` until the ledger is reconciled. Phase
-21.3 prepared a non-destructive reconciliation script and verification queries in
-[`supabase/MIGRATION_TRACKING.md`](supabase/MIGRATION_TRACKING.md) and
-`supabase/manual/20261123_reconcile_migration_ledger.sql`; applying them is an **owner action** that
-has not been performed.
+The hosted project now has an accurate
+`supabase_migrations.schema_migrations` ledger with exactly 001, 002, and 003. The non-destructive
+reconciliation and guarded record scripts are retained in
+[`supabase/MIGRATION_TRACKING.md`](supabase/MIGRATION_TRACKING.md) and `supabase/manual/`. Do not run
+`supabase db push` or `db reset` against this project without a separate review; the ledger was
+verified directly.
 
-Migration `202611230003_security_hardening.sql` adds the Postgres rate-limit function/table and CLI
-token cleanup function. It is additive and locally tested but **not applied** to hosted Supabase.
-Apply it only after the ledger reconciliation and schema verification.
+Migration `202611230003_security_hardening.sql` is **applied and verified hosted** (Phase 21.5). It
+adds the Postgres rate-limit table/functions, CLI token cleanup, service-role DML, and hardened
+postgres default ACLs. The hosted synthetic suite passed 60/60 checks with zero rows or identities
+left behind.
 
 ## 3. Configure GitHub OAuth
 

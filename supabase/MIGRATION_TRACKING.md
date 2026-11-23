@@ -1,176 +1,166 @@
-# Supabase Migration Tracking — Safe Reconciliation Workflow
+# Supabase Migration Tracking — Hosted State and Future Workflow
 
-**Status (Phase 21.4, 2026-11-23):** migrations 001 and 002 are applied manually and their hosted
-effects were re-audited read-only. The migration ledger is still **absent**. Migration 003
-(`security_hardening`) is revised in the repository and **not applied** to the hosted database. No
-hosted database mutation, deployment, merge, tag, or release occurred in Phase 21.4.
+**Status (Phase 21.5, 2026-11-23):** migrations 001, 002, and 003 are applied to the hosted
+`launchproof` project (`ypqpqgnviphwxddrpieq`) and are recorded in
+`supabase_migrations.schema_migrations`. The ledger contains exactly three rows. The hosted
+synthetic validation suite passed **60/60** checks with two disposable identities, and all synthetic
+rows and identities were removed. No Vercel deployment, merge, tag, release, npm publication, OAuth
+secret change, reset, drop, truncate, or real-data deletion occurred.
 
-**Critical hosted finding:** the hosted catalog's grants for `service_role` are incomplete. The
-role has `bypassrls` but no `SELECT`/`INSERT`/`UPDATE`/`DELETE` on the application tables. A real
-PostgREST request using the server-only service-role key returned HTTP 403
-`permission denied for table profiles` (SQLSTATE 42501). Migration 003 now supplies those grants.
-Until 003 is applied, every server-side admin query would fail in a deployment.
+**Resolved in Phase 21.5:** the Phase 21.4 finding that `service_role` had `bypassrls` but no
+application DML is fixed. Real service-role PostgREST SELECTs now return 200 on all eight
+application relations.
+
+**Residual hardening item:** `service_role` also retains Supabase bootstrap `REFERENCES`, `TRIGGER`,
+`TRUNCATE`, and `MAINTAIN` (where supported) privileges in addition to DML, and the `postgres`
+public-table default ACL is
+`{postgres=arwdDxtm/postgres,service_role=arwdDxtm/postgres}`. `service_role` is a server-only secret
+role, so this is not a new client path, but it is broader than strict DML-only least privilege. Do not
+change it in this phase; evaluate a future least-privilege migration separately.
 
 Do not run `supabase db push`, `db reset`, or any destructive command against the hosted project.
-Do not record a version whose effects are not present. Do not replay 001 or 002 to "repair" anything.
+Do not replay 001–003 to "repair" anything.
 
-## 1. Hosted state
+## 1. Hosted migration state
 
-Read-only audit target: project `launchproof`, ref `ypqpqgnviphwxddrpieq`, on 2026-11-23.
+Read-only and post-apply audit target: project `launchproof`, ref `ypqpqgnviphwxddrpieq`,
+Production database `postgres`, 2026-11-23.
 
-| Version      | Name                            | Hosted state                       | Evidence                                                                  | Repository file                                                        |
-| ------------ | ------------------------------- | ---------------------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| 202611230001 | cloud_dashboard                 | Applied manually; effects verified | 6 tables, view, 16 policies, 3 triggers, 2 functions, constraints/indexes | `supabase/migrations/202611230001_cloud_dashboard.sql`                 |
-| 202611230002 | revoke_default_table_privileges | Applied manually; effects verified | anon grants absent; authenticated TRUNCATE absent; intended DML present   | `supabase/migrations/202611230002_revoke_default_table_privileges.sql` |
-| 202611230003 | security_hardening              | **Not applied**                    | `rate_limits` and its functions are absent hosted                         | `supabase/migrations/202611230003_security_hardening.sql`              |
+| Version      | Name                            | Hosted state                       | Evidence                                                                                       | Repository file                                                        |
+| ------------ | ------------------------------- | ---------------------------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| 202611230001 | cloud_dashboard                 | Applied manually; effects verified | Six tables, view, 16 policies, three triggers, two functions, composite tenant FKs, indexes    | `supabase/migrations/202611230001_cloud_dashboard.sql`                 |
+| 202611230002 | revoke_default_table_privileges | Applied manually; effects verified | `anon` grants absent; `authenticated` TRUNCATE absent; intended authenticated DML present      | `supabase/migrations/202611230002_revoke_default_table_privileges.sql` |
+| 202611230003 | security_hardening              | Applied and recorded in Phase 21.5 | `rate_limits`, expiry index, three functions, service-role DML, default-ACL hardening verified | `supabase/migrations/202611230003_security_hardening.sql`              |
 
-The audit found exactly the seven expected relations in `public` (six tables and
-`repository_scan_stats`), owned by `postgres`, with no extra public tables or views. All six tables
-have RLS enabled; the view has `security_invoker=true`. There are exactly 16 policies:
-`profiles` 3, `repositories` 4, `scans` 4, `findings` 4, `cli_auth_requests` 1, `cli_tokens` 0. The
-three application triggers are `auth.users.on_auth_user_created`, `profiles_touch_updated_at`, and
-`repositories_touch_updated_at`. Functions `handle_new_user` and `touch_updated_at` exist with empty
-`search_path`. Columns, types, defaults, nullability, primary keys, composite tenant foreign keys,
-unique/check constraints, and indexes match migration 001. Hosted auth users and all application
-rows were zero.
+Final ledger:
 
-`anon` has no table grants and `authenticated` has no `TRUNCATE`. The service-role defect is not
-visible from table existence or RLS policy counts; it required a privilege check and a real REST
-request. This is why migrations are never inferred from object names alone.
+| Version      | Name                            |
+| ------------ | ------------------------------- |
+| 202611230001 | cloud_dashboard                 |
+| 202611230002 | revoke_default_table_privileges |
+| 202611230003 | security_hardening              |
 
-**The absence of `supabase_migrations.schema_migrations` means the CLI cannot know what is applied.**
-Do not infer the schema is empty. Do not use the CLI against this project until the exact ledger
-reconciliation below is authorized and run.
+Unexpected versions: **0**.
 
-## 2. Ledger reconciliation safety
+## 2. Hosted schema and privilege posture
 
-Recording 001/002 is bookkeeping; it does not run migration SQL. It is safe to record both **only
-after** verifying their actual effects. The hosted audit did verify those effects, including the
-composite tenant foreign keys, 16 policies, triggers, view, and grants.
+The hosted `public` schema contains exactly seven tables and one view, all owned by `postgres`:
 
-`supabase/manual/20261123_reconcile_migration_ledger.sql` now refuses to write unless all of the
-following hold:
+`profiles`, `repositories`, `scans`, `findings`, `cli_auth_requests`, `cli_tokens`, `rate_limits`,
+and `repository_scan_stats` (`security_invoker=true`).
 
-- all six tables, the view, `handle_new_user()`, and `touch_updated_at()` exist;
-- RLS is enabled on all six tables;
-- both `(repository_id, user_id)` and `(scan_id, user_id)` composite foreign keys exist;
-- exactly 16 application policies exist and `cli_tokens` has no client policy;
-- all three expected triggers exist;
-- `repository_scan_stats` has `security_invoker=true`;
-- `anon` has no grants on the seven relations;
-- `authenticated` has no `TRUNCATE`;
-- `service_role` exists and has `bypassrls`.
+- RLS is enabled on all seven tables.
+- There are exactly 16 policies: `profiles` 3, `repositories` 4, `scans` 4, `findings` 4,
+  `cli_auth_requests` 1; `cli_tokens` 0; `rate_limits` 0.
+- Existing triggers: `auth.users.on_auth_user_created`, `profiles_touch_updated_at`, and
+  `repositories_touch_updated_at`.
+- Functions: `handle_new_user()`, `touch_updated_at()`, `consume_rate_limit(...)`,
+  `cleanup_rate_limits(...)`, and `cleanup_cli_tokens(...)`. The three new functions are
+  security-definer with `search_path=""`.
+- `rate_limits` has primary key `(bucket)`, check `count >= 0`, and index
+  `rate_limits_expires_at_idx (expires_at)`.
+- `service_role` has `bypassrls=true`, SELECT/INSERT/UPDATE/DELETE on the seven tables, and SELECT on
+  the view. It also retains the bootstrap non-DML privileges noted above.
+- `anon` has no table grants and no EXECUTE on the new functions; hosted requests returned 401.
+- `authenticated` has `INSERT,SELECT,UPDATE` on `profiles`; `DELETE,INSERT,SELECT,UPDATE` on
+  `repositories`, `scans`, and `findings`; `INSERT` on `cli_auth_requests`; `SELECT` on the view. It
+  has no SELECT on `cli_tokens`, `cli_auth_requests`, or `rate_limits`, no TRUNCATE, and no EXECUTE
+  on the new functions.
+- The `postgres` public-table default ACL contains only `postgres` and `service_role`; `anon` and
+  `authenticated` were removed. The `supabase_admin` defaults remain broad for objects created by
+  that internal role, so application objects must remain `postgres`-owned.
+- Zero auth users and zero rows in every application table and the view after cleanup.
 
-It then creates the ledger if needed and inserts 001/002 with `on conflict do nothing`. It does not
-alter application data and does not record 003.
+## 3. Phase 21.5 execution record
 
-**Local validation:** on a temporary PostgreSQL instance with the exact 001/002/003 schema, the
-script passed twice (idempotent) and produced only `202611230001` and `202611230002`. It does not
-claim the hosted reconciliation has run.
+Before mutation, the owner explicitly authorized proceeding without a provider backup after
+confirming the project was empty and accepting the limited risk. Supabase Free has no provider
+backup/snapshot for this project. The read-only baseline is
+`supabase/manual/PHASE_21_5_ROLLBACK_BASELINE.json` (63,394 bytes, SHA-256
+`6eab85799d8acb6b061973323b2323103e36c85be032bcdb92c98ec86d875233`). It is catalog evidence, not a
+data backup.
 
-## 3. Owner execution sequence — requires explicit approval
+Each reviewed file was read exactly, SHA-256 checked, and run separately. No guard was bypassed and
+no reviewed SQL was altered hosted.
 
-The exact hosted mutation requires a later, explicit owner authorization. The reviewed sequence is:
+| Step | Operation                                                 | SHA-256             | Result                                                 |
+| ---- | --------------------------------------------------------- | ------------------- | ------------------------------------------------------ |
+| A    | `supabase/manual/20261123_reconcile_migration_ledger.sql` | `47b4389f…743df8cf` | HTTP 201; ledger 001/002 only                          |
+| B    | `supabase/migrations/202611230003_security_hardening.sql` | `7baac8da…bbdebf6`  | HTTP 201; objects, grants, default ACL, RLS verified   |
+| C    | `supabase/manual/20261123_record_security_hardening.sql`  | `d7a81f2d…36c39fc5` | HTTP 201; ledger 001/002/003, zero unexpected versions |
+| D    | Low-volume synthetic hosted validation                    | n/a                 | 60/60 passed; cleanup zero rows/users                  |
 
-1. Confirm the dashboard URL contains project ref `ypqpqgnviphwxddrpieq`.
-2. If available and authorized, take a provider backup/snapshot.
-3. Run `supabase/manual/20261123_reconcile_migration_ledger.sql` as one transaction.
-4. Verify exactly the two expected rows:
+Full hashes are recorded in `PHASE_21_5_REPORT.md`. The validation artifact is
+`supabase/manual/PHASE_21_5_HOSTED_VALIDATION.json`; it contains no credentials or tokens.
 
-   ```sql
-   select version, name from supabase_migrations.schema_migrations order by version;
-   ```
+## 4. Hosted validation summary
 
-5. Run `supabase/migrations/202611230003_security_hardening.sql` as one transaction.
-6. Run `supabase/manual/20261123_record_security_hardening.sql`, which verifies the 003 objects and
-   grants before inserting the 003 ledger row.
-7. Verify all three rows and the hosted behavior described in section 5.
+The suite used two disposable auth users and explicitly created synthetic rows. It verified:
 
-Do not run steps 3, 5, or 6 in one combined statement. Do not continue if any guard raises.
+- profile trigger creation and sign-in;
+- service-role PostgREST SELECT success on all eight relations;
+- anonymous 401 and authenticated 403 denials for restricted tables and functions;
+- own-row profile access and tenant-scoped repository/scan/finding access;
+- cross-tenant direct-UUID reads empty, forged `user_id` inserts denied, and view isolation;
+- rate-limit counting (2 allowed, third denied with `retry_after=60`), independent keys, and expired
+  window reset;
+- bounded `cleanup_rate_limits`: 2 deleted of 3 expired rows, then the remaining 1; zero synthetic
+  expired rows left;
+- `cleanup_cli_tokens`: 2 expired/revoked rows deleted, active token preserved;
+- final teardown: zero application rows and zero auth users.
 
-## 4. Migration 003 — reviewed effects
+This was deliberately low-volume. It is not a load, concurrency, abuse, or penetration test. The
+Phase 21.4 40-connection limiter result was local PostgreSQL evidence, not hosted evidence.
 
-The migration begins with a preflight that refuses to continue if any expected 001/002 object or the
-`service_role` role is missing. It is additive and idempotent.
+## 5. Residual risks
 
-| Statement group                    | Effect                                                                                          | Reversible / rerunnable           | Failure and verification                                                  |
-| ---------------------------------- | ----------------------------------------------------------------------------------------------- | --------------------------------- | ------------------------------------------------------------------------- |
-| Preflight `DO` block               | Refuses a partial/wrong database                                                                | Read-only; rerunnable             | Fails before changes if objects are missing; compare the exception list   |
-| Grants on six tables and view      | Restores server-only DML for admin paths                                                        | `revoke` only; rerunnable         | Fails if a table is absent; check `has_table_privilege`                   |
-| Default privileges                 | Future **postgres-owned** public tables grant neither anon/authenticated; service_role gets DML | Rerunnable                        | Requires schema ownership; create a throwaway future table and check ACLs |
-| `rate_limits` table + expiry index | Server-only fixed-window storage                                                                | `drop` only if unused; rerunnable | Table/index already exists is a notice; inspect columns/index             |
-| `consume_rate_limit`               | Atomic upsert and window reset; bounded inputs; empty `search_path`                             | `create or replace`; rerunnable   | Invalid key/limit/window raises; run the concurrency check                |
-| `cleanup_rate_limits`              | Deletes expired buckets, at most the requested 1–10,000 rows                                    | `create or replace`; rerunnable   | Invalid bound raises; insert synthetic expired/live rows                  |
-| `cleanup_cli_tokens`               | Deletes at most 100 expired/revoked tokens for one user                                         | `create or replace`; rerunnable   | Requires `created_at`; test 105 expired + 1 active                        |
-| Function revokes/grants            | Only `service_role` may execute the three functions                                             | Rerunnable                        | Client execution must fail; check `has_function_privilege`                |
-
-The table grants cover account deletion, the dashboard, and CLI paths: `profiles`, `repositories`,
-`scans`, `findings`, `cli_auth_requests`, `cli_tokens`. `rate_limits` is not readable by
-`anon`/`authenticated`, and its functions are revoked from both roles. All security-definer
-functions use `set search_path = ''` and schema-qualified objects.
-
-The hosted default ACL audit found two owners: `postgres` (anon/authenticated had
-`TRUNCATE, REFERENCES, TRIGGER, MAINTAIN`) and Supabase's internal `supabase_admin` (anon/authenticated
-had full table rights). The migration hardens only `postgres` defaults, because application objects
-are owned by `postgres`. Changing `supabase_admin` platform defaults is out of scope and would be a
-provider-level change. Future application tables must therefore be created by `postgres`.
-
-The migration does **not** create a scheduled cleanup job. `cleanup_rate_limits` and
-`cleanup_cli_tokens` are bounded helpers; scheduling them is a separate hosted change and remains
-**PROPOSED / NOT CONFIGURED**.
-
-## 5. Hosted verification after approval
-
-Run only read-only checks before and after the authorized mutation.
-
-```sql
--- Ledger: expected 001, 002, 003 after the guarded record script
-select version, name from supabase_migrations.schema_migrations order by version;
-
--- New objects
-select proname, pg_get_function_identity_arguments(oid) as args
-from pg_proc
-where pronamespace = 'public'::regnamespace
-  and proname in ('consume_rate_limit', 'cleanup_cli_tokens', 'cleanup_rate_limits');
-
-select indexname from pg_indexes
-where schemaname = 'public' and indexname = 'rate_limits_expires_at_idx';
-
--- Service-role DML restored (all must be true)
-select has_table_privilege('service_role', 'public.profiles', 'SELECT') as profiles_select,
-       has_table_privilege('service_role', 'public.profiles', 'INSERT') as profiles_insert,
-       has_table_privilege('service_role', 'public.cli_tokens', 'UPDATE') as tokens_update,
-       has_table_privilege('service_role', 'public.repository_scan_stats', 'SELECT') as view_select;
-
--- Client roles must remain denied
-select has_table_privilege('anon', 'public.rate_limits', 'SELECT') as anon_rate_limit,
-       has_function_privilege('anon', 'public.consume_rate_limit(text,integer,integer)', 'EXECUTE') as anon_limiter;
-```
-
-Hosted runtime checks still require an application origin or a separately authorized PostgREST test.
-Do not create a production endpoint merely to satisfy a checklist. Local concurrency evidence is not
-hosted evidence.
+1. `service_role` has broad inherited table privileges (including non-DML `REFERENCES`, `TRIGGER`,
+   `TRUNCATE`, and `MAINTAIN` where supported) and a broad `arwdDxtm` default ACL. It is server-only,
+   but least-privilege tightening is a future decision, not part of 21.5.
+2. `supabase_admin` defaults remain broad; future application tables must be created by `postgres`.
+3. No scheduled cleanup job exists for `rate_limits` or expired CLI authorization rows. The bounded
+   cleanup functions are present; scheduling is **PROPOSED / NOT CONFIGURED**.
+4. No provider backup exists. Manual additive rollback is the only recovery path for this empty
+   project; do not reset or drop existing application tables.
+5. The `supabase` CLI migration list and `db push --dry-run` were **NOT TESTED** because the CLI is not
+   installed/configured. The ledger was verified directly.
+6. Vercel runtime, live GitHub OAuth, live CLI login/upload, deployed CSP/HSTS/cookies, and
+   two-browser isolation remain **NOT TESTED**.
+7. No monitoring, alerting, audit logging, MFA requirement, or external penetration test exists.
 
 ## 6. Future migration rules
 
 - Every schema change is a new timestamped file under `supabase/migrations/`; never edit an applied
-  migration's SQL (a comment-only correction is still a change and must be treated as such).
-- Apply through the linked CLI, or SQL editor only when the CLI is unavailable, and record the
-  version with a guard that verifies the effects.
+  migration's SQL (a comment-only correction is still a change).
+- Apply through the linked CLI when available, or SQL editor only when the CLI is unavailable, and
+  record the version with a guard that verifies the effects.
 - Before pushing, inspect `supabase migration list --linked` and `supabase db push --dry-run`.
 - Never use `supabase db reset`, `drop schema`, `truncate`, or a migration that rewrites production
-  tables without an explicit, reviewed backup and authorization.
+  tables without explicit, reviewed backup and authorization.
 - Add a local PGlite test for tenant-isolation, grant, and idempotency effects before applying.
 - Test real concurrency only against a temporary local PostgreSQL cluster, not the hosted free tier.
 - Hosted verification is a separate step; a local pass is not hosted evidence.
+- Keep new application objects owned by `postgres` so the hardened default ACL applies.
+- If tightening `service_role`, review every server-side admin path and test hosted PostgREST before
+  and after; do not assume local mocks model grants.
 
-## 7. Honest status labels
+## 7. Status labels
 
-- **VERIFIED — HOSTED:** 001/002 schema effects and the existing RLS/grant posture, as re-audited
-  read-only in Phase 21.4.
-- **VERIFIED — LOCAL:** migration 003 idempotency, service-role grants, bounded cleanup, and true
-  multi-connection atomicity.
-- **COMPLETED — LOCAL:** reconciliation SQL, guarded 003 record SQL, and the documentation.
-- **BLOCKED / OWNER ACTION:** creating the hosted ledger, applying 003, and recording 003.
-- **NOT TESTED:** hosted rate-limit calls, hosted token cleanup, hosted service-role PostgREST
-  success, `supabase` CLI dry run/list, deployed CSP/OAuth/CLI, and any Vercel runtime behavior.
+- **VERIFIED — HOSTED:** 001/002/003 ledger, migration 003 objects/grants/default ACLs, RLS,
+  service-role PostgREST access, anonymous/authenticated denials, tenant isolation, limiter behavior,
+  bounded rate-limit cleanup, CLI token cleanup, and zero synthetic rows/users after teardown.
+- **VERIFIED — LOCAL:** repository `npm run verify` (20 test files / 109 tests), prior local
+  PostgreSQL/PGlite migration and concurrency tests, and documentation formatting.
+- **NOT TESTED:** hosted concurrency/load, `supabase` CLI list/dry-run, deployed Vercel runtime, live
+  OAuth, live CLI, deployed CSP/HSTS/cookies, and two-browser isolation.
+- **BLOCKED:** initial Vercel Production deployment, pending separate explicit owner authorization.
+  Database readiness does not authorize deployment.
+
+## 8. Evidence
+
+- `PHASE_21_5_REPORT.md` — full Phase 21.5 report and status table.
+- `supabase/manual/PHASE_21_5_ROLLBACK_BASELINE.json` — pre-mutation read-only baseline.
+- `supabase/manual/PHASE_21_5_HOSTED_VALIDATION.json` — sanitized 60/60 hosted results.
+- `PHASE_21_4_REPORT.md` — pre-mutation review record, retained with a Phase 21.5 banner.
+- `DEPLOYMENT_READINESS.md`, `LIVE_DEPLOYMENT_REPORT.md`, `PROJECT_EXECUTION_STATUS.md` — current
+  readiness, deployment, and execution state.

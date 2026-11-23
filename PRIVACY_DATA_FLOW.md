@@ -170,8 +170,8 @@ database until cleanup or deletion. This is a known operational limitation.
   without deleting it.
 - **CLI tokens:** expire after seven days; can be revoked individually or all at once. A valid CLI
   request opportunistically removes that user's expired/revoked token rows through a bounded
-  server-side function. The migration that adds this function is prepared locally and not applied
-  to hosted Supabase, so hosted rows may remain until it is applied or the account is deleted.
+  server-side function. The function is applied hosted (Phase 21.5); rows may remain until an
+  opportunistic cleanup or account deletion runs.
 - **CLI authorization requests:** expire after ten minutes and are consumed on exchange; rows may
   remain until account deletion.
 - **Account deletion:** deletes the auth user first, which cascades the profile and all tenant rows,

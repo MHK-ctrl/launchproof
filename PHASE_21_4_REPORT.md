@@ -1,5 +1,12 @@
 # Phase 21.4 — Hosted Migration Reconciliation, Migration 003 Review, and Rate-Limit Validation
 
+> **Phase 21.5 update (2026-11-23):** the hosted operations marked BLOCKED in this report were
+> explicitly authorized and completed in Phase 21.5. The ledger now contains 001/002/003, migration
+> 003 is applied, the `service_role` 403 defect is resolved, and 60/60 low-volume synthetic hosted
+> checks passed with zero synthetic rows or identities left. The body below is retained as the
+> pre-mutation Phase 21.4 record. See [`PHASE_21_5_REPORT.md`](PHASE_21_5_REPORT.md) for the actual
+> hosted results. Vercel deployment remains separately blocked.
+
 **Date:** 2026-11-23
 **Branch:** `feat/cloud-dashboard`
 **Phase 21.3 checkpoint:** `d15ea3c1044c03e88935fc3a90c070aad19a46fb`
@@ -299,3 +306,30 @@ the hosted RLS suite. Then update this report with actual hosted results.
 
 Do not deploy merely to finish the checklist. Deployment remains a separate owner decision because
 Vercel’s first deployment is Production.
+
+## N. Phase 21.5 outcome — hosted operations completed
+
+Phase 21.5 executed the three reviewed SQL operations in the authorized order, with exact-file hash
+checks before each run:
+
+1. Ledger reconciliation recorded only 001/002 (HTTP 201).
+2. Migration 003 applied (HTTP 201); `rate_limits`, the expiry index, the three security-definer
+   functions, service-role DML, client denials, and the hardened postgres default ACL were verified.
+3. The guarded record script recorded 003 (HTTP 201); the ledger contains exactly 001/002/003 with
+   zero unexpected versions.
+
+The hosted synthetic suite passed **60/60** checks: service-role PostgREST reads, anonymous and
+authenticated denials, profile-trigger creation, repository/scan/finding tenant isolation, the
+`security_invoker` view, rate-limit counting/window reset/isolation, bounded rate-limit cleanup
+(2 then 1), and CLI token cleanup (2 removed, 1 active preserved). Cleanup left zero application
+rows and zero auth users. Artifacts:
+`supabase/manual/PHASE_21_5_ROLLBACK_BASELINE.json` and
+`supabase/manual/PHASE_21_5_HOSTED_VALIDATION.json`.
+
+The original service-role defect is resolved. Residual nuance: `service_role` also retains Supabase
+bootstrap `REFERENCES`/`TRIGGER`/`TRUNCATE` privileges and the postgres default ACL gives it
+`arwdDxtm` for future tables; this is server-only but broader than strict DML least privilege. The
+`supabase_admin` defaults remain broad, so application objects must stay `postgres`-owned. No
+provider backup exists; the baseline is catalog evidence, not a data backup. No Vercel deployment,
+merge, tag, release, npm publication, OAuth secret change, reset, drop, truncate, or real-data
+deletion occurred. The initial Production deployment still requires separate explicit authorization.

@@ -148,10 +148,11 @@ remediation, a relative file path, and a line number. It does not store raw sour
 HTTP bodies, environment values, or absolute paths.
 
 Migration `202611230003_security_hardening.sql` adds a server-only `rate_limits` table (RLS enabled,
-no client grants), an expiry index, and two functions: `consume_rate_limit` for atomic fixed-window
-counters and `cleanup_cli_tokens` for bounded per-user removal of expired/revoked CLI tokens. The
-migration is additive and idempotent. It is tested locally but **not applied** to hosted Supabase; the
-safe application workflow is in `supabase/MIGRATION_TRACKING.md`.
+no client grants), an expiry index, and three functions: `consume_rate_limit` for atomic fixed-window
+counters, `cleanup_rate_limits` for bounded expired-bucket removal, and `cleanup_cli_tokens` for
+bounded per-user removal of expired/revoked CLI tokens. The migration is additive and idempotent. It
+is **applied and verified hosted** (Phase 21.5); the canonical state and future workflow are in
+`supabase/MIGRATION_TRACKING.md`.
 
 ## 4. Request paths and authorization
 
