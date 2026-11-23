@@ -131,7 +131,6 @@ left join public.scans s
   on s.repository_id = r.id and s.user_id = r.user_id
 group by r.id, r.user_id;
 
-grant select on public.repository_scan_stats to authenticated;
 create index repositories_user_status_idx on public.repositories (user_id, connection_status);
 create index scans_user_id_uploaded_at_idx on public.scans (user_id, uploaded_at desc);
 create index scans_repository_id_uploaded_at_idx on public.scans (repository_id, uploaded_at desc);
@@ -194,18 +193,23 @@ alter table public.findings enable row level security;
 alter table public.cli_auth_requests enable row level security;
 alter table public.cli_tokens enable row level security;
 
-revoke all on public.profiles from anon;
-revoke all on public.repositories from anon;
-revoke all on public.scans from anon;
-revoke all on public.findings from anon;
+-- Supabase's bootstrap default privileges grant broad table access to anon/authenticated. Revoke
+-- them explicitly: TRUNCATE bypasses RLS and would otherwise let any signed-in user erase all
+-- tenants' rows. Keep only the operations the application actually uses.
+revoke all on public.profiles from anon, authenticated;
+revoke all on public.repositories from anon, authenticated;
+revoke all on public.scans from anon, authenticated;
+revoke all on public.findings from anon, authenticated;
 revoke all on public.cli_auth_requests from anon, authenticated;
 revoke all on public.cli_tokens from anon, authenticated;
+revoke all on public.repository_scan_stats from anon, authenticated;
 
 grant select, insert, update on public.profiles to authenticated;
 grant select, insert, update, delete on public.repositories to authenticated;
 grant select, insert, update, delete on public.scans to authenticated;
 grant select, insert, update, delete on public.findings to authenticated;
 grant insert on public.cli_auth_requests to authenticated;
+grant select on public.repository_scan_stats to authenticated;
 
 create policy "profiles_select_own"
 on public.profiles for select
