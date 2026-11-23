@@ -37,32 +37,35 @@ was updated without recording the new value. No large third-party application ha
 
 ## Phase checklist
 
-| Phase                          | Status       | Notes                                                                                |
-| ------------------------------ | ------------ | ------------------------------------------------------------------------------------ |
-| 0. Environment inspection      | Done         | Tools and resources inspected before scaffolding                                     |
-| 1. Architecture                | Done         | `docs/architecture.md`; package boundaries and scan pipeline documented              |
-| 2. Foundation                  | Done         | npm workspaces, strict TypeScript, ESLint, Prettier, Vitest, tsup                    |
-| 3. Project discovery           | Done         | Frameworks, languages, scripts, routes, env references, deployment, integrations     |
-| 4. Static security             | Done         | Secrets, source rules, repository hygiene, dependencies, Supabase RLS                |
-| 5. HTTP checks                 | Done         | Headers, cookies, CORS, transport, sensitive paths, error leakage                    |
-| 6. API testing                 | Done         | Configured endpoints and OpenAPI paths, identities, anonymous-access checks          |
-| 7. Authorization testing       | Done         | Two-identity BOLA probes, read-only default, env-based identities                    |
-| 8. Browser automation          | Done         | Page load, workflows, links, mobile overflow, screenshots                            |
-| 9. Accessibility + performance | Done         | axe-core and navigation metrics with budgets                                         |
-| 10. Reports                    | Done         | Terminal, self-contained HTML, JSON, SARIF 2.1.0, local storage                      |
-| 11. CLI                        | Done         | All required commands, JSON/quiet/verbose/CI modes, exit codes                       |
-| 12. Demo apps                  | Done         | Intentionally vulnerable and hardened loopback servers                               |
-| 13. Tests                      | Done         | Unit, live integration, browser E2E, CLI smoke; 53/53 passing                        |
-| 14. Website                    | Done locally | Public pages server-rendered; optional dashboard is server-rendered; not deployed    |
-| 15. Documentation + CI         | Done         | README, guides, policies, templates, workflow, deployment configs                    |
-| 16. GitHub publication         | Done         | Public repository `MHK-ctrl/launchproof`; hosted CI green; no release tag yet        |
-| 17. Live deployment            | Blocked      | Vercel first deployment is Production; preview-only deployment is not possible       |
-| 18. Final release audit        | Done         | Security, scanner, browser, report, website, docs, CI, deps verified; CONDITIONAL GO |
-| 19. Public GitHub publication  | Done         | 137 files published; Node 22/24 CI passed; repository metadata and clone verified    |
-| 20. Cloud dashboard            | Done locally | Auth, repo connect, private scans, CLI upload, RLS tests; **not deployed**           |
-| 21. Hosted Supabase + preview  | Partial      | Hosted RLS 17/17; OAuth configured; Vercel preview blocked by first-deploy rule      |
-| 21.2 OAuth rotation + gate     | Ready        | Secret rotated, hosted RLS 17/17, Production vars set; deployment approval pending   |
-| 21.3 Pre-production hardening  | Done locally | CSP, headers, Postgres/memory rate limits, token cleanup, observability, tests       |
+| Phase                           | Status       | Notes                                                                                |
+| ------------------------------- | ------------ | ------------------------------------------------------------------------------------ |
+| 0. Environment inspection       | Done         | Tools and resources inspected before scaffolding                                     |
+| 1. Architecture                 | Done         | `docs/architecture.md`; package boundaries and scan pipeline documented              |
+| 2. Foundation                   | Done         | npm workspaces, strict TypeScript, ESLint, Prettier, Vitest, tsup                    |
+| 3. Project discovery            | Done         | Frameworks, languages, scripts, routes, env references, deployment, integrations     |
+| 4. Static security              | Done         | Secrets, source rules, repository hygiene, dependencies, Supabase RLS                |
+| 5. HTTP checks                  | Done         | Headers, cookies, CORS, transport, sensitive paths, error leakage                    |
+| 6. API testing                  | Done         | Configured endpoints and OpenAPI paths, identities, anonymous-access checks          |
+| 7. Authorization testing        | Done         | Two-identity BOLA probes, read-only default, env-based identities                    |
+| 8. Browser automation           | Done         | Page load, workflows, links, mobile overflow, screenshots                            |
+| 9. Accessibility + performance  | Done         | axe-core and navigation metrics with budgets                                         |
+| 10. Reports                     | Done         | Terminal, self-contained HTML, JSON, SARIF 2.1.0, local storage                      |
+| 11. CLI                         | Done         | All required commands, JSON/quiet/verbose/CI modes, exit codes                       |
+| 12. Demo apps                   | Done         | Intentionally vulnerable and hardened loopback servers                               |
+| 13. Tests                       | Done         | Unit, live integration, browser E2E, CLI smoke; 53/53 passing                        |
+| 14. Website                     | Done locally | Public pages server-rendered; optional dashboard is server-rendered; not deployed    |
+| 15. Documentation + CI          | Done         | README, guides, policies, templates, workflow, deployment configs                    |
+| 16. GitHub publication          | Done         | Public repository `MHK-ctrl/launchproof`; hosted CI green; no release tag yet        |
+| 17. Live deployment             | Blocked      | Vercel first deployment is Production; preview-only deployment is not possible       |
+| 18. Final release audit         | Done         | Security, scanner, browser, report, website, docs, CI, deps verified; CONDITIONAL GO |
+| 19. Public GitHub publication   | Done         | 137 files published; Node 22/24 CI passed; repository metadata and clone verified    |
+| 20. Cloud dashboard             | Done locally | Auth, repo connect, private scans, CLI upload, RLS tests; **not deployed**           |
+| 21. Hosted Supabase + preview   | Partial      | Hosted RLS 17/17; OAuth configured; Vercel preview blocked by first-deploy rule      |
+| 21.2 OAuth rotation + gate      | Ready        | Secret rotated, hosted RLS 17/17, Production vars set; deployment approval pending   |
+| 21.3 Pre-production hardening   | Done locally | CSP, headers, Postgres/memory rate limits, token cleanup, observability, tests       |
+| 21.4 Hosted audit + 003 review  | Done         | Hosted read-only audit; service-role 403 defect found and fixed in migration 003     |
+| 21.5 Hosted apply + validation  | Done         | Ledger 001/002/003; 60/60 synthetic hosted checks; zero rows/users left behind       |
+| 21.6 Final pre-deployment audit | Ready        | Local verify/audit pass; hosted read-only re-check matches; no deployment blockers   |
 
 ## Initial implementation verification (historical)
 
@@ -685,3 +688,71 @@ pre-execution SHA-256 check. No guard was bypassed and no reviewed SQL was alter
   authorization**. Database readiness does not authorize deployment.
 
 Full evidence is in [`PHASE_21_5_REPORT.md`](PHASE_21_5_REPORT.md).
+
+## Phase 21.6 — Final pre-deployment audit and launch preparation
+
+Continued on 2026-11-23 from `4151a129` on `feat/cloud-dashboard`. This phase audited the exact
+candidate commit, re-verified the hosted state **read-only**, and prepared the first Vercel
+deployment plan and a post-deployment test plan. It did **not** deploy, merge, tag, release, publish,
+modify OAuth secrets, or mutate the hosted database.
+
+### Completed — VERIFIED — LOCAL
+
+- Branch `feat/cloud-dashboard` at `4151a1298fe6217eb358772f3ee99bdd15f21f78`, in sync with
+  `origin/feat/cloud-dashboard`, clean worktree, `git diff --check` exit 0, no untracked files.
+- `npm run verify`: format, lint, core/browser/CLI builds, typecheck, **20 test files / 109 tests**,
+  and the production web build all passed (exit 0).
+- `npm audit --audit-level=high`: 0 vulnerabilities. `npm ci --dry-run`: `up to date` (lockfile in
+  sync with `package.json`). No dependency changed.
+- Focused security review of authentication, session handling, tenant ownership, repository consent,
+  CLI PKCE/token lifecycle, upload validation, download authorization, account deletion,
+  sanitization, rate limiting, error/log hygiene, CSP nonce, security headers, cookies, SSRF, XSS,
+  injection, CSRF, env separation, and RLS/service-role usage. No new vulnerability found; no
+  speculative hardening applied.
+- Secret scan over tracked files found only the project's own redaction regexes and synthetic test
+  strings. `.env` remains gitignored; no local database artifact or test identity is tracked.
+- Local dev-server smoke: `/api/health` 200, `/api/cli/repositories` 401 without a token, `/login`
+  200; the proxy/CSP request pipeline is active.
+
+### Completed — VERIFIED — HOSTED (read-only, no mutation)
+
+- Host `ypqpqgnviphwxddrpieq.supabase.co`; service-role PostgREST reads returned **200** on all eight
+  application relations with `count=0`; anonymous reads returned **401** on all eight.
+- Exposed RPC paths `/rpc/consume_rate_limit`, `/rpc/cleanup_cli_tokens`, `/rpc/cleanup_rate_limits`
+  and the seven tables plus `repository_scan_stats` were present, reconfirming the 003 objects.
+- Auth settings returned 200 with the `github` provider enabled.
+- Migration-ledger rows and the Supabase Site URL/redirect allowlist were **not** re-queried this
+  phase (no read-only management credential in session); no SQL has run since the Phase 21.5
+  verification. The saved Phase 21.5 ledger and baseline evidence remain authoritative.
+
+### Configuration (names and scopes only; no values read)
+
+- Preview and Production: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` (Config).
+- Preview and Production: `SUPABASE_SERVICE_ROLE_KEY`, `LAUNCHPROOF_ENCRYPTION_KEY` (Secret).
+- `APP_BASE_URL`: not set. Safe for the first deployment because `appBaseUrl()` falls back to
+  `VERCEL_PROJECT_PRODUCTION_URL`, which Vercel documents as always set at build and runtime. It must
+  be set to the real origin and redeployed immediately after the first deployment.
+- Vercel project: root `.`, framework Next.js 16.4.6, install `npm ci`, build `npm run build:web`,
+  Node.js `26.x` (locally `26.0.0`; Vercel documents 26.x as available), Git not connected, **no
+  deployments**, region `iad1`.
+
+### Blockers and required post-deployment configuration
+
+- **No genuine deployment blocker was found** in code, tests, build, lockfile, or project config.
+- Required immediately after the origin exists (owner-authorized, part of the same gate): set
+  `APP_BASE_URL=https://<production-origin>` and redeploy; add exactly
+  `https://<production-origin>/auth/callback` to Supabase URL Configuration and set the Site URL to
+  the production origin (keeping localhost for development). Keep the GitHub OAuth callback at the
+  Supabase callback URL. Until then, GitHub sign-in will not complete against production.
+- Hosted database mutations: none. Deployment: none.
+
+### Blocked / not tested
+
+- Deployed Vercel build/runtime, headers, cookies, CSP behavior, HSTS, GitHub OAuth exchange, live
+  CLI login/upload/download/revocation, deployed account deletion, and two-browser isolation remain
+  **NOT TESTED** because no deployment exists.
+- Hosted concurrency/load, `supabase` CLI list/dry-run, and provider backup remain **NOT TESTED**.
+- The initial Vercel Production deployment remains **BLOCKED pending explicit owner authorization**.
+
+Full evidence, the exact deployment plan, and the post-deployment test plan are in
+[`PHASE_21_6_REPORT.md`](PHASE_21_6_REPORT.md).

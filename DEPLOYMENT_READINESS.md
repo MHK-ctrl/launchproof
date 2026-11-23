@@ -2,7 +2,8 @@
 
 **Status:** implemented locally; hosted 001/002/003 schema, ledger, grants, and RLS verified hosted;
 60/60 low-volume synthetic hosted checks passed; the service-role admin path is unblocked; OAuth
-secret rotated; **not deployed**.
+secret rotated; Phase 21.6 final pre-deployment audit found **no deployment blockers**; **not
+deployed**.
 **Recommended host:** Vercel with the Next.js server runtime.
 **Required services:** Supabase (Auth + PostgreSQL) and a GitHub OAuth App (configured).
 **Deployment gate:** Vercel requires a new project's first deployment to be Production; a Preview-only
@@ -38,6 +39,10 @@ owner authorization**.
   updated without recording the value.
 - Vercel has Production-scoped variables for the four required application values, and Preview-scoped
   variables remain.
+- Phase 21.6 re-verified the candidate commit locally (`npm run verify` exit 0, 20 files / 109
+  tests; `npm audit` 0 vulnerabilities; lockfile in sync) and re-checked the hosted state read-only:
+  service-role 200 on all eight relations with zero rows, anon 401 on all eight, and the 003 limiter
+  and cleanup RPCs exposed. No deployment blocker was found.
 
 ## 2. What is not ready
 
@@ -108,11 +113,15 @@ APP_BASE_URL=https://<host>
 LAUNCHPROOF_ENCRYPTION_KEY=<base64-32-byte-key>
 ```
 
-Current Vercel state, names and scopes only:
+Current Vercel state, names and scopes only (Phase 21.6; no value was read):
 
-- Preview and Production: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` (Config).
-- Preview and Production: `SUPABASE_SERVICE_ROLE_KEY`, `LAUNCHPROOF_ENCRYPTION_KEY` (Secret).
-- `APP_BASE_URL`: unset until the real deployment origin exists.
+| Variable                        | Required    | Preview             | Production          | Validation                                                                                                                                                                                                                 |
+| ------------------------------- | ----------- | ------------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Yes         | Configured (Config) | Configured (Config) | Present; public.                                                                                                                                                                                                           |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes         | Configured (Config) | Configured (Config) | Present; public by design.                                                                                                                                                                                                 |
+| `SUPABASE_SERVICE_ROLE_KEY`     | Yes         | Configured (Secret) | Configured (Secret) | Present; server-only, value hidden.                                                                                                                                                                                        |
+| `LAUNCHPROOF_ENCRYPTION_KEY`    | Yes         | Configured (Secret) | Configured (Secret) | Present; must decode to 32 bytes, validated on first GitHub connect after deployment.                                                                                                                                      |
+| `APP_BASE_URL`                  | Recommended | Not set             | Not set             | Safe for the first deployment: `appBaseUrl()` falls back to `VERCEL_PROJECT_PRODUCTION_URL` (always set at build and runtime). Set it explicitly to the real origin immediately after the first deployment, then redeploy. |
 
 Generate the encryption key with:
 
@@ -143,9 +152,15 @@ npm audit --audit-level=high
 
 Current results:
 
-- `npm run verify` (Phase 21.5, after documentation updates): exit 0; format, lint, typecheck,
-  core/browser/CLI builds, **20 test files / 109 tests**, and production web build passed.
-- `npm audit --audit-level=high`: 0 vulnerabilities (no dependency change in Phase 21.5).
+- `npm run verify` (Phase 21.6, on `4151a129`): exit 0; format, lint, typecheck, core/browser/CLI
+  builds, **20 test files / 109 tests**, and production web build passed.
+- `npm audit --audit-level=high`: 0 vulnerabilities (no dependency change in Phase 21.6).
+- `npm ci --dry-run`: `up to date`, confirming the lockfile matches `package.json` for Vercel's
+  `npm ci` install.
+- Local `next dev` smoke: `/api/health` 200, `/api/cli/repositories` 401 without a token, `/login`
+  200, with the proxy/CSP pipeline active.
+- Hosted read-only re-check: service-role 200 on all eight relations with zero rows, anon 401 on all
+  eight, and the 003 limiter/cleanup RPCs exposed. No mutation.
 - Hosted synthetic validation: **60/60** checks passed, zero application rows and zero auth users
   after teardown. Artifact: `supabase/manual/PHASE_21_5_HOSTED_VALIDATION.json`.
 - Project secret scan: 0 hardcoded-secret findings; one expected medium `.env` hygiene finding for
@@ -242,6 +257,11 @@ synthetic suite passed 60/60 checks with verified teardown.
 **Deployment gate — OPEN:**
 
 > **Authorize the initial LaunchProof Production deployment to Vercel.**
+
+The Phase 21.6 audit found no genuine deployment blocker. After the first deployment produces the
+production origin, set `APP_BASE_URL` and redeploy, then update the Supabase Site URL and add
+exactly `https://<production-origin>/auth/callback` to the redirect allowlist before functional
+testing.
 
 Database readiness does not authorize deployment. No production deployment will occur until explicit
 owner authorization is given in a subsequent message.
