@@ -16,12 +16,12 @@ owner authorization**.
 ## 1. What is ready
 
 - The Next.js app builds in server mode:
-  - public pages are prerendered;
+  - public pages are server-rendered per request so the CSP nonce matches the HTML;
   - `/dashboard/*`, `/login`, `/cli/*`, `/auth/*`, and `/api/*` are dynamic;
   - no `output: "export"`;
   - `trailingSlash` is false so API paths do not redirect.
-- `vercel.json` uses `framework: "nextjs"`, `npm ci`, `npm run build:web`, and security/no-store
-  headers.
+- `vercel.json` uses `framework: "nextjs"`, `npm ci`, and `npm run build:web`; static security and
+  private no-store headers are defined in `apps/web/next.config.ts`.
 - The PostgreSQL migration defines the schema, composite tenant foreign keys, RLS, grants, and the
   aggregate view. The corrective grant migration is applied.
 - GitHub sign-in through Supabase, a separate repository consent flow, an encrypted short-lived
@@ -45,11 +45,15 @@ owner authorization**.
   exists would be inaccurate.
 - No live CLI login, upload, download, revocation, or account deletion test.
 - No deployed two-account browser isolation test; only hosted database RLS and local PGlite tests.
-- No deployed header, cookie, CSP, HSTS, or performance measurement.
+- No deployed header, cookie, CSP, HSTS, or performance measurement. CSP and security headers are
+  implemented locally and verified by local production-server checks and tests; deployed runtime
+  behavior is **NOT TESTED**.
 - GitHub Actions/OIDC upload is not implemented.
 - No custom domain, monitoring, alerting, audit logging, MFA requirement, or scheduled cleanup job
   for expired CLI authorization rows.
-- The hosted project has no migration ledger; migrations were applied manually.
+- The hosted project has no migration ledger; migrations were applied manually. A safe manual
+  reconciliation SQL and workflow are prepared in `supabase/manual/` and `supabase/MIGRATION_TRACKING.md`;
+  applying them to the hosted project is **BLOCKED** (owner action, not authorized in Phase 21.3).
 - The GitHub `repo` scope is broad for private repositories; the app only issues GETs and does not
   store the provider token.
 
@@ -59,7 +63,9 @@ owner authorization**.
 
 - Project `launchproof` (`ypqpqgnviphwxddrpieq`) exists on the free plan.
 - `202611230001_cloud_dashboard.sql` and `202611230002_revoke_default_table_privileges.sql` are
-  applied manually. No `supabase_migrations.schema_migrations` ledger exists.
+  applied manually. No `supabase_migrations.schema_migrations` ledger exists. A safe reconciliation
+  script is prepared at `supabase/manual/20261123_reconcile_migration_ledger.sql`; it has **not** been
+  run against the hosted project.
 - GitHub provider is enabled with the matching OAuth App client ID and the callback
   `https://ypqpqgnviphwxddrpieq.supabase.co/auth/v1/callback`. The secret was rotated in Phase 21.2.
 - Site URL remains `http://127.0.0.1:3000`; redirect allowlist contains only
@@ -122,11 +128,13 @@ npm audit --audit-level=high
 
 Current results:
 
-- `npm run verify`: exit 0; format, lint, typecheck, core/browser/CLI builds, 15 test files / 68
-  tests, and production web build passed.
+- `npm run verify` (Phase 21.3): exit 0; format, lint, typecheck, core/browser/CLI builds, 20 test
+  files / 105 tests, and production web build passed.
 - `npm audit --audit-level=high`: 0 vulnerabilities.
-- Secret scan of 200 tracked files and 19 client static files for exact secret values: 0 hits.
-- Production `next start` health: `/api/health` 200; public pages 200.
+- Secret-pattern scan of the Phase 21.3 diff and untracked files: 0 hits.
+- Production `next start` health: `/api/health` 200; public pages 200. CSP includes a per-request
+  nonce and `strict-dynamic` with no `unsafe-inline`/`unsafe-eval`; the sample report keeps a
+  path-specific policy without `strict-dynamic`.
 - Signed-out `/dashboard`: redirects to `/login?next=%2Fdashboard`.
 - axe WCAG A/AA on eight public pages: 0 violations after fixing the logo accessible name and
   `/get-started` mobile overflow.
@@ -164,7 +172,9 @@ part of this step without separate approval.
 - [ ] Anonymous requests return 401 and no data.
 - [ ] Revoke-all CLI tokens invalidates an active token.
 - [ ] Account deletion removes auth identity, tenant rows, session, and connect cookie.
-- [ ] Security headers are present on the deployed host; CSP status is recorded honestly.
+- [ ] Security headers and CSP are present on the deployed host; nonce behavior and absence of CSP
+      violations are confirmed in the browser. (Local production-server verification passed in Phase 21.3;
+      deployed runtime is **NOT TESTED**.)
 - [ ] No secrets, source contents, full local paths, or `.env` values appear in requests or logs.
 - [ ] Console errors, failed requests, mobile layout, and basic performance are checked.
 - [ ] A rollback target exists and is understood.
@@ -176,8 +186,12 @@ part of this step without separate approval.
 - The service-role key bypasses RLS if it leaks; it is a high-value server secret.
 - The GitHub `repo` scope is broad and cannot be made read-only for private repositories through
   GitHub OAuth. A GitHub App would be required for finer permissions.
-- In-memory rate limits are per instance and reset on deploy.
-- No CSP, MFA, audit log, monitoring, or alerting is implemented.
+- Rate limiting is atomic in Postgres when the `consume_rate_limit` function/migration is available,
+  with a bounded per-process memory fallback when the DB path is unavailable. It is **not** a
+  dedicated distributed rate-limit service; the memory fallback is per instance.
+- A nonce-based CSP, static security headers, and privacy-respecting structured server logs are
+  implemented locally. Deployed CSP/HSTS/cookie behavior, MFA, external monitoring/alerting, and
+  audit logging remain unimplemented or unverified.
 - Sanitization is heuristic; review finding text before uploading.
 - Vercel's runtime, proxy, header, and cookie behavior are unverified until a real deployment exists.
 - No deployment has occurred, so no production availability, performance, or recovery claim is made.

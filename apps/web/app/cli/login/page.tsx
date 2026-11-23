@@ -2,9 +2,9 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 
 import { PageHeader } from '@/components/dashboard-ui';
-import { rateLimit } from '@/lib/api';
 import { getApiSession, requireUser } from '@/lib/auth';
 import { randomToken, sha256 } from '@/lib/crypto';
+import { rateLimit } from '@/lib/rate-limit';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 
 export const dynamic = 'force-dynamic';
@@ -36,7 +36,7 @@ async function startLoginAction(formData: FormData) {
     redirect('/cli/login?error=invalid');
   }
 
-  const limit = rateLimit(`cli-login:${session.user.id}`, 10, 60_000);
+  const limit = await rateLimit(`cli-login:${session.user.id}`, 10, 60_000);
   if (!limit.allowed) {
     redirect('/cli/login?error=rate_limited');
   }

@@ -171,9 +171,17 @@ provider token.
 
 ### 5.6 Rate limits
 
-In-memory limits apply to CLI authorization starts (per user), CLI exchanges (per client address), and
-CLI login page requests (per user). These are per server instance. They reduce casual abuse; they are
-not a distributed rate limiter.
+Limits are enforced by `apps/web/lib/rate-limit.ts`. When the `consume_rate_limit` SQL function from
+migration `202611230003` is available, an atomic Postgres fixed-window counter is shared across server
+instances. If that function or the database is unavailable, a bounded per-process memory fallback is
+used. The fallback is not a distributed security boundary; it is documented as defence in depth.
+
+Limits: CLI authorization starts 10/min per user, CLI login page 10/min per user, CLI token exchange
+20/min per trusted address, scan upload 30/min per user, repository connect 20/min per user, report
+download 60/min per user, account deletion 5/hour per user. The client address comes only from
+`x-vercel-forwarded-for` when `VERCEL`/`VERCEL_ENV` indicates a verified Vercel runtime; otherwise it
+is `local`/`unknown`. The stored key is a SHA-256 hash, never a raw IP. A caller-supplied
+`x-forwarded-for` or `x-real-ip` is not trusted.
 
 ### 5.7 Upload validation and sanitization
 
@@ -213,16 +221,16 @@ recorded separately below; it exercises PostgREST with real JWT claims and dispo
 rejection, server secret/path normalization, safe relative paths, gate recomputation, malicious
 "passed" gate rejection, and CLI payload path/secret/reference filtering.
 
-`npm test` on 2026-11-23: **15 files, 68 tests passed**.
+`npm test` on 2026-11-23 after Phase 21.3: **20 files, 105 tests passed**.
 
-`npm run build:web` on the same tree: passed. Public pages prerendered; dashboard and API routes
-dynamic.
+`npm run build:web` on the same tree: passed. Public pages are server-rendered per request so the
+CSP nonce matches the HTML; dashboard and API routes are dynamic.
 
-On Phase 21.2, `npm run verify` passed with 15 test files and 68 tests; the production web build,
+On Phase 21.3, `npm run verify` passed with 20 test files and 105 tests; the production web build,
 format, lint, and typecheck also passed. `npm audit --audit-level=high` reported 0 vulnerabilities. A
-secret scan of 200 tracked files and 19 client static files for exact secret values found 0 hits.
-The hosted RLS run was repeated after OAuth rotation and passed 17/17; both disposable identities were
-deleted. These checks do not substitute for a deployed-application isolation test.
+secret scan of the Phase 21.3 diff and untracked files found 0 hits. The hosted RLS run was repeated
+after OAuth rotation and passed 17/17; both disposable identities were deleted. These checks do not
+substitute for a deployed-application isolation test.
 
 ## 7. Residual risks and unverified areas
 
@@ -237,9 +245,13 @@ deleted. These checks do not substitute for a deployed-application isolation tes
 4. **No MFA requirement.** Security depends on the user's GitHub account security.
 5. **No audit log or anomaly detection.** There is no record of who viewed which scan beyond ordinary
    platform logs, and no alerting for repeated authorization failures.
-6. **In-memory rate limits** reset on deploy and are not shared across serverless instances.
-7. **XSS would defeat browser-side controls.** React escaping and the lack of raw HTML rendering are
-   the current mitigation; there is no formal CSP for the dashboard.
+6. **Rate-limit fallback.** The Postgres limiter is shared when migration 003 is applied. The memory
+   fallback resets on deploy and is not shared across serverless instances. Migration 003 and its SQL
+   tests are local; the hosted function is not yet applied.
+7. **CSP is local, not deployed.** A nonce-based CSP restricts scripts, styles, framing, connections,
+   objects, forms, and base URLs; local production-server and headless-browser checks found no CSP
+   violations on public pages. The dashboard's authenticated flows and the deployed Vercel host are
+   **NOT TESTED**. CSP is defense in depth, not a substitute for React escaping.
 8. **Local malware can read CLI credentials.** Keychain and mode-0600 files protect against other
    users and casual inspection, not a compromised local account. The CLI cannot protect a token from
    a process already running as the user.

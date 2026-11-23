@@ -240,7 +240,16 @@ export interface Database {
         Relationships: [];
       };
     };
-    Functions: { [_ in never]: never };
+    Functions: {
+      consume_rate_limit: {
+        Args: { p_key: string; p_limit: number; p_window_seconds: number };
+        Returns: Array<{ allowed: boolean; remaining: number; retry_after: number }>;
+      };
+      cleanup_cli_tokens: {
+        Args: { p_user_id: string };
+        Returns: number;
+      };
+    };
     Enums: { [_ in never]: never };
     CompositeTypes: { [_ in never]: never };
   };

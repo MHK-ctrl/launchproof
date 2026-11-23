@@ -121,6 +121,11 @@ export default async function RepositoriesPage() {
             </table>
           </div>
         )}
+        <p className="mt-4 text-[11px] leading-5 text-[var(--subtle)]">
+          Disconnecting clears LaunchProof&apos;s local GitHub access for this browser. To remove
+          the GitHub authorization itself, revoke LaunchProof in your GitHub settings; GitHub does
+          not provide a read-only private-repository OAuth scope.
+        </p>
       </div>
     </div>
   );

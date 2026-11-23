@@ -10,7 +10,7 @@ Last updated: 2026-11-23
 
 LaunchProof is implemented as a local-first npm-workspaces monorepo with a working CLI, static and
 live verification engine, optional Playwright browser checks, report renderers, demo applications,
-tests, documentation, CI, prerendered public pages, and an optional server-rendered cloud dashboard.
+tests, documentation, CI, server-rendered public pages, and an optional server-rendered cloud dashboard.
 
 The source tree has completed the phase 18 release-readiness audit and is published as a public
 source repository at https://github.com/MHK-ctrl/launchproof. Hosted CI passes on Node.js 22 and 24.
@@ -53,7 +53,7 @@ was updated without recording the new value. No large third-party application ha
 | 11. CLI                        | Done         | All required commands, JSON/quiet/verbose/CI modes, exit codes                       |
 | 12. Demo apps                  | Done         | Intentionally vulnerable and hardened loopback servers                               |
 | 13. Tests                      | Done         | Unit, live integration, browser E2E, CLI smoke; 53/53 passing                        |
-| 14. Website                    | Done locally | Public pages prerendered; optional dashboard is server-rendered; not deployed        |
+| 14. Website                    | Done locally | Public pages server-rendered; optional dashboard is server-rendered; not deployed    |
 | 15. Documentation + CI         | Done         | README, guides, policies, templates, workflow, deployment configs                    |
 | 16. GitHub publication         | Done         | Public repository `MHK-ctrl/launchproof`; hosted CI green; no release tag yet        |
 | 17. Live deployment            | Blocked      | Vercel first deployment is Production; preview-only deployment is not possible       |
@@ -62,6 +62,7 @@ was updated without recording the new value. No large third-party application ha
 | 20. Cloud dashboard            | Done locally | Auth, repo connect, private scans, CLI upload, RLS tests; **not deployed**           |
 | 21. Hosted Supabase + preview  | Partial      | Hosted RLS 17/17; OAuth configured; Vercel preview blocked by first-deploy rule      |
 | 21.2 OAuth rotation + gate     | Ready        | Secret rotated, hosted RLS 17/17, Production vars set; deployment approval pending   |
+| 21.3 Pre-production hardening  | Done locally | CSP, headers, Postgres/memory rate limits, token cleanup, observability, tests       |
 
 ## Initial implementation verification (historical)
 
@@ -349,7 +350,7 @@ deployment, a live Supabase run, or a real GitHub OAuth run. Those are blocked o
 ### Delivered
 
 - Next.js server output (static export removed) with dynamic dashboard/auth/API routes and
-  prerendered public pages.
+  server-rendered public pages (dynamic for the CSP nonce).
 - Supabase SSR authentication, GitHub sign-in through Supabase, and a separate repository consent
   flow using GitHub OAuth `repo` scope.
 - Encrypted, user-bound, 15-minute HttpOnly connect cookie for the GitHub provider token. The token is
@@ -560,3 +561,36 @@ UI fixes in this phase: the logo link now uses its visible text as the accessibl
    isolation, account deletion, deployed headers, mobile, and lightweight performance checks.
 4. Not tested: deployed runtime, OAuth provider exchange, CLI upload, CSP/HSTS behavior, monitoring,
    external audit, and distributed rate limits. No URL is claimed.
+
+## Phase 21.3 — Pre-production hardening
+
+Continued on 2026-11-23 from `215a3e2` on `feat/cloud-dashboard`. This phase prepared and verified
+security hardening locally; it did **not** deploy or mutate hosted Supabase.
+
+### Completed locally
+
+- Per-request nonce CSP with `strict-dynamic`, static security headers in `next.config.ts`, and
+  dynamic public-page rendering so nonces match the HTML.
+- Atomic Postgres fixed-window rate limiting with a bounded in-memory fallback and hashed, trusted
+  client keys only on a verified Vercel runtime.
+- CLI token validity checks and failure-safe opportunistic cleanup.
+- Account-deletion auth/cleanup separation, repository-disconnect cookie clearing, and revocation
+  success/error feedback.
+- Structured JSON logs with request IDs and redacted error names/codes.
+- Additive, idempotent migration `202611230003_security_hardening.sql`, a manual migration-ledger
+  reconciliation script, and `supabase/MIGRATION_TRACKING.md`.
+
+### Verification
+
+`npm run verify` passed with **20 test files / 105 tests**, format, lint, typecheck, builds, and the
+production web build. `npm audit --audit-level=high` reported 0 vulnerabilities. A local production
+server passed header, CSP, page-load, sample-report, and sign-in-message checks. Full evidence and
+status labels are in [`PHASE_21_3_REPORT.md`](PHASE_21_3_REPORT.md).
+
+### Blocked / not tested
+
+- Hosted migration-ledger reconciliation and migration `003` are **BLOCKED** pending owner
+  authorization; neither was run.
+- Vercel deployment, live OAuth, live CLI, authenticated dashboard CSP, two-account browser
+  isolation, and deployed performance remain **NOT TESTED**.
+- The initial Production deployment remains **BLOCKED pending explicit owner authorization**.

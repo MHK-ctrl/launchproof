@@ -2,8 +2,10 @@ import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 
 import { PageHeader } from '@/components/dashboard-ui';
+import { deleteAccountForUser } from '@/lib/account-deletion';
 import { getApiSession, githubIdentity, requireUser } from '@/lib/auth';
 import { clearConnectToken } from '@/lib/github';
+import { rateLimit } from '@/lib/rate-limit';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 
@@ -18,18 +20,29 @@ async function deleteAccountAction(formData: FormData) {
   const session = await getApiSession();
   if (!session) redirect('/login?next=/dashboard/account');
 
+  const limit = await rateLimit(`account-delete:user:${session.user.id}`, 5, 60 * 60_000);
+  if (!limit.allowed) redirect('/dashboard/account?error=rate_limited');
+
   const admin = createSupabaseAdminClient();
   const userId = session.user.id;
   // Delete the auth identity first. The schema cascades from auth.users -> profiles -> tenant rows,
   // so a failure leaves the account intact rather than deleting data without deleting the login.
-  const { error } = await admin.auth.admin.deleteUser(userId);
-  if (error) redirect('/dashboard/account?error=delete');
-  await admin.from('findings').delete().eq('user_id', userId);
-  await admin.from('scans').delete().eq('user_id', userId);
-  await admin.from('repositories').delete().eq('user_id', userId);
-  await admin.from('cli_auth_requests').delete().eq('user_id', userId);
-  await admin.from('cli_tokens').delete().eq('user_id', userId);
-  await admin.from('profiles').delete().eq('id', userId);
+  const deletion = await deleteAccountForUser(admin, userId);
+  if (!deletion.ok) {
+    if (deletion.stage === 'cleanup') {
+      // The auth identity is gone, so the dashboard is no longer reachable. Clear the local
+      // session and surface the incomplete cleanup on the public sign-in page.
+      const supabase = await createSupabaseServerClient();
+      try {
+        await supabase.auth.signOut();
+      } catch {
+        // The deleted auth identity may already invalidate the session.
+      }
+      await clearConnectToken();
+      redirect('/login?error=account_cleanup');
+    }
+    redirect('/dashboard/account?error=delete');
+  }
 
   const supabase = await createSupabaseServerClient();
   await supabase.auth.signOut();
@@ -87,6 +100,11 @@ export default async function AccountPage({
           {params.error === 'delete' ? (
             <p className="mt-3 rounded-lg border border-[var(--red)]/40 bg-[var(--red)]/10 px-3 py-2 text-xs text-[var(--red)]">
               The account could not be deleted. No data was removed; try again.
+            </p>
+          ) : null}
+          {params.error === 'rate_limited' ? (
+            <p className="mt-3 rounded-lg border border-[var(--red)]/40 bg-[var(--red)]/10 px-3 py-2 text-xs text-[var(--red)]">
+              Too many deletion attempts. Wait before trying again.
             </p>
           ) : null}
           <form action={deleteAccountAction} className="mt-4 space-y-3">

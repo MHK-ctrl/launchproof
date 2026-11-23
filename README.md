@@ -15,7 +15,7 @@ badge you have to trust.
 > database whose RLS passed 17/17 adversarial checks after the OAuth secret was rotated. It is **not
 > deployed**: Vercel requires a new project's first deployment to be Production, and the initial
 > Production deployment is awaiting explicit owner authorization. Real GitHub OAuth and CLI upload
-> remain untested. The prerendered public pages remain available without an account. Read
+> remain untested. The server-rendered public pages remain available without an account. Read
 > [limitations](docs/limitations.md) before relying on a result.
 
 ## Why

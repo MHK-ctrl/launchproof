@@ -5,7 +5,7 @@ connection, private scan history, and explicit CLI uploads.
 
 Local scans do not need any of this. If you only want the CLI, skip this document.
 
-**Current state:** the code exists; the migration and grant-hardening migration have been applied to a
+**Current state:** the code exists; the cloud-dashboard and grant-hardening migrations have been applied to a
 hosted Supabase project (`launchproof`, ref `ypqpqgnviphwxddrpieq`), and the GitHub provider is
 configured. Hosted RLS passed 17/17 checks with disposable identities after the OAuth secret
 rotation. The previously exposed GitHub client secret was rotated and the old secret deleted; no
@@ -77,6 +77,19 @@ the profile trigger, composite foreign keys, indexes, grants, RLS policies, and 
 
 Do not re-run a partially applied migration blindly in production. Use a fresh project for the first
 verification.
+
+### 2.2 Migration ledger and migration 003
+
+The hosted project has **no** `supabase_migrations.schema_migrations` ledger because migrations 001
+and 002 were applied manually. Do not run `supabase db push` until the ledger is reconciled. Phase
+21.3 prepared a non-destructive reconciliation script and verification queries in
+[`supabase/MIGRATION_TRACKING.md`](supabase/MIGRATION_TRACKING.md) and
+`supabase/manual/20261123_reconcile_migration_ledger.sql`; applying them is an **owner action** that
+has not been performed.
+
+Migration `202611230003_security_hardening.sql` adds the Postgres rate-limit function/table and CLI
+token cleanup function. It is additive and locally tested but **not applied** to hosted Supabase.
+Apply it only after the ledger reconciliation and schema verification.
 
 ## 3. Configure GitHub OAuth
 
@@ -194,8 +207,11 @@ The repository's `vercel.json` already defines:
 - `framework: "nextjs"`;
 - `installCommand: "npm ci"`;
 - `buildCommand: "npm run build:web"`;
-- no static export;
-- security and no-store headers.
+- no static export.
+
+Static security headers are configured in `apps/web/next.config.ts`; the per-request nonce CSP is
+generated in `apps/web/proxy.ts`. Private no-store/noindex headers apply to dashboard, login, auth,
+CLI, and API routes. Verify them on the deployed host, not just locally.
 
 Steps, after owner approval:
 
@@ -246,6 +262,12 @@ has been checked.
 - [ ] “Revoke all CLI tokens” in settings invalidates the CLI token.
 - [ ] Account deletion removes the dashboard data and signs the browser out.
 - [ ] Response headers include `Cache-Control: private, no-store` on private data.
+- [ ] `Content-Security-Policy` is present, uses a per-request nonce, and contains no
+      `unsafe-inline`/`unsafe-eval` in Production; the browser console shows no CSP violations.
+- [ ] `X-Frame-Options: DENY`, `frame-ancestors 'none'`, and `X-Content-Type-Options: nosniff` are
+      present on the deployed host.
+- [ ] Migration 003 is applied and the Postgres rate limiter is active; verify a 429 response and
+      `Retry-After` without exhausting a real user's limit.
 - [ ] No tokens, full local paths, source contents, or `.env` values appear in dashboard data,
       network requests, or server logs.
 

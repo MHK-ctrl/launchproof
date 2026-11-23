@@ -2,30 +2,66 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 import { getSupabasePublicConfig, isSupabaseConfigured } from '@/lib/env';
+import { buildContentSecurityPolicy } from '@/lib/security-headers';
 
 export async function proxy(request: NextRequest): Promise<NextResponse> {
-  let response = NextResponse.next({ request });
-  if (!isSupabaseConfigured()) return response;
-
-  const { url, anonKey } = getSupabasePublicConfig();
-  const supabase = createServerClient(url, anonKey, {
-    cookies: {
-      getAll() {
-        return request.cookies.getAll();
-      },
-      setAll(cookiesToSet) {
-        for (const { name, value } of cookiesToSet) {
-          request.cookies.set(name, value);
-        }
-        response = NextResponse.next({ request });
-        for (const { name, value, options } of cookiesToSet) {
-          response.cookies.set(name, value, options);
-        }
-      },
-    },
+  const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
+  const isHttps =
+    request.nextUrl.protocol === 'https:' || request.headers.get('x-forwarded-proto') === 'https';
+  // The offline sample report is a fixed same-origin HTML artifact with an external script that
+  // cannot carry a per-request nonce. It keeps `script-src 'self'` without `strict-dynamic`; all
+  // other routes use the stronger nonce + strict-dynamic policy.
+  const isStaticReport = request.nextUrl.pathname === '/sample-report.html';
+  const contentSecurityPolicy = buildContentSecurityPolicy({
+    nonce,
+    isDev: process.env.NODE_ENV === 'development',
+    supabaseUrl: isSupabaseConfigured() ? getSupabasePublicConfig().url : null,
+    upgradeInsecureRequests: isHttps,
+    strictDynamic: !isStaticReport,
   });
 
-  await supabase.auth.getUser();
+  // Next.js extracts the nonce from the request CSP header and applies it to its inline
+  // framework scripts and styles during server rendering. Pages must be dynamically rendered;
+  // app/layout.tsx calls connection() for that reason.
+  const requestHeadersWithCsp = () => {
+    const headers = new Headers(request.headers);
+    headers.set('x-nonce', nonce);
+    headers.set('Content-Security-Policy', contentSecurityPolicy);
+    return headers;
+  };
+
+  let response = NextResponse.next({ request: { headers: requestHeadersWithCsp() } });
+
+  if (isSupabaseConfigured()) {
+    const { url, anonKey } = getSupabasePublicConfig();
+    const supabase = createServerClient(url, anonKey, {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          for (const { name, value } of cookiesToSet) {
+            request.cookies.set(name, value);
+          }
+          response = NextResponse.next({ request: { headers: requestHeadersWithCsp() } });
+          for (const { name, value, options } of cookiesToSet) {
+            response.cookies.set(name, value, options);
+          }
+        },
+      },
+    });
+
+    try {
+      // Refresh Supabase cookies before rendering. A transient auth refresh failure must not
+      // take public pages offline; protected routes still enforce their own session checks.
+      await supabase.auth.getUser();
+    } catch {
+      // Intentionally ignore: the response still carries the CSP and any cookies Supabase set.
+    }
+  }
+
+  response.headers.set('Content-Security-Policy', contentSecurityPolicy);
+  response.headers.set('x-nonce', nonce);
   return response;
 }
 

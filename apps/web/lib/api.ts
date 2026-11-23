@@ -78,38 +78,3 @@ export async function readJsonBody(
     };
   }
 }
-
-interface RateWindow {
-  count: number;
-  resetAt: number;
-}
-
-const rateWindows = new Map<string, RateWindow>();
-
-export function rateLimit(
-  key: string,
-  limit: number,
-  windowMs: number,
-): { allowed: boolean; retryAfter: number } {
-  const now = Date.now();
-  const existing = rateWindows.get(key);
-  if (!existing || existing.resetAt <= now) {
-    if (rateWindows.size > 10_000) {
-      for (const [entryKey, entry] of rateWindows) {
-        if (entry.resetAt <= now) rateWindows.delete(entryKey);
-      }
-    }
-    rateWindows.set(key, { count: 1, resetAt: now + windowMs });
-    return { allowed: true, retryAfter: 0 };
-  }
-  existing.count += 1;
-  if (existing.count > limit) {
-    return { allowed: false, retryAfter: Math.max(1, Math.ceil((existing.resetAt - now) / 1000)) };
-  }
-  return { allowed: true, retryAfter: 0 };
-}
-
-export function clientAddress(request: Request): string {
-  const forwarded = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim();
-  return forwarded || request.headers.get('x-real-ip') || 'unknown';
-}

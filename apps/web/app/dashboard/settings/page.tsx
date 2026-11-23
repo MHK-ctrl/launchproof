@@ -14,16 +14,22 @@ async function revokeCliTokensAction() {
   const session = await getApiSession();
   if (!session) redirect('/login?next=/dashboard/settings');
   const admin = createSupabaseAdminClient();
-  await admin
+  const { error } = await admin
     .from('cli_tokens')
     .update({ revoked_at: new Date().toISOString() })
     .eq('user_id', session.user.id)
     .is('revoked_at', null);
   revalidatePath('/dashboard/settings');
+  redirect(error ? '/dashboard/settings?error=revoke' : '/dashboard/settings?revoked=1');
 }
 
-export default async function SettingsPage() {
+export default async function SettingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string; revoked?: string }>;
+}) {
   const user = await requireUser('/dashboard/settings');
+  const params = await searchParams;
   const admin = createSupabaseAdminClient();
   const { count } = await admin
     .from('cli_tokens')
@@ -56,6 +62,16 @@ export default async function SettingsPage() {
               `launchproof login` again.
             </p>
           </div>
+          {params.error === 'revoke' ? (
+            <p className="mt-3 rounded-lg border border-[var(--red)]/40 bg-[var(--red)]/10 px-3 py-2 text-xs text-[var(--red)]">
+              The tokens could not be revoked. Try again before relying on revocation.
+            </p>
+          ) : null}
+          {params.revoked ? (
+            <p className="mt-3 rounded-lg border border-[var(--accent)]/40 bg-[var(--accent)]/10 px-3 py-2 text-xs text-[var(--accent)]">
+              All active CLI tokens were revoked.
+            </p>
+          ) : null}
           <form action={revokeCliTokensAction} className="mt-3">
             <button type="submit" className="btn btn-secondary !py-2 !text-xs" disabled={!count}>
               Revoke all CLI tokens

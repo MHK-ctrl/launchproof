@@ -3,14 +3,21 @@ import { NextResponse } from 'next/server';
 import { apiError } from '@/lib/api';
 import { getApiSession } from '@/lib/auth';
 import { getScan, getScanFindings } from '@/lib/dashboard-data';
+import { rateLimit } from '@/lib/rate-limit';
 
 function isUuid(value: string): boolean {
   return /^[0-9a-f-]{36}$/i.test(value);
 }
 
-export async function GET(_request: Request, { params }: { params: Promise<{ scanId: string }> }) {
+export async function GET(request: Request, { params }: { params: Promise<{ scanId: string }> }) {
   const session = await getApiSession();
   if (!session) return apiError(401, 'unauthorized', 'Authentication required.');
+  const limit = await rateLimit(`scan-download:user:${session.user.id}`, 60, 60_000);
+  if (!limit.allowed) {
+    return apiError(429, 'rate_limited', 'Too many report downloads.', {
+      'Retry-After': String(limit.retryAfter),
+    });
+  }
   const { scanId } = await params;
   if (!isUuid(scanId)) return apiError(404, 'not_found', 'Scan not found.');
 

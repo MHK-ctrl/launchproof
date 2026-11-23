@@ -1,16 +1,11 @@
 import { z } from 'zod';
 
-import {
-  apiError,
-  clientAddress,
-  isSameOrigin,
-  jsonResponse,
-  rateLimit,
-  readJsonBody,
-} from '@/lib/api';
+import { apiError, isSameOrigin, jsonResponse, readJsonBody } from '@/lib/api';
 import { getApiSession } from '@/lib/auth';
 import { base64UrlSha256, randomToken, sha256 } from '@/lib/crypto';
 import { appBaseUrl } from '@/lib/env';
+import { serverErrorResponse } from '@/lib/observability';
+import { clientAddressKey, rateLimit } from '@/lib/rate-limit';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 
 const startSchema = z
@@ -43,7 +38,7 @@ export async function POST(request: Request): Promise<Response> {
     const session = await getApiSession();
     if (!session) return apiError(401, 'unauthorized', 'Sign in to authorize the CLI.');
     if (!isSameOrigin(request)) return apiError(403, 'forbidden', 'Request origin is not allowed.');
-    const limit = rateLimit(`cli-start:${session.user.id}`, 10, 60_000);
+    const limit = await rateLimit(`cli-start:${session.user.id}`, 10, 60_000);
     if (!limit.allowed)
       return apiError(429, 'rate_limited', 'Too many CLI authorization attempts.', {
         'Retry-After': String(limit.retryAfter),
@@ -68,7 +63,13 @@ export async function POST(request: Request): Promise<Response> {
       .select('id')
       .single();
     if (error || !data)
-      return apiError(500, 'cli_start_failed', 'CLI authorization could not be started.');
+      return serverErrorResponse(
+        request,
+        'cli_start_failed',
+        'cli_start_failed',
+        'CLI authorization could not be started.',
+        error,
+      );
 
     const approveUrl = new URL('/cli/authorize', appBaseUrl());
     approveUrl.searchParams.set('request', data.id);
@@ -77,7 +78,7 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   if (action === 'exchange') {
-    const limit = rateLimit(`cli-exchange:${clientAddress(request)}`, 20, 60_000);
+    const limit = await rateLimit(`cli-exchange:${clientAddressKey(request)}`, 20, 60_000);
     if (!limit.allowed)
       return apiError(429, 'rate_limited', 'Too many CLI token exchanges.', {
         'Retry-After': String(limit.retryAfter),
@@ -126,7 +127,14 @@ export async function POST(request: Request): Promise<Response> {
       label: 'LaunchProof CLI',
       expires_at: tokenExpiresAt,
     });
-    if (tokenError) return apiError(500, 'token_store_failed', 'CLI token could not be stored.');
+    if (tokenError)
+      return serverErrorResponse(
+        request,
+        'cli_token_store_failed',
+        'token_store_failed',
+        'CLI token could not be stored.',
+        tokenError,
+      );
 
     return jsonResponse({ token, tokenType: 'Bearer', expiresAt: tokenExpiresAt });
   }

@@ -1,12 +1,13 @@
 import { apiError, jsonResponse } from '@/lib/api';
 import { getApiSession } from '@/lib/auth';
 import { severityRanks } from '@/lib/dashboard-data';
+import { serverErrorResponse } from '@/lib/observability';
 
 function isUuid(value: string): boolean {
   return /^[0-9a-f-]{36}$/i.test(value);
 }
 
-export async function GET(_request: Request, { params }: { params: Promise<{ scanId: string }> }) {
+export async function GET(request: Request, { params }: { params: Promise<{ scanId: string }> }) {
   const session = await getApiSession();
   if (!session) return apiError(401, 'unauthorized', 'Authentication required.');
   const { scanId } = await params;
@@ -25,7 +26,14 @@ export async function GET(_request: Request, { params }: { params: Promise<{ sca
     .select('*')
     .eq('scan_id', scanId)
     .eq('user_id', session.user.id);
-  if (error) return apiError(500, 'findings_failed', 'Could not load findings.');
+  if (error)
+    return serverErrorResponse(
+      request,
+      'findings_load_failed',
+      'findings_failed',
+      'Could not load findings.',
+      error,
+    );
   const ranks = severityRanks();
   const findings = (data ?? []).sort((a, b) => (ranks[b.severity] ?? 0) - (ranks[a.severity] ?? 0));
   return jsonResponse({ findings });

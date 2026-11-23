@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { connection } from 'next/server';
 import type { ReactNode } from 'react';
 
 import { SiteFooter } from '../components/site-footer';
@@ -31,7 +32,10 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  // The proxy generates a per-request CSP nonce. Next.js can only apply it while rendering on
+  // the server, so every page that uses the nonce must be dynamic rather than build-time static.
+  await connection();
   return (
     <html lang="en">
       <body>

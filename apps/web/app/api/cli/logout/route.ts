@@ -1,5 +1,6 @@
 import { apiError, jsonResponse } from '@/lib/api';
 import { resolveCliToken } from '@/lib/cli-auth';
+import { serverErrorResponse } from '@/lib/observability';
 import { createSupabaseAdminClient } from '@/lib/supabase/admin';
 
 export async function POST(request: Request): Promise<Response> {
@@ -11,6 +12,13 @@ export async function POST(request: Request): Promise<Response> {
     .update({ revoked_at: new Date().toISOString() })
     .eq('id', identity.tokenId)
     .eq('user_id', identity.userId);
-  if (error) return apiError(500, 'logout_failed', 'CLI token could not be revoked.');
+  if (error)
+    return serverErrorResponse(
+      request,
+      'cli_logout_failed',
+      'logout_failed',
+      'CLI token could not be revoked.',
+      error,
+    );
   return jsonResponse({ revoked: true });
 }

@@ -168,15 +168,19 @@ database until cleanup or deletion. This is a known operational limitation.
   repository is a status change and deliberately retains its scan history.
 - **Repositories:** retained until account deletion; disconnect marks the connection inactive
   without deleting it.
-- **CLI tokens:** expire after seven days; can be revoked individually or all at once. Revoked and
-  expired rows may remain until account deletion.
+- **CLI tokens:** expire after seven days; can be revoked individually or all at once. A valid CLI
+  request opportunistically removes that user's expired/revoked token rows through a bounded
+  server-side function. The migration that adds this function is prepared locally and not applied
+  to hosted Supabase, so hosted rows may remain until it is applied or the account is deleted.
 - **CLI authorization requests:** expire after ten minutes and are consumed on exchange; rows may
   remain until account deletion.
 - **Account deletion:** deletes the auth user first, which cascades the profile and all tenant rows,
   then clears the session and GitHub connect cookie. Local CLI files and local reports are not
   touched.
-- **Disconnect repository:** marks it inactive so it is unavailable for new CLI uploads; existing
-  scan history is retained until account deletion. The local report remains.
+- **Disconnect repository:** marks it inactive so it is unavailable for new CLI uploads, clears the
+  short-lived GitHub connect cookie on that browser, and retains existing scan history until account
+  deletion. GitHub's OAuth grant itself must be revoked in GitHub settings; LaunchProof cannot revoke
+  the provider grant without the OAuth client secret. The local report remains.
 - **Cancel upload:** no request is sent; the local report remains.
 - **Upload failure:** the local report remains; the dashboard does not receive a partial scan.
 
@@ -184,7 +188,14 @@ database until cleanup or deletion. This is a known operational limitation.
 
 Private API responses use `Cache-Control: private, no-store, max-age=0` and `Vary: Cookie`.
 Dashboard, login, CLI, auth, and API routes are dynamic and marked noindex/noarchive where
-appropriate. Public marketing pages remain prerendered and contain no private data.
+appropriate. Public marketing pages are rendered per request for the CSP nonce and contain no private
+data. Every application page/API response carries a nonce-based Content-Security-Policy plus clickjacking, MIME-sniffing,
+referrer, permissions, and HSTS headers. The CSP allows only the configured Supabase origin for
+browser connections, same-origin assets/fonts/forms, and GitHub avatars for images; it does not use
+`unsafe-inline` or Production `unsafe-eval`. CSP behavior on the deployed host is **NOT TESTED**.
+Structured server logs contain event names, request IDs, route/status metadata, and redacted error
+names/codes. They do not intentionally include request bodies, report contents, cookies, tokens, or
+secrets.
 
 ## 8. Third-party AI
 

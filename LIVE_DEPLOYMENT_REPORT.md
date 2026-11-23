@@ -2,8 +2,8 @@
 
 **Date:** 2026-11-23
 **Branch:** `feat/cloud-dashboard`
-**Base commit:** `ded30b5` (Phase 21.2 changes are committed separately; the exact deployment SHA is
-recorded in the approval request)
+**Base commit (Phase 21.2 checkpoint):** `215a3e2610c7385cdc804b709661fea29df7754e`
+**Phase 21.3:** pre-production hardening implemented locally on `feat/cloud-dashboard`; no deployment.
 **Status:** **NO VERCEL DEPLOYMENT — INITIAL PRODUCTION DEPLOYMENT AWAITING OWNER APPROVAL**
 **Production URL / preview URL:** none. No production deployment, alias, custom domain, or public
 preview URL exists.
@@ -69,7 +69,9 @@ access, tenant-scoped lists, cross-tenant reads/updates/deletes, victim-row pres
 cleanup. Both disposable identities were deleted.
 
 **Known gap:** `supabase_migrations.schema_migrations` does not exist in the hosted project because
-the migrations were applied manually. There is no migration-ledger verification. No unexpected
+the migrations were applied manually. Phase 21.3 prepared a safe manual reconciliation SQL
+(`supabase/manual/20261123_reconcile_migration_ledger.sql`) and workflow
+(`supabase/MIGRATION_TRACKING.md`); **no hosted ledger mutation or migration was run**. No unexpected
 migration or production data was found.
 
 ## 4. Local production verification
@@ -142,8 +144,11 @@ Only after explicit approval:
 - Real GitHub sign-in, repository consent, provider-token exchange, and sign-out are **NOT TESTED**.
 - Live CLI login, token storage, upload, download, revocation, and logout are **NOT TESTED**.
 - No browser two-account isolation test exists; hosted database RLS passed 17/17.
-- No CSP is configured; HSTS is expected from Vercel but is unverified.
-- Rate limits are in-memory and per instance.
+- A nonce-based CSP and static security headers are implemented locally and verified by local
+  production-server header/browser checks and tests. Deployed CSP/HSTS/cookie behavior is **NOT TESTED**.
+- Rate limits use an atomic Postgres fixed-window function when migration 003 is available, with a
+  bounded per-process memory fallback. The DB path is shared across instances; the fallback is not.
+  Migration 003 is prepared locally and **NOT APPLIED** to hosted Supabase.
 - The GitHub `repo` scope is broad; the application only issues GETs and does not persist the
   provider token.
 - No monitoring, alerting, MFA requirement, audit log, or scheduled cleanup of expired CLI

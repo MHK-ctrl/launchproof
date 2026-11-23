@@ -1,7 +1,8 @@
 # Deployment
 
-The website is no longer a static Next.js export. Public pages are prerendered, but the private
-dashboard, auth callbacks, and APIs require a Node.js server runtime and Supabase.
+The website is no longer a static Next.js export. Public pages are server-rendered per request for
+the CSP nonce, and the private dashboard, auth callbacks, and APIs require a Node.js server runtime
+and Supabase.
 
 The complete setup is in [CLOUD_DASHBOARD_SETUP.md](../CLOUD_DASHBOARD_SETUP.md). Deployment
 readiness, blockers, and the approval boundary are in

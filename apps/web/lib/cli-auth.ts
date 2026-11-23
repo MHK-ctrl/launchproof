@@ -6,6 +6,33 @@ export interface CliIdentity {
   tokenId: string;
 }
 
+interface CliTokenState {
+  expires_at: string;
+  revoked_at: string | null;
+}
+
+interface CliCleanupAdmin {
+  rpc: (
+    fn: 'cleanup_cli_tokens',
+    args: { p_user_id: string },
+  ) => PromiseLike<{ error: unknown | null }>;
+}
+
+export async function cleanupCliTokens(admin: CliCleanupAdmin, userId: string): Promise<boolean> {
+  try {
+    const { error } = await admin.rpc('cleanup_cli_tokens', { p_user_id: userId });
+    return !error;
+  } catch {
+    return false;
+  }
+}
+
+export function isCliTokenActive(token: CliTokenState, now = Date.now()): boolean {
+  if (token.revoked_at) return false;
+  const expiresAt = Date.parse(token.expires_at);
+  return Number.isFinite(expiresAt) && expiresAt > now;
+}
+
 export function bearerToken(request: Request): string | null {
   const value = request.headers.get('authorization');
   if (!value) return null;
@@ -17,15 +44,23 @@ export async function resolveCliToken(request: Request): Promise<CliIdentity | n
   const token = bearerToken(request);
   if (!token) return null;
   const admin = createSupabaseAdminClient();
-  const now = new Date().toISOString();
+  const now = Date.now();
   const { data, error } = await admin
     .from('cli_tokens')
     .select('id,user_id,expires_at,revoked_at')
     .eq('token_hash', sha256(token))
     .maybeSingle();
-  if (error || !data || data.revoked_at || data.expires_at <= now) {
+  if (error || !data || !isCliTokenActive(data, now)) {
     return null;
   }
-  await admin.from('cli_tokens').update({ last_used_at: now }).eq('id', data.id);
+  await admin
+    .from('cli_tokens')
+    .update({ last_used_at: new Date(now).toISOString() })
+    .eq('id', data.id);
+
+  // Opportunistic, per-user cleanup. The SQL function only removes expired or revoked rows, so
+  // the token that just authenticated cannot be deleted. Failure is non-fatal and is retried on
+  // the next CLI request.
+  await cleanupCliTokens(admin, data.user_id);
   return { userId: data.user_id, tokenId: data.id };
 }

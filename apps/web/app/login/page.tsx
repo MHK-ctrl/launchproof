@@ -47,7 +47,12 @@ export default async function LoginPage({
         ) : (
           <LoginForm next={next} />
         )}
-        {params.error ? (
+        {params.error === 'account_cleanup' ? (
+          <p className="mt-4 rounded-lg border border-[var(--red)]/40 bg-[var(--red)]/10 px-3 py-2 text-xs text-[var(--red)]">
+            Your sign-in was removed, but some account data could not be cleaned up. Do not assume
+            all data was deleted; contact support before creating another account.
+          </p>
+        ) : params.error ? (
           <p className="mt-4 rounded-lg border border-[var(--red)]/40 bg-[var(--red)]/10 px-3 py-2 text-xs text-[var(--red)]">
             Sign-in did not complete.{' '}
             {params.error === 'auth' ? 'Try again or check the callback URL.' : ''}

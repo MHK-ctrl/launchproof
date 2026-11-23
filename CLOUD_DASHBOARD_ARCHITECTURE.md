@@ -1,6 +1,7 @@
 # Cloud Dashboard Architecture
 
-**Status:** implemented; hosted Supabase schema and RLS verified after OAuth secret rotation; not
+**Status:** implemented; hosted Supabase schema and RLS verified after OAuth secret rotation; Phase
+21.3 CSP, rate limiting, token cleanup, and observability are implemented and tested **locally**; not
 deployed. The initial Vercel Production deployment is awaiting explicit owner authorization. Local
 scanning remains fully functional without any cloud configuration.
 
@@ -16,7 +17,7 @@ Browser (public pages, dashboard, CLI approval)
         | HTTPS, Supabase session cookies
         v
 Next.js 16 App Router on Vercel
-  - public pages (prerendered)
+  - public pages (dynamic render for per-request CSP nonce)
   - /dashboard/* (dynamic, authenticated)
   - /auth/* and /api/* route handlers
   - Supabase SSR client, admin client for narrow server operations
@@ -58,8 +59,10 @@ LaunchProof CLI ---- HTTPS bearer token ----> /api/scans, /api/cli/*
    client, synchronizes the `profiles` row, and redirects to the validated `next` path.
 4. `/dashboard/*` calls `requireUser()`. Unauthenticated requests are redirected to
    `/login?next=...`.
-5. The root layout does **not** read auth cookies. Public pages stay prerendered; the site header
-   fetches `/api/account` from the browser to show signed-in state.
+5. The root layout does **not** read auth cookies, but it calls `connection()` so every page is
+   rendered per request and can receive the proxy's CSP nonce. Public pages remain cacheable only as
+   explicitly configured; private routes are `no-store`. The site header fetches `/api/account` from
+   the browser to show signed-in state.
 
 `apps/web/proxy.ts` refreshes Supabase cookies on application requests. It is a cookie-maintenance
 proxy, not the authorization boundary. Every dashboard page, server action, and API route checks the
@@ -144,6 +147,12 @@ summary JSON. `findings` stores rule ID, severity, title, sanitized description,
 remediation, a relative file path, and a line number. It does not store raw source, evidence values,
 HTTP bodies, environment values, or absolute paths.
 
+Migration `202611230003_security_hardening.sql` adds a server-only `rate_limits` table (RLS enabled,
+no client grants), an expiry index, and two functions: `consume_rate_limit` for atomic fixed-window
+counters and `cleanup_cli_tokens` for bounded per-user removal of expired/revoked CLI tokens. The
+migration is additive and idempotent. It is tested locally but **not applied** to hosted Supabase; the
+safe application workflow is in `supabase/MIGRATION_TRACKING.md`.
+
 ## 4. Request paths and authorization
 
 ### Dashboard reads
@@ -212,9 +221,10 @@ All tenant responses set private/no-store cache headers. API errors use a stable
 ## 6. Runtime and deployment shape
 
 - `apps/web/next.config.ts` uses the normal Next.js server output, not `output: "export"`.
-- `vercel.json` sets `framework: "nextjs"`, `npm ci`, `npm run build:web`, and security headers.
-- Public pages are prerendered; `/dashboard/*`, `/login`, `/cli/*`, `/auth/*`, and `/api/*` are
-  dynamic.
+- `vercel.json` sets `framework: "nextjs"`, `npm ci`, and `npm run build:web`. Static security
+  headers live in `apps/web/next.config.ts`; the CSP is generated per request in `apps/web/proxy.ts`.
+- All routes are server-rendered per request because the CSP nonce must match the rendered HTML;
+  private routes are dynamic and `no-store`.
 - Required server environment: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
   `SUPABASE_SERVICE_ROLE_KEY`, `APP_BASE_URL`, `LAUNCHPROOF_ENCRYPTION_KEY`.
 - Vercel currently has the first four values in Preview and Production except `APP_BASE_URL`, which

@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 
 import { requireUser } from '@/lib/auth';
-import { getGitHubRepository, readConnectToken } from '@/lib/github';
+import { clearConnectToken, getGitHubRepository, readConnectToken } from '@/lib/github';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 
 export interface RepositoryActionResult {
@@ -76,8 +76,15 @@ export async function disconnectRepository(repositoryId: string): Promise<Reposi
   if (error || !data) {
     return { ok: false, message: 'Repository not found.' };
   }
+  // Drop the local short-lived GitHub provider token as well. The GitHub OAuth grant itself
+  // remains active until the user revokes LaunchProof in GitHub settings.
+  await clearConnectToken();
   revalidatePath('/dashboard');
   revalidatePath('/dashboard/repositories');
   revalidatePath('/dashboard/scans');
-  return { ok: true, message: 'Repository disconnected. Stored scan history is retained.' };
+  return {
+    ok: true,
+    message:
+      'Repository disconnected and local GitHub access cleared. Revoke the GitHub grant in GitHub settings to remove it fully. Stored scan history is retained.',
+  };
 }
