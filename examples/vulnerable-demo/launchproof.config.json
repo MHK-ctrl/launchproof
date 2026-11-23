@@ -1,0 +1,108 @@
+{
+  "version": 1,
+  "project": {
+    "name": "vulnerable-demo",
+    "description": "Intentionally insecure local demo used to demonstrate LaunchProof findings."
+  },
+  "app": {
+    "url": "http://127.0.0.1:4173",
+    "healthPath": "/api/health"
+  },
+  "authorization": {
+    "authorized": false,
+    "scope": [],
+    "allowLocal": true,
+    "allowPrivateNetwork": false
+  },
+  "scan": {
+    "network": true,
+    "failOn": "high",
+    "gitHistory": false
+  },
+  "api": {
+    "baseUrl": "http://127.0.0.1:4173",
+    "allowUnsafeMethods": false,
+    "endpoints": [
+      {
+        "name": "Health",
+        "path": "/api/health",
+        "method": "GET",
+        "expectStatus": 200,
+        "expectJson": true,
+        "requiredJsonKeys": ["status"]
+      },
+      {
+        "name": "User list",
+        "path": "/api/users",
+        "method": "GET",
+        "expectStatus": 200,
+        "expectJson": true,
+        "requiredJsonKeys": ["users"],
+        "requiresAuth": true
+      }
+    ]
+  },
+  "auth": {
+    "identities": {
+      "owner": {
+        "description": "Demo user 1",
+        "headersEnv": { "x-user-id": "LP_DEMO_OWNER_ID" }
+      },
+      "other": {
+        "description": "Demo user 2",
+        "headersEnv": { "x-user-id": "LP_DEMO_OTHER_ID" }
+      }
+    }
+  },
+  "authorizationTests": {
+    "allowUnsafeMethods": false,
+    "resources": [
+      {
+        "name": "User 2 profile",
+        "path": "/api/users/2",
+        "method": "GET",
+        "ownerIdentity": "owner",
+        "otherIdentity": "other",
+        "expectStatusForOther": [401, 403, 404]
+      }
+    ]
+  },
+  "browser": {
+    "enabled": true,
+    "baseUrl": "http://127.0.0.1:4173",
+    "headless": true,
+    "timeoutMs": 20000,
+    "checkMobileLayout": true,
+    "workflows": [
+      {
+        "name": "Login form",
+        "path": "/login",
+        "steps": [
+          { "action": "fill", "selector": "#email", "value": "demo@example.test" },
+          { "action": "fill", "selector": "#password", "value": "demo-password", "secret": true },
+          { "action": "click", "selector": "#submit" },
+          { "action": "expectText", "text": "Signed in" }
+        ],
+        "expectNoConsoleErrors": true
+      }
+    ]
+  },
+  "accessibility": {
+    "enabled": true,
+    "tags": ["wcag2a", "wcag2aa"],
+    "paths": ["/", "/login", "/about"],
+    "maxPages": 3
+  },
+  "performance": {
+    "enabled": true,
+    "lighthouse": false,
+    "paths": ["/", "/login"],
+    "maxPages": 2
+  },
+  "report": {
+    "outputDir": ".launchproof",
+    "formats": ["terminal", "json", "html", "sarif"],
+    "includeEvidence": true,
+    "open": false
+  }
+}

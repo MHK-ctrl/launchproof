@@ -1,0 +1,695 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="dark" />
+<title>LaunchProof report · vulnerable-demo · LP-20261123-055553-4839</title>
+<style>
+:root{--bg:#070a0f;--panel:#0e141d;--panel2:#121a25;--border:#223043;--text:#e7eef8;--muted:#93a4bb;--accent:#3ddc97;--accent-dim:#134e3a;--red:#ff6b6b;--orange:#ff9f43;--yellow:#ffd166;--blue:#6cb6ff;--gray:#8395ab;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;--sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.6;background-image:radial-gradient(ellipse 80% 50% at 50% -20%,rgba(61,220,151,.09),transparent),linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);background-size:auto,48px 48px,48px 48px}
+a{color:var(--accent)}
+.wrap{max-width:1080px;margin:0 auto;padding:32px 24px 72px}
+header.top{display:flex;justify-content:space-between;gap:24px;align-items:flex-start;flex-wrap:wrap;padding-bottom:28px;border-bottom:1px solid var(--border)}
+.brand{display:flex;gap:12px;align-items:center;font-weight:700;letter-spacing:-.02em;font-size:19px}
+.mark{width:36px;height:36px;border:1px solid var(--accent);border-radius:10px;display:grid;place-items:center;color:var(--accent);background:var(--accent-dim);font-family:var(--mono);font-weight:700}
+.sub{color:var(--muted);font-size:13px;margin-top:2px}
+.meta{font-family:var(--mono);font-size:11.5px;color:var(--muted);text-align:right;line-height:1.9}
+.meta b{color:var(--text);font-weight:500}
+.hero{display:grid;grid-template-columns:1.4fr 1fr;gap:18px;margin:28px 0}
+.card{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--border);border-radius:16px;padding:24px}
+.gate-card{position:relative;overflow:hidden}
+.gate-card:after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 90% 10%,rgba(61,220,151,.12),transparent 45%);pointer-events:none}
+.gate-card.fail:after{background:radial-gradient(circle at 90% 10%,rgba(255,107,107,.14),transparent 45%)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.gate{font-size:38px;font-weight:800;letter-spacing:-.03em;margin:6px 0 2px;color:var(--accent);display:flex;align-items:center;gap:12px}
+.gate.fail{color:var(--red)}
+.gate .dot{width:12px;height:12px;border-radius:50%;background:currentColor;box-shadow:0 0 18px currentColor}
+.gate-note{color:var(--muted);font-size:13.5px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:22px}
+.stat{background:rgba(0,0,0,.22);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
+.stat b{display:block;font-size:21px;font-family:var(--mono);letter-spacing:-.03em}
+.stat span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+.sev-strip{display:flex;height:8px;border-radius:99px;overflow:hidden;background:#1a2533;margin:18px 0 12px}
+.bar-seg{display:block;height:100%}
+.bar-seg.critical{background:var(--red)}.bar-seg.high{background:var(--orange)}.bar-seg.medium{background:var(--yellow)}.bar-seg.low{background:var(--blue)}.bar-seg.info{background:var(--gray)}
+.sev-legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.sev-legend b{font-family:var(--mono);color:var(--text)}
+h2{font-size:19px;letter-spacing:-.01em;margin:0 0 16px}
+.panel{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:24px;margin:18px 0}
+.profile-grid,.config-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px 24px}
+.profile-grid div,.config-grid div{display:flex;flex-direction:column;gap:2px;font-size:13.5px}
+.profile-grid span,.config-grid span{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.07em;font-family:var(--mono)}
+details{margin-top:16px;border-top:1px solid var(--border);padding-top:14px}
+summary{cursor:pointer;color:var(--muted);font-size:13px}
+.route-list{list-style:none;padding:0;margin:12px 0 0;font-family:var(--mono);font-size:12px}
+.route-list li{padding:5px 0;border-bottom:1px dashed #1c2836}
+.route-list li span{color:var(--muted);float:right}
+.route-list code{color:var(--accent);min-width:52px;display:inline-block}
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+input[type=search]{flex:1;min-width:200px;background:#0a1017;border:1px solid var(--border);color:var(--text);border-radius:9px;padding:10px 13px;font:inherit;font-size:13.5px;outline:none}
+input[type=search]:focus{border-color:var(--accent)}
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.filter{background:#0a1017;border:1px solid var(--border);color:var(--muted);border-radius:99px;padding:6px 11px;font:inherit;font-family:var(--mono);font-size:11px;cursor:pointer}
+.filter[aria-pressed=true]{border-color:var(--accent);color:var(--accent);background:rgba(61,220,151,.08)}
+.finding{border:1px solid var(--border);border-left:3px solid var(--gray);border-radius:12px;background:var(--panel);padding:18px 20px;margin:12px 0}
+.finding.sev-critical{border-left-color:var(--red)}.finding.sev-high{border-left-color:var(--orange)}.finding.sev-medium{border-left-color:var(--yellow)}.finding.sev-low{border-left-color:var(--blue)}
+.finding-head{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.sev{padding:2px 8px;border-radius:99px;font-weight:700;border:1px solid currentColor}
+.sev-critical .sev{color:var(--red)}.sev-high .sev{color:var(--orange)}.sev-medium .sev{color:var(--yellow)}.sev-low .sev{color:var(--blue)}.sev-info .sev{color:var(--gray)}
+.finding-id{color:var(--gray)}
+.finding-conf{margin-left:auto;text-transform:none;letter-spacing:0}
+.finding h3{font-size:16.5px;margin:10px 0 4px;letter-spacing:-.01em}
+.loc{font-family:var(--mono);font-size:11.5px;color:var(--accent);word-break:break-all;margin-bottom:8px}
+.finding p{color:#c4d2e4;font-size:13.5px;margin:6px 0}
+.finding-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px}
+.finding-grid h4{margin:0 0 4px;font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-family:var(--mono)}
+.finding-grid p{white-space:pre-wrap;color:#b7c6d9}
+.evidence{margin-top:14px;border-top:1px solid var(--border);padding-top:12px}
+.evidence-title{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px}
+.evidence-row{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;margin:5px 0}
+.evidence-kind{font-family:var(--mono);font-size:9.5px;color:var(--accent);border:1px solid var(--accent-dim);border-radius:4px;padding:1px 5px;text-transform:uppercase}
+.evidence-label{font-size:12px;color:var(--muted)}
+.evidence pre{margin:4px 0 0;width:100%;background:#080d13;border:1px solid #1a2634;border-radius:8px;padding:10px 12px;font-family:var(--mono);font-size:11.5px;overflow-x:auto;white-space:pre-wrap;word-break:break-word;color:#c7d6e8}
+.redacted{font-family:var(--mono);font-size:9.5px;color:var(--yellow);border:1px solid #4d3d17;border-radius:4px;padding:1px 5px}
+.refs{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px;font-size:12px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;color:var(--muted);font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;padding:0 10px 10px;border-bottom:1px solid var(--border);font-weight:500}
+td{padding:12px 10px;border-bottom:1px solid #182331;vertical-align:top}
+td.num{font-family:var(--mono);text-align:right;white-space:nowrap;color:var(--muted)}
+.check-id{font-family:var(--mono);font-size:12px;color:var(--text)}
+.check-summary{color:var(--muted);font-size:12.5px;margin-top:2px}
+.check-details{color:var(--gray);font-size:11.5px;margin-top:4px}
+.status{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.05em;padding:3px 8px;border-radius:99px;border:1px solid currentColor;white-space:nowrap}
+.status.pass{color:var(--accent)}.status.fail{color:var(--red)}.status.warn{color:var(--yellow)}.status.skipped{color:var(--gray)}.status.not-verified{color:var(--blue)}.status.error{color:var(--red)}
+.callout{background:rgba(108,182,255,.06);border:1px solid #23384f;border-radius:12px;padding:16px 18px;color:#b9cbe0;font-size:13px}
+.callout strong{color:var(--text)}
+.limitations{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+.limitations li{padding-left:18px;position:relative;color:#b4c4d8;font-size:13px}
+.limitations li:before{content:"—";position:absolute;left:0;color:var(--gray);font-family:var(--mono)}
+footer{margin-top:36px;color:var(--gray);font-size:11.5px;border-top:1px solid var(--border);padding-top:18px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-family:var(--mono)}
+.empty{color:var(--muted);font-style:italic;padding:14px 0}
+@media(max-width:760px){.hero{grid-template-columns:1fr}.finding-grid{grid-template-columns:1fr}.wrap{padding:20px 14px 48px}.meta{text-align:left}.gate{font-size:30px}}
+@media print{body{background:#fff;color:#111;background-image:none}.wrap{max-width:none;padding:0}.panel,.finding,.card{background:#fff;border-color:#ccc;break-inside:avoid}.finding p,.finding-grid p{color:#222}.meta,.sub,.eyebrow,.stat span,.check-summary{color:#555}input,.filters{display:none}.evidence pre{background:#f4f4f4;color:#111;border-color:#ddd}a{color:#0055aa}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <div>
+    <div class="brand"><span class="mark">LP</span><div>LaunchProof<div class="sub">Evidence-backed verification report</div></div></div>
+  </div>
+  <div class="meta">
+    <div>Scan <b>LP-20261123-055553-4839</b></div>
+    <div>Tool <b>v0.1.0</b> · schema <b>1</b></div>
+    <div><b>2026-11-23 05:55:53 UTC</b></div>
+    <div>3791 ms · darwin/arm64 · Node v26.0.0</div>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="card gate-card fail">
+    <div class="eyebrow">Release gate</div>
+    <div class="gate fail"><span class="dot"></span>FAIL</div>
+    <div class="gate-note">6 finding(s) at or above &quot;high&quot; (3 critical, 3 high).</div>
+    <div class="stats">
+      <div class="stat"><b>22</b><span>checks</span></div>
+      <div class="stat"><b>8</b><span>passed</span></div>
+      <div class="stat"><b>4</b><span>failed / errors</span></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="eyebrow">Findings</div>
+    <div class="gate fail">23</div>
+    <div class="sev-strip"><span class="bar-seg critical" style="width:13.043478260869565%" title="3 critical"></span><span class="bar-seg high" style="width:13.043478260869565%" title="3 high"></span><span class="bar-seg medium" style="width:30.434782608695656%" title="7 medium"></span><span class="bar-seg low" style="width:43.47826086956522%" title="10 low"></span></div>
+    <div class="sev-legend">
+      <span><b>3</b> Critical</span><span><b>3</b> High</span><span><b>7</b> Medium</span><span><b>10</b> Low</span><span><b>0</b> Info</span>
+    </div>
+    <div class="stats" style="margin-top:18px">
+      <div class="stat"><b>8</b><span>warnings</span></div>
+      <div class="stat"><b>2</b><span>skipped / unverified</span></div>
+      <div class="stat"><b>local</b><span>scan mode</span></div>
+    </div>
+  </div>
+</div>
+
+<section class="panel callout">
+  <strong>Read this before acting.</strong> LaunchProof distinguishes what was observed, pattern-matched, or inferred. A passing check is not proof that the application is secure, and a clean report is not a substitute for code review or manual testing.
+  Target tested: <code>http://127.0.0.1:4173/</code>.
+</section>
+
+<section class="panel" id="project">
+    <h2>Project profile</h2>
+    <div class="profile-grid">
+      <div><span>Name</span><strong>vulnerable-demo</strong></div>
+      <div><span>Package manager</span><strong>unknown</strong></div>
+      <div><span>Frameworks</span><strong>Not detected</strong></div>
+      <div><span>Languages</span><strong>JavaScript (1)</strong></div>
+      <div><span>API routes discovered</span><strong>0</strong></div>
+      <div><span>Deployment targets</span><strong>Not detected</strong></div>
+      <div><span>Test frameworks</span><strong>Not detected</strong></div>
+      <div><span>Files scanned</span><strong>2</strong></div>
+    </div>
+    
+  </section>
+
+<section class="panel" id="findings">
+  <h2>Findings <span style="color:var(--muted);font-weight:400;font-size:13px">(23)</span></h2>
+  <div class="toolbar">
+    <input type="search" id="search" placeholder="Search findings, files, or IDs…" aria-label="Search findings" />
+    <div class="filters" role="group" aria-label="Filter by severity">
+      <button class="filter" data-filter="all" aria-pressed="true">All</button>
+      <button class="filter" data-filter="critical" aria-pressed="false">Critical</button><button class="filter" data-filter="high" aria-pressed="false">High</button><button class="filter" data-filter="medium" aria-pressed="false">Medium</button><button class="filter" data-filter="low" aria-pressed="false">Low</button><button class="filter" data-filter="info" aria-pressed="false">Info</button>
+    </div>
+  </div>
+  <div id="finding-list"><article class="finding sev-critical" data-severity="critical" data-search="environment file is publicly accessible fnd-b6a2f493 an environment file is served over http. it can contain database, payment, and signing credentials. http://127.0.0.1:4173/.env">
+    <header class="finding-head">
+      <span class="sev">Critical</span>
+      <span class="finding-id">FND-B6A2F493</span>
+      <span class="finding-conf" title="Confidence">high confidence · observed</span>
+    </header>
+    <h3>Environment file is publicly accessible</h3>
+    <div class="loc">http://127.0.0.1:4173/.env</div>
+    <p>An environment file is served over HTTP. It can contain database, payment, and signing credentials.</p>
+    <div class="finding-grid">
+      <section><h4>Impact</h4><p>Direct access to credentials or source can lead to full compromise.</p></section>
+      <section><h4>Remediation</h4><p>Block the path at the edge or web server, remove the file from the deployed artifact, and confirm with an unauthenticated request.</p></section>
+    </div>
+    <div class="evidence"><div class="evidence-title">Evidence</div><div class="evidence-row"><span class="evidence-kind">http</span><span class="evidence-label">Status</span><pre>200</pre></div><div class="evidence-row"><span class="evidence-kind">http</span><span class="evidence-label">Content-Type</span><pre>text/plain; charset=utf-8</pre></div><div class="evidence-row"><span class="evidence-kind">text</span><span class="evidence-label">Validation</span><pre>Content matched the expected signature for Environment file.</pre></div></div>
+    <div class="refs"><a href="https://cwe.mitre.org/data/definitions/538.html" rel="noreferrer noopener" target="_blank">https://cwe.mitre.org/data/definitions/538.html</a></div>
+  </article><article class="finding sev-critical" data-severity="critical" data-search="git configuration is publicly accessible fnd-66a5572e the .git directory is publicly served, exposing repository metadata and potentially full source history. http://127.0.0.1:4173/.git/config">
+    <header class="finding-head">
+      <span class="sev">Critical</span>
+      <span class="finding-id">FND-66A5572E</span>
+      <span class="finding-conf" title="Confidence">high confidence · observed</span>
+    </header>
+    <h3>Git configuration is publicly accessible</h3>
+    <div class="loc">http://127.0.0.1:4173/.git/config</div>
+    <p>The .git directory is publicly served, exposing repository metadata and potentially full source history.</p>
+    <div class="finding-grid">
+      <section><h4>Impact</h4><p>Direct access to credentials or source can lead to full compromise.</p></section>
+      <section><h4>Remediation</h4><p>Block the path at the edge or web server, remove the file from the deployed artifact, and confirm with an unauthenticated request.</p></section>
+    </div>
+    <div class="evidence"><div class="evidence-title">Evidence</div><div class="evidence-row"><span class="evidence-kind">http</span><span class="evidence-label">Status</span><pre>200</pre></div><div class="evidence-row"><span class="evidence-kind">http</span><span class="evidence-label">Content-Type</span><pre>text/plain; charset=utf-8</pre></div><div class="evidence-row"><span class="evidence-kind">text</span><span class="evidence-label">Validation</span><pre>Content matched the expected signature for Git configuration.</pre></div></div>
+    <div class="refs"><a href="https://cwe.mitre.org/data/definitions/538.html" rel="noreferrer noopener" target="_blank">https://cwe.mitre.org/data/definitions/538.html</a></div>
+  </article><article class="finding sev-critical" data-severity="critical" data-search="possible broken object-level authorization: user 2 profile fnd-e03a80f3 other accessed a resource owned by owner and received http 200; expected 401 or 403 or 404. http://127.0.0.1:4173/api/users/2">
+    <header class="finding-head">
+      <span class="sev">Critical</span>
+      <span class="finding-id">FND-E03A80F3</span>
+      <span class="finding-conf" title="Confidence">high confidence · observed</span>
+    </header>
+    <h3>Possible broken object-level authorization: User 2 profile</h3>
+    <div class="loc">http://127.0.0.1:4173/api/users/2</div>
+    <p>other accessed a resource owned by owner and received HTTP 200; expected 401 or 403 or 404.</p>
+    <div class="finding-grid">
+      <section><h4>Impact</h4><p>Users may read or modify other users&#39; data by changing an identifier or URL. This is one of the most common and damaging application vulnerabilities.</p></section>
+      <section><h4>Remediation</h4><p>Enforce object ownership on the server for every request. Never rely on client-side checks or unguessable identifiers.</p></section>
+    </div>
+    <div class="evidence"><div class="evidence-title">Evidence</div><div class="evidence-row"><span class="evidence-kind">http</span><span class="evidence-label">Method</span><pre>GET</pre></div><div class="evidence-row"><span class="evidence-kind">http</span><span class="evidence-label">URL</span><pre>http://127.0.0.1:4173/api/users/2</pre></div><div class="evidence-row"><span class="evidence-kind">http</span><span class="evidence-label">Owner status</span><pre>200</pre></div><div class="evidence-row"><span class="evidence-kind">http</span><span class="evidence-label">Second identity status</span><pre>200</pre></div><div class="evidence-row"><span class="evidence-kind">text</span><span class="evidence-label">Expectation</span><pre>401 or 403 or 404</pre></div></div>
+    <div class="refs"><a href="https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/" rel="noreferrer noopener" target="_blank">https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/</a></div>
+  </article><article class="finding sev-high" data-severity="high" data-search="debug endpoint is publicly accessible fnd-521ab411 a debug endpoint responds publicly and may expose environment, configuration, or stack details. http://127.0.0.1:4173/api/debug">
+    <header class="finding-head">
+      <span class="sev">High</span>
+      <span class="finding-id">FND-521AB411</span>
+      <span class="finding-conf" title="Confidence">high confidence · observed</span>
+    </header>
+    <h3>Debug endpoint is publicly accessible</h3>
+    <div class="loc">http://127.0.0.1:4173/api/debug</div>
+    <p>A debug endpoint responds publicly and may expose environment, configuration, or stack details.</p>
+    <div class="finding-grid">
+      <section><h4>Impact</h4><p>Internal information is exposed to unauthenticated visitors.</p></section>
+      <section><h4>Remediation</h4><p>Block the path at the edge or web server, remove the file from the deployed artifact, and confirm with an unauthenticated request.</p></section>
+    </div>
+    <div class="evidence"><div class="evidence-title">Evidence</div><div class="evidence-row"><span class="evidence-kind">http</span><span class="evidence-label">Status</span><pre>200</pre></div><div class="evidence-row"><span class="evidence-kind">http</span><span class="evidence-label">Content-Type</span><pre>application/json</pre></div><div class="evidence-row"><span class="evidence-kind">text</span><span class="evidence-label">Validation</span><pre>Content matched the expected signature for Debug endpoint.</pre></div></div>
+    <div class="refs"><a href="https://cwe.mitre.org/data/definitions/538.html" rel="noreferrer noopener" target="_blank">https://cwe.mitre.org/data/definitions/538.html</a></div>
+  </article><article class="finding sev-high" data-severity="high" data-search="get /api/users accepts unauthenticated requests fnd-5985bfc7 the endpoint is marked as requiring authentication, but an anonymous request returned http 200. http://127.0.0.1:4173/api/users">
+    <header class="finding-head">
+      <span class="sev">High</span>
+      <span class="finding-id">FND-5985BFC7</span>
+      <span class="finding-conf" title="Confidence">high confidence · observed</span>
+    </header>
+    <h3>GET /api/users accepts unauthenticated requests</h3>
+    <div class="loc">http://127.0.0.1:4173/api/users</div>
+    <p>The endpoint is marked as requiring authentication, but an anonymous request returned HTTP 200.</p>
+    <div class="finding-grid">
+      <section><h4>Impact</h4><p>Private data or actions may be available without a session.</p></section>
+      <section><h4>Remediation</h4><p>Enforce authentication server-side before reading or mutating protected data.</p></section>
+    </div>
+    <div class="evidence"><div class="evidence-title">Evidence</div><div class="evidence-row"><span class="evidence-kind">http</span><span class="evidence-label">Status</span><pre>200 OK</pre></div><div class="evidence-row"><span class="evidence-kind">http</span><span class="evidence-label">Final URL</span><pre>http://127.0.0.1:4173/api/users</pre></div><div class="evidence-row"><span class="evidence-kind">metric</span><span class="evidence-label">Duration</span><pre>252 ms</pre></div><div class="evidence-row"><span class="evidence-kind">http</span><span class="evidence-label">Content-Type</span><pre>application/json</pre></div><div class="evidence-row"><span class="evidence-kind">metric</span><span class="evidence-label">Body bytes</span><pre>234</pre></div></div>
+    
+  </article><article class="finding sev-high" data-severity="high" data-search="wildcard cors with credentials fnd-ec670dfd the server allows any origin together with credentials. ">
+    <header class="finding-head">
+      <span class="sev">High</span>
+      <span class="finding-id">FND-EC670DFD</span>
+      <span class="finding-conf" title="Confidence">high confidence · observed</span>
+    </header>
+    <h3>Wildcard CORS with credentials</h3>
+    
+    <p>The server allows any origin together with credentials.</p>
+    <div class="finding-grid">
+      <section><h4>Impact</h4><p>Any website can make authenticated cross-origin requests and read the responses where browsers permit it.</p></section>
+      <section><h4>Remediation</h4><p>Replace the wildcard with an allowlist of trusted origins and never combine credentials with &quot;*&quot;.</p></section>
+    </div>
+    <div class="evidence"><div class="evidence-title">Evidence</div><div class="evidence-row"><span class="evidence-kind">header</span><span class="evidence-label">Access-Control-Allow-Origin</span><pre>*</pre></div><div class="evidence-row"><span class="evidence-kind">header</span><span class="evidence-label">Access-Control-Allow-Credentials</span><pre>true</pre></div></div>
+    
+  </article><article class="finding sev-medium" data-severity="medium" data-search="accessibility: elements must meet minimum color contrast ratio thresholds fnd-fd71da80 ensure the contrast between foreground and background colors meets wcag 2 aa minimum contrast ratio thresholds this is an automated rule match; manual review with assistive technology is still required. /">
+    <header class="finding-head">
+      <span class="sev">Medium</span>
+      <span class="finding-id">FND-FD71DA80</span>
+      <span class="finding-conf" title="Confidence">high confidence · observed</span>
+    </header>
+    <h3>Accessibility: Elements must meet minimum color contrast ratio thresholds</h3>
+    <div class="loc">/</div>
+    <p>Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds This is an automated rule match; manual review with assistive technology is still required.</p>
+    <div class="finding-grid">
+      <section><h4>Impact</h4><p>Users relying on assistive technology may be unable to complete this part of the page.</p></section>
+      <section><h4>Remediation</h4><p>Fix the reported elements and re-run axe. See https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=axeAPI</p></section>
+    </div>
+    <div class="evidence"><div class="evidence-title">Evidence</div><div class="evidence-row"><span class="evidence-kind">text</span><span class="evidence-label">Rule</span><pre>color-contrast</pre></div><div class="evidence-row"><span class="evidence-kind">text</span><span class="evidence-label">Selectors</span><pre>.muted</pre></div><div class="evidence-row"><span class="evidence-kind">text</span><span class="evidence-label">Failure summary</span><pre>Fix any of the following:
+  Element has insufficient color contrast of 3.19 (foreground color: #70747c, background color: #24272d, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1</pre></div></div>
+    <div class="refs"><a href="https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=axeAPI" rel="noreferrer noopener" target="_blank">https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=axeAPI</a></div>
+  </article><article class="finding sev-medium" data-severity="medium" data-search="clickjacking protection is missing fnd-1621eab5 neither x-frame-options nor csp frame-ancestors restricts embedding of this page. ">
+    <header class="finding-head">
+      <span class="sev">Medium</span>
+      <span class="finding-id">FND-1621EAB5</span>
+      <span class="finding-conf" title="Confidence">high confidence · observed</span>
+    </header>
+    <h3>Clickjacking protection is missing</h3>
+    
+    <p>Neither X-Frame-Options nor CSP frame-ancestors restricts embedding of this page.</p>
+    <div class="finding-grid">
+      <section><h4>Impact</h4><p>The application can be embedded in an attacker-controlled page and used for clickjacking.</p></section>
+      <section><h4>Remediation</h4><p>Set X-Frame-Options: DENY (or SAMEORIGIN) and a CSP frame-ancestors directive.</p></section>
+    </div>
+    
+    
+  </article><article class="finding sev-medium" data-severity="medium" data-search="content-security-policy header is missing fnd-4e603bde the response does not define a content-security-policy, so the browser applies no restriction on script, style, frame, or connection sources. ">
+    <header class="finding-head">
+      <span class="sev">Medium</span>
+      <span class="finding-id">FND-4E603BDE</span>
+      <span class="finding-conf" title="Confidence">high confidence · observed</span>
+    </header>
+    <h3>Content-Security-Policy header is missing</h3>
+    
+    <p>The response does not define a Content-Security-Policy, so the browser applies no restriction on script, style, frame, or connection sources.</p>
+    <div class="finding-grid">
+      <section><h4>Impact</h4><p>Injected scripts have fewer obstacles and XSS impact is amplified.</p></section>
+      <section><h4>Remediation</h4><p>Add a restrictive Content-Security-Policy. Start with default-src &#39;self&#39; and allow only the origins the application needs.</p></section>
+    </div>
+    
+    
+  </article><article class="finding sev-medium" data-severity="medium" data-search="cookie &quot;session&quot; is missing httponly fnd-a3c28aef a response cookie is readable from javascript. ">
+    <header class="finding-head">
+      <span class="sev">Medium</span>
+      <span class="finding-id">FND-A3C28AEF</span>
+      <span class="finding-conf" title="Confidence">high confidence · observed</span>
+    </header>
+    <h3>Cookie &quot;session&quot; is missing HttpOnly</h3>
+    
+    <p>A response cookie is readable from JavaScript.</p>
+    <div class="finding-grid">
+      <section><h4>Impact</h4><p>Any XSS on the site can steal this cookie and hijack the session.</p></section>
+      <section><h4>Remediation</h4><p>Set HttpOnly on session and authentication cookies.</p></section>
+    </div>
+    <div class="evidence"><div class="evidence-title">Evidence</div><div class="evidence-row"><span class="evidence-kind">text</span><span class="evidence-label">Cookie name</span><pre>session</pre></div></div>
+    
+  </article><article class="finding sev-medium" data-severity="medium" data-search="error responses disclose internal details fnd-620502e2 a request to a random path returned content containing stack-trace or internal error markers. ">
+    <header class="finding-head">
+      <span class="sev">Medium</span>
+      <span class="finding-id">FND-620502E2</span>
+      <span class="finding-conf" title="Confidence">medium confidence · observed</span>
+    </header>
+    <h3>Error responses disclose internal details</h3>
+    
+    <p>A request to a random path returned content containing stack-trace or internal error markers.</p>
+    <div class="finding-grid">
+      <section><h4>Impact</h4><p>File paths, framework versions, and internal logic help attackers target exploits.</p></section>
+      <section><h4>Remediation</h4><p>Disable debug error pages in production and return a generic error response with a correlation ID.</p></section>
+    </div>
+    <div class="evidence"><div class="evidence-title">Evidence</div><div class="evidence-row"><span class="evidence-kind">http</span><span class="evidence-label">Probe</span><pre>/launchproof-not-found-nlugqf</pre></div><div class="evidence-row"><span class="evidence-kind">http</span><span class="evidence-label">Status</span><pre>404</pre></div><div class="evidence-row"><span class="evidence-kind">text</span><span class="evidence-label">Validation</span><pre>Body contained stack-trace or internal error markers.</pre></div></div>
+    
+  </article><article class="finding sev-medium" data-severity="medium" data-search="no .gitignore file fnd-225430d5 the project does not define a .gitignore, so build output, dependencies, and environment files can be committed accidentally. ">
+    <header class="finding-head">
+      <span class="sev">Medium</span>
+      <span class="finding-id">FND-225430D5</span>
+      <span class="finding-conf" title="Confidence">high confidence · observed</span>
+    </header>
+    <h3>No .gitignore file</h3>
+    
+    <p>The project does not define a .gitignore, so build output, dependencies, and environment files can be committed accidentally.</p>
+    <div class="finding-grid">
+      <section><h4>Impact</h4><p>Secrets and large generated directories can enter version control.</p></section>
+      <section><h4>Remediation</h4><p>Add a .gitignore covering node_modules, build output, and .env files.</p></section>
+    </div>
+    
+    
+  </article><article class="finding sev-medium" data-severity="medium" data-search="server status page is publicly accessible fnd-c74af9fa a server status page is publicly reachable. http://127.0.0.1:4173/server-status">
+    <header class="finding-head">
+      <span class="sev">Medium</span>
+      <span class="finding-id">FND-C74AF9FA</span>
+      <span class="finding-conf" title="Confidence">high confidence · observed</span>
+    </header>
+    <h3>Server status page is publicly accessible</h3>
+    <div class="loc">http://127.0.0.1:4173/server-status</div>
+    <p>A server status page is publicly reachable.</p>
+    <div class="finding-grid">
+      <section><h4>Impact</h4><p>Internal information is exposed to unauthenticated visitors.</p></section>
+      <section><h4>Remediation</h4><p>Block the path at the edge or web server, remove the file from the deployed artifact, and confirm with an unauthenticated request.</p></section>
+    </div>
+    <div class="evidence"><div class="evidence-title">Evidence</div><div class="evidence-row"><span class="evidence-kind">http</span><span class="evidence-label">Status</span><pre>200</pre></div><div class="evidence-row"><span class="evidence-kind">http</span><span class="evidence-label">Content-Type</span><pre>text/html; charset=utf-8</pre></div><div class="evidence-row"><span class="evidence-kind">text</span><span class="evidence-label">Validation</span><pre>Content matched the expected signature for Server status page.</pre></div></div>
+    <div class="refs"><a href="https://cwe.mitre.org/data/definitions/538.html" rel="noreferrer noopener" target="_blank">https://cwe.mitre.org/data/definitions/538.html</a></div>
+  </article><article class="finding sev-low" data-severity="low" data-search="broken internal link: /broken fnd-54139b5e linked from /; returned http 404. http://127.0.0.1:4173/broken">
+    <header class="finding-head">
+      <span class="sev">Low</span>
+      <span class="finding-id">FND-54139B5E</span>
+      <span class="finding-conf" title="Confidence">high confidence · observed</span>
+    </header>
+    <h3>Broken internal link: /broken</h3>
+    <div class="loc">http://127.0.0.1:4173/broken</div>
+    <p>Linked from /; returned HTTP 404.</p>
+    <div class="finding-grid">
+      <section><h4>Impact</h4><p>Users following the link reach an error page.</p></section>
+      <section><h4>Remediation</h4><p>Update the link or restore the route, and add a link check to CI.</p></section>
+    </div>
+    <div class="evidence"><div class="evidence-title">Evidence</div><div class="evidence-row"><span class="evidence-kind">http</span><span class="evidence-label">Status</span><pre>404</pre></div><div class="evidence-row"><span class="evidence-kind">text</span><span class="evidence-label">Source page</span><pre>/</pre></div></div>
+    
+  </article><article class="finding sev-low" data-severity="low" data-search="console error on /login fnd-5b70cee7 deliberate demo console error for launchproof /login">
+    <header class="finding-head">
+      <span class="sev">Low</span>
+      <span class="finding-id">FND-5B70CEE7</span>
+      <span class="finding-conf" title="Confidence">high confidence · observed</span>
+    </header>
+    <h3>Console error on /login</h3>
+    <div class="loc">/login</div>
+    <p>Deliberate demo console error for LaunchProof</p>
+    <div class="finding-grid">
+      <section><h4>Impact</h4><p>Console errors often precede broken user flows and indicate unhandled failures.</p></section>
+      <section><h4>Remediation</h4><p>Fix the underlying error and keep the console clean for tested pages.</p></section>
+    </div>
+    <div class="evidence"><div class="evidence-title">Evidence</div><div class="evidence-row"><span class="evidence-kind">log</span><span class="evidence-label">Console error</span><pre>Deliberate demo console error for LaunchProof</pre></div></div>
+    
+  </article><article class="finding sev-low" data-severity="low" data-search="cookie &quot;session&quot; has no samesite policy fnd-c103db91 the cookie does not declare samesite, leaving cross-site sending behavior to browser defaults. ">
+    <header class="finding-head">
+      <span class="sev">Low</span>
+      <span class="finding-id">FND-C103DB91</span>
+      <span class="finding-conf" title="Confidence">high confidence · observed</span>
+    </header>
+    <h3>Cookie &quot;session&quot; has no SameSite policy</h3>
+    
+    <p>The cookie does not declare SameSite, leaving cross-site sending behavior to browser defaults.</p>
+    <div class="finding-grid">
+      <section><h4>Impact</h4><p>Cross-site request forgery protection is weaker and browser-dependent.</p></section>
+      <section><h4>Remediation</h4><p>Set SameSite=Lax or Strict unless the cookie is required for a cross-site flow.</p></section>
+    </div>
+    <div class="evidence"><div class="evidence-title">Evidence</div><div class="evidence-row"><span class="evidence-kind">text</span><span class="evidence-label">Cookie name</span><pre>session</pre></div></div>
+    
+  </article><article class="finding sev-low" data-severity="low" data-search="horizontal overflow on / fnd-26478c19 the page is 1072px wide in a 390px viewport, causing horizontal scrolling. /">
+    <header class="finding-head">
+      <span class="sev">Low</span>
+      <span class="finding-id">FND-26478C19</span>
+      <span class="finding-conf" title="Confidence">high confidence · observed</span>
+    </header>
+    <h3>Horizontal overflow on /</h3>
+    <div class="loc">/</div>
+    <p>The page is 1072px wide in a 390px viewport, causing horizontal scrolling.</p>
+    <div class="finding-grid">
+      <section><h4>Impact</h4><p>Mobile users must pan sideways and content may be clipped.</p></section>
+      <section><h4>Remediation</h4><p>Constrain wide elements, use max-width: 100%, and test at the configured mobile viewport.</p></section>
+    </div>
+    <div class="evidence"><div class="evidence-title">Evidence</div><div class="evidence-row"><span class="evidence-kind">metric</span><span class="evidence-label">Scroll width</span><pre>1072px</pre></div><div class="evidence-row"><span class="evidence-kind">metric</span><span class="evidence-label">Viewport width</span><pre>390px</pre></div></div>
+    
+  </article><article class="finding sev-low" data-severity="low" data-search="missing license file fnd-c9f09943 the repository has no license. ">
+    <header class="finding-head">
+      <span class="sev">Low</span>
+      <span class="finding-id">FND-C9F09943</span>
+      <span class="finding-conf" title="Confidence">high confidence · observed</span>
+    </header>
+    <h3>Missing license file</h3>
+    
+    <p>The repository has no LICENSE.</p>
+    <div class="finding-grid">
+      <section><h4>Impact</h4><p>Without a license, others have no clear legal right to use the project.</p></section>
+      <section><h4>Remediation</h4><p>Add a LICENSE file.</p></section>
+    </div>
+    
+    
+  </article><article class="finding sev-low" data-severity="low" data-search="missing readme file fnd-dff9ad3c the repository has no readme.md. ">
+    <header class="finding-head">
+      <span class="sev">Low</span>
+      <span class="finding-id">FND-DFF9AD3C</span>
+      <span class="finding-conf" title="Confidence">high confidence · observed</span>
+    </header>
+    <h3>Missing README file</h3>
+    
+    <p>The repository has no README.md.</p>
+    <div class="finding-grid">
+      <section><h4>Impact</h4><p>New contributors and users lack orientation.</p></section>
+      <section><h4>Remediation</h4><p>Add a README.md file.</p></section>
+    </div>
+    
+    
+  </article><article class="finding sev-low" data-severity="low" data-search="no continuous integration workflow fnd-b90a8c0a no github actions or gitlab ci configuration was found. ">
+    <header class="finding-head">
+      <span class="sev">Low</span>
+      <span class="finding-id">FND-B90A8C0A</span>
+      <span class="finding-conf" title="Confidence">high confidence · observed</span>
+    </header>
+    <h3>No continuous integration workflow</h3>
+    
+    <p>No GitHub Actions or GitLab CI configuration was found.</p>
+    <div class="finding-grid">
+      <section><h4>Impact</h4><p>Checks depend on local discipline and regressions can reach the default branch.</p></section>
+      <section><h4>Remediation</h4><p>Add a CI workflow that installs from the lockfile and runs lint, typecheck, tests, and build.</p></section>
+    </div>
+    
+    
+  </article><article class="finding sev-low" data-severity="low" data-search="permissions-policy is missing fnd-4e5ef2c9 the response does not restrict access to browser features such as camera, microphone, and geolocation. ">
+    <header class="finding-head">
+      <span class="sev">Low</span>
+      <span class="finding-id">FND-4E5EF2C9</span>
+      <span class="finding-conf" title="Confidence">high confidence · observed</span>
+    </header>
+    <h3>Permissions-Policy is missing</h3>
+    
+    <p>The response does not restrict access to browser features such as camera, microphone, and geolocation.</p>
+    <div class="finding-grid">
+      <section><h4>Impact</h4><p>Embedded or compromised content has broader browser capabilities than necessary.</p></section>
+      <section><h4>Remediation</h4><p>Add a Permissions-Policy that disables features the app does not use.</p></section>
+    </div>
+    
+    
+  </article><article class="finding sev-low" data-severity="low" data-search="referrer-policy is missing fnd-15ac7110 no referrer policy is set, so full urls may leak to third parties and across origins. ">
+    <header class="finding-head">
+      <span class="sev">Low</span>
+      <span class="finding-id">FND-15AC7110</span>
+      <span class="finding-conf" title="Confidence">high confidence · observed</span>
+    </header>
+    <h3>Referrer-Policy is missing</h3>
+    
+    <p>No referrer policy is set, so full URLs may leak to third parties and across origins.</p>
+    <div class="finding-grid">
+      <section><h4>Impact</h4><p>Tokens or identifiers in URLs can leak through the Referer header.</p></section>
+      <section><h4>Remediation</h4><p>Set Referrer-Policy: strict-origin-when-cross-origin or no-referrer.</p></section>
+    </div>
+    
+    
+  </article><article class="finding sev-low" data-severity="low" data-search="x-content-type-options is missing fnd-f0b27c77 browsers may mime-sniff responses, which can turn an uploaded text file into executable script. ">
+    <header class="finding-head">
+      <span class="sev">Low</span>
+      <span class="finding-id">FND-F0B27C77</span>
+      <span class="finding-conf" title="Confidence">high confidence · observed</span>
+    </header>
+    <h3>X-Content-Type-Options is missing</h3>
+    
+    <p>Browsers may MIME-sniff responses, which can turn an uploaded text file into executable script.</p>
+    <div class="finding-grid">
+      <section><h4>Impact</h4><p>Content sniffing can enable script execution from user-uploaded content.</p></section>
+      <section><h4>Remediation</h4><p>Set X-Content-Type-Options: nosniff on every response.</p></section>
+    </div>
+    
+    
+  </article></div>
+  <div class="empty" id="no-results" hidden>No findings match the current filter.</div>
+</section>
+
+<section class="panel">
+  <h2>Checks</h2>
+  <table>
+    <thead><tr><th>Status</th><th>Check</th><th style="text-align:right">Findings</th><th style="text-align:right">Time</th></tr></thead>
+    <tbody><tr>
+    <td><span class="status pass">Pass</span></td>
+    <td><span class="check-id">discovery.profile</span><div class="check-summary">Detected no known framework across 2 files (JavaScript 1).</div></td>
+    <td class="num">0</td>
+    <td class="num">0 ms</td>
+  </tr><tr>
+    <td><span class="status pass">Pass</span></td>
+    <td><span class="check-id">secrets.env-hygiene</span><div class="check-summary">Environment files are ignored and no sensitive filenames were found in reachable history.</div><div class="check-details">Git history scanning is disabled by default. Enable scan.gitHistory to check sensitive filenames in history.</div></td>
+    <td class="num">0</td>
+    <td class="num">0 ms</td>
+  </tr><tr>
+    <td><span class="status pass">Pass</span></td>
+    <td><span class="check-id">secrets.hardcoded</span><div class="check-summary">No credential patterns detected across 2 scannable files.</div></td>
+    <td class="num">0</td>
+    <td class="num">1 ms</td>
+  </tr><tr>
+    <td><span class="status pass">Pass</span></td>
+    <td><span class="check-id">security.static</span><div class="check-summary">No risky source patterns matched across 2 text files. This is not a proof of security.</div><div class="check-details">Static rules are heuristics for human review; they do not execute or prove exploitability.</div></td>
+    <td class="num">0</td>
+    <td class="num">0 ms</td>
+  </tr><tr>
+    <td><span class="status skipped">Skipped</span></td>
+    <td><span class="check-id">dependencies.audit</span><div class="check-summary">No package.json was found, so there are no npm dependencies to audit.</div></td>
+    <td class="num">0</td>
+    <td class="num">0 ms</td>
+  </tr><tr>
+    <td><span class="status pass">Pass</span></td>
+    <td><span class="check-id">configuration.build-safety</span><div class="check-summary">No unsafe build or debug configuration flags detected.</div></td>
+    <td class="num">0</td>
+    <td class="num">0 ms</td>
+  </tr><tr>
+    <td><span class="status warn">Warning</span></td>
+    <td><span class="check-id">configuration.repository</span><div class="check-summary">4 repository hygiene item(s) need attention.</div></td>
+    <td class="num">4</td>
+    <td class="num">0 ms</td>
+  </tr><tr>
+    <td><span class="status warn">Warning</span></td>
+    <td><span class="check-id">http.cookies</span><div class="check-summary">2 cookie attribute issue(s) found.</div></td>
+    <td class="num">2</td>
+    <td class="num">0 ms</td>
+  </tr><tr>
+    <td><span class="status fail">Fail</span></td>
+    <td><span class="check-id">http.cors</span><div class="check-summary">1 permissive CORS behavior(s) observed.</div></td>
+    <td class="num">1</td>
+    <td class="num">246 ms</td>
+  </tr><tr>
+    <td><span class="status warn">Warning</span></td>
+    <td><span class="check-id">http.errors</span><div class="check-summary">1 error-handling issue(s) observed.</div></td>
+    <td class="num">1</td>
+    <td class="num">249 ms</td>
+  </tr><tr>
+    <td><span class="status fail">Fail</span></td>
+    <td><span class="check-id">http.exposure</span><div class="check-summary">4 sensitive path(s) are publicly reachable.</div><div class="check-details">Only a small, fixed list of common paths is probed. A clean result does not prove that no sensitive file is exposed.</div></td>
+    <td class="num">4</td>
+    <td class="num">2008 ms</td>
+  </tr><tr>
+    <td><span class="status warn">Warning</span></td>
+    <td><span class="check-id">http.headers</span><div class="check-summary">5 security header(s) missing or weak.</div></td>
+    <td class="num">5</td>
+    <td class="num">7 ms</td>
+  </tr><tr>
+    <td><span class="status pass">Pass</span></td>
+    <td><span class="check-id">http.transport</span><div class="check-summary">Loopback target uses HTTP; transport encryption is not applicable to local development.</div></td>
+    <td class="num">0</td>
+    <td class="num">0 ms</td>
+  </tr><tr>
+    <td><span class="status fail">Fail</span></td>
+    <td><span class="check-id">api.contracts</span><div class="check-summary">2 endpoint request(s) executed; 1 contract issue(s) found.</div></td>
+    <td class="num">1</td>
+    <td class="num">751 ms</td>
+  </tr><tr>
+    <td><span class="status fail">Fail</span></td>
+    <td><span class="check-id">authorization.objects</span><div class="check-summary">1 cross-identity scenario(s) tested; 1 authorization failure(s) observed.</div></td>
+    <td class="num">1</td>
+    <td class="num">501 ms</td>
+  </tr><tr>
+    <td><span class="status warn">Warning</span></td>
+    <td><span class="check-id">browser.links</span><div class="check-summary">5 internal link(s) checked; 1 broken.</div><div class="check-details">Only same-origin links found on sampled pages are checked. External links and JavaScript-driven navigation are not covered.</div></td>
+    <td class="num">1</td>
+    <td class="num">140 ms</td>
+  </tr><tr>
+    <td><span class="status warn">Warning</span></td>
+    <td><span class="check-id">browser.mobile</span><div class="check-summary">1 mobile layout issue(s) observed.</div><div class="check-details">Overflow detection only; this is not a full responsive or touch-target audit.</div></td>
+    <td class="num">1</td>
+    <td class="num">110 ms</td>
+  </tr><tr>
+    <td><span class="status pass">Pass</span></td>
+    <td><span class="check-id">browser.page-load</span><div class="check-summary">The application loaded in Chromium without observed console or network errors.</div></td>
+    <td class="num">0</td>
+    <td class="num">46 ms</td>
+  </tr><tr>
+    <td><span class="status warn">Warning</span></td>
+    <td><span class="check-id">browser.workflows</span><div class="check-summary">1 workflow(s) passed and 0 failed.</div></td>
+    <td class="num">1</td>
+    <td class="num">89 ms</td>
+  </tr><tr>
+    <td><span class="status warn">Warning</span></td>
+    <td><span class="check-id">accessibility.axe</span><div class="check-summary">3 page(s) scanned with tags wcag2a, wcag2aa; 1 violation(s) found.</div><div class="check-details">Automated checks cover only a subset of WCAG. Manual keyboard, screen-reader, zoom, and contrast testing is still required.</div></td>
+    <td class="num">1</td>
+    <td class="num">433 ms</td>
+  </tr><tr>
+    <td><span class="status pass">Pass</span></td>
+    <td><span class="check-id">performance.metrics</span><div class="check-summary">Sampled 2 page(s); all measured budgets were met.</div><div class="check-details">Single-run measurements from this machine and network. Treat them as directional, not as a production benchmark.</div></td>
+    <td class="num">0</td>
+    <td class="num">1107 ms</td>
+  </tr><tr>
+    <td><span class="status skipped">Skipped</span></td>
+    <td><span class="check-id">database.supabase-rls</span><div class="check-summary">No SQL migrations were found in supabase/migrations.</div><div class="check-details">Static RLS analysis requires SQL migrations under supabase/migrations. Configured or live database policies were not verified.</div></td>
+    <td class="num">0</td>
+    <td class="num">0 ms</td>
+  </tr></tbody>
+  </table>
+</section>
+
+<section class="panel" id="configuration">
+    <h2>Scan configuration</h2>
+    <div class="config-grid">
+      <div><span>Mode</span><strong>local</strong></div>
+      <div><span>Network checks</span><strong>Enabled</strong></div>
+      <div><span>Target</span><strong>http://127.0.0.1:4173/</strong></div>
+      <div><span>Fail threshold</span><strong>high</strong></div>
+      <div><span>API endpoints</span><strong>2</strong></div>
+      <div><span>Identities</span><strong>2</strong></div>
+      <div><span>Browser workflows</span><strong>1</strong></div>
+      <div><span>Accessibility</span><strong>wcag2a, wcag2aa</strong></div>
+      <div><span>Performance</span><strong>Enabled</strong></div>
+      <div><span>Supabase static</span><strong>Enabled</strong></div>
+      <div><span>Supabase live</span><strong>Not configured</strong></div>
+      <div><span>Git history</span><strong>Not checked</strong></div>
+    </div>
+  </section>
+
+<section class="panel">
+  <h2>Limitations</h2>
+  <ul class="limitations"><li>Static analysis is heuristic. Pattern matches indicate code worth reviewing; they do not prove exploitability, and no finding does not prove safety.</li><li>Secret values are masked before entering the report. Masking still means a credential may have leaked; rotate anything confirmed.</li><li>HTTP checks were unauthenticated unless configured identities were executed. Authenticated areas may behave differently.</li><li>TLS certificate chains, protocol versions, and cipher configuration were not independently assessed in this version.</li><li>Browser checks exercise only the configured workflows and sampled pages; untested flows and states remain unverified.</li><li>Performance measurements are single-run observations from this machine and network, not a production benchmark.</li><li>Database policies were assessed statically only, if at all; deployed RLS behavior was not verified.</li></ul>
+</section>
+
+<footer>
+  <span>LaunchProof v0.1.0 · LP-20261123-055553-4839</span>
+  <span>Generated locally. No project data was uploaded.</span>
+</footer>
+</div>
+<script>
+(function(){
+  var search = document.getElementById('search');
+  var list = document.getElementById('finding-list');
+  var noResults = document.getElementById('no-results');
+  var filters = Array.prototype.slice.call(document.querySelectorAll('.filter'));
+  var cards = Array.prototype.slice.call(document.querySelectorAll('.finding'));
+  var active = 'all';
+  function apply(){
+    var query = (search && search.value ? search.value : '').toLowerCase().trim();
+    var visible = 0;
+    cards.forEach(function(card){
+      var matchesSeverity = active === 'all' || card.getAttribute('data-severity') === active;
+      var haystack = card.getAttribute('data-search') || '';
+      var matchesQuery = query.length === 0 || haystack.indexOf(query) !== -1;
+      var show = matchesSeverity && matchesQuery;
+      card.hidden = !show;
+      if(show) visible++;
+    });
+    if(noResults) noResults.hidden = visible !== 0 || cards.length === 0;
+  }
+  filters.forEach(function(button){
+    button.addEventListener('click', function(){
+      active = button.getAttribute('data-filter') || 'all';
+      filters.forEach(function(other){ other.setAttribute('aria-pressed', String(other === button)); });
+      apply();
+    });
+  });
+  if(search) search.addEventListener('input', apply);
+})();
+</script>
+</body>
+</html>

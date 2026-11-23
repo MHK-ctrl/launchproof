@@ -1,0 +1,1687 @@
+{
+  "meta": {
+    "schemaVersion": 1,
+    "id": "LP-20261123-055553-4839",
+    "toolVersion": "0.1.0",
+    "startedAt": "2026-11-23T05:55:53.643Z",
+    "finishedAt": "2026-11-23T05:55:57.433Z",
+    "durationMs": 3791,
+    "projectName": "vulnerable-demo",
+    "target": "http://127.0.0.1:4173/",
+    "mode": "local",
+    "runtime": {
+      "node": "v26.0.0",
+      "platform": "darwin",
+      "arch": "arm64"
+    }
+  },
+  "summary": {
+    "totalChecks": 22,
+    "byStatus": {
+      "pass": 8,
+      "fail": 4,
+      "warn": 8,
+      "skipped": 2,
+      "not-verified": 0,
+      "error": 0
+    },
+    "bySeverity": {
+      "critical": 3,
+      "high": 3,
+      "medium": 7,
+      "low": 10,
+      "info": 0
+    },
+    "totalFindings": 23,
+    "failOn": "high",
+    "gatePassed": false,
+    "gateReasons": [
+      "6 finding(s) at or above \"high\" (3 critical, 3 high)."
+    ]
+  },
+  "project": {
+    "name": "vulnerable-demo",
+    "packageManager": "unknown",
+    "monorepo": false,
+    "frameworks": [],
+    "languages": [
+      {
+        "name": "JavaScript",
+        "files": 1
+      }
+    ],
+    "scripts": {},
+    "dependencies": {
+      "direct": 0,
+      "dev": 0,
+      "notable": []
+    },
+    "apiRoutes": [],
+    "testFrameworks": [],
+    "deployment": [],
+    "integrations": [],
+    "envVars": [
+      "HOST",
+      "PORT"
+    ],
+    "filesScanned": 2,
+    "truncated": false,
+    "ignoredLargeFiles": 0
+  },
+  "checks": [
+    {
+      "id": "discovery.profile",
+      "title": "Project discovery",
+      "category": "discovery",
+      "status": "pass",
+      "summary": "Detected no known framework across 2 files (JavaScript 1).",
+      "findings": [],
+      "evidence": [
+        {
+          "kind": "metric",
+          "label": "Package manager",
+          "value": "unknown"
+        },
+        {
+          "kind": "metric",
+          "label": "API routes found",
+          "value": "0"
+        },
+        {
+          "kind": "metric",
+          "label": "Deployment targets",
+          "value": "none detected"
+        }
+      ],
+      "durationMs": 0
+    },
+    {
+      "id": "secrets.env-hygiene",
+      "title": "Environment file and git hygiene",
+      "category": "secrets",
+      "status": "pass",
+      "summary": "Environment files are ignored and no sensitive filenames were found in reachable history.",
+      "findings": [],
+      "evidence": [
+        {
+          "kind": "metric",
+          "label": "Environment files on disk",
+          "value": "0"
+        },
+        {
+          "kind": "metric",
+          "label": "Git history inspected",
+          "value": "no"
+        }
+      ],
+      "durationMs": 0,
+      "details": "Git history scanning is disabled by default. Enable scan.gitHistory to check sensitive filenames in history."
+    },
+    {
+      "id": "secrets.hardcoded",
+      "title": "Hardcoded secrets and credentials",
+      "category": "secrets",
+      "status": "pass",
+      "summary": "No credential patterns detected across 2 scannable files.",
+      "findings": [],
+      "evidence": [
+        {
+          "kind": "metric",
+          "label": "Files scanned",
+          "value": "2"
+        },
+        {
+          "kind": "metric",
+          "label": "Files with matches",
+          "value": "0"
+        }
+      ],
+      "durationMs": 1
+    },
+    {
+      "id": "security.static",
+      "title": "Static security review",
+      "category": "security",
+      "status": "pass",
+      "summary": "No risky source patterns matched across 2 text files. This is not a proof of security.",
+      "findings": [],
+      "evidence": [
+        {
+          "kind": "metric",
+          "label": "Rules evaluated",
+          "value": "13"
+        },
+        {
+          "kind": "metric",
+          "label": "Files inspected",
+          "value": "2"
+        }
+      ],
+      "durationMs": 0,
+      "details": "Static rules are heuristics for human review; they do not execute or prove exploitability."
+    },
+    {
+      "id": "dependencies.audit",
+      "title": "Dependency vulnerability audit",
+      "category": "dependencies",
+      "status": "skipped",
+      "summary": "No package.json was found, so there are no npm dependencies to audit.",
+      "findings": [],
+      "evidence": [],
+      "durationMs": 0
+    },
+    {
+      "id": "configuration.build-safety",
+      "title": "Build and configuration safety",
+      "category": "configuration",
+      "status": "pass",
+      "summary": "No unsafe build or debug configuration flags detected.",
+      "findings": [],
+      "evidence": [],
+      "durationMs": 0
+    },
+    {
+      "id": "configuration.repository",
+      "title": "Repository hygiene",
+      "category": "configuration",
+      "status": "warn",
+      "summary": "4 repository hygiene item(s) need attention.",
+      "findings": [
+        {
+          "id": "FND-225430D5",
+          "checkId": "configuration.repository",
+          "title": "No .gitignore file",
+          "description": "The project does not define a .gitignore, so build output, dependencies, and environment files can be committed accidentally.",
+          "severity": "medium",
+          "confidence": "high",
+          "verification": "observed",
+          "category": "configuration",
+          "impact": "Secrets and large generated directories can enter version control.",
+          "remediation": "Add a .gitignore covering node_modules, build output, and .env files.",
+          "evidence": []
+        },
+        {
+          "id": "FND-DFF9AD3C",
+          "checkId": "configuration.repository",
+          "title": "Missing README file",
+          "description": "The repository has no README.md.",
+          "severity": "low",
+          "confidence": "high",
+          "verification": "observed",
+          "category": "configuration",
+          "impact": "New contributors and users lack orientation.",
+          "remediation": "Add a README.md file.",
+          "evidence": []
+        },
+        {
+          "id": "FND-C9F09943",
+          "checkId": "configuration.repository",
+          "title": "Missing license file",
+          "description": "The repository has no LICENSE.",
+          "severity": "low",
+          "confidence": "high",
+          "verification": "observed",
+          "category": "configuration",
+          "impact": "Without a license, others have no clear legal right to use the project.",
+          "remediation": "Add a LICENSE file.",
+          "evidence": []
+        },
+        {
+          "id": "FND-B90A8C0A",
+          "checkId": "configuration.repository",
+          "title": "No continuous integration workflow",
+          "description": "No GitHub Actions or GitLab CI configuration was found.",
+          "severity": "low",
+          "confidence": "high",
+          "verification": "observed",
+          "category": "configuration",
+          "impact": "Checks depend on local discipline and regressions can reach the default branch.",
+          "remediation": "Add a CI workflow that installs from the lockfile and runs lint, typecheck, tests, and build.",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "metric",
+          "label": "Lockfiles",
+          "value": "none"
+        },
+        {
+          "kind": "metric",
+          "label": "CI workflow",
+          "value": "absent"
+        }
+      ],
+      "durationMs": 0
+    },
+    {
+      "id": "http.cookies",
+      "title": "Cookie security attributes",
+      "category": "http",
+      "status": "warn",
+      "summary": "2 cookie attribute issue(s) found.",
+      "findings": [
+        {
+          "id": "FND-A3C28AEF",
+          "checkId": "http.cookies",
+          "title": "Cookie \"session\" is missing HttpOnly",
+          "description": "A response cookie is readable from JavaScript.",
+          "severity": "medium",
+          "confidence": "high",
+          "verification": "observed",
+          "category": "http",
+          "impact": "Any XSS on the site can steal this cookie and hijack the session.",
+          "remediation": "Set HttpOnly on session and authentication cookies.",
+          "evidence": [
+            {
+              "kind": "text",
+              "label": "Cookie name",
+              "value": "session"
+            }
+          ]
+        },
+        {
+          "id": "FND-C103DB91",
+          "checkId": "http.cookies",
+          "title": "Cookie \"session\" has no SameSite policy",
+          "description": "The cookie does not declare SameSite, leaving cross-site sending behavior to browser defaults.",
+          "severity": "low",
+          "confidence": "high",
+          "verification": "observed",
+          "category": "http",
+          "impact": "Cross-site request forgery protection is weaker and browser-dependent.",
+          "remediation": "Set SameSite=Lax or Strict unless the cookie is required for a cross-site flow.",
+          "evidence": [
+            {
+              "kind": "text",
+              "label": "Cookie name",
+              "value": "session"
+            }
+          ]
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "metric",
+          "label": "Cookies set",
+          "value": "1"
+        }
+      ],
+      "durationMs": 0
+    },
+    {
+      "id": "http.cors",
+      "title": "CORS policy",
+      "category": "http",
+      "status": "fail",
+      "summary": "1 permissive CORS behavior(s) observed.",
+      "findings": [
+        {
+          "id": "FND-EC670DFD",
+          "checkId": "http.cors",
+          "title": "Wildcard CORS with credentials",
+          "description": "The server allows any origin together with credentials.",
+          "severity": "high",
+          "confidence": "high",
+          "verification": "observed",
+          "category": "http",
+          "impact": "Any website can make authenticated cross-origin requests and read the responses where browsers permit it.",
+          "remediation": "Replace the wildcard with an allowlist of trusted origins and never combine credentials with \"*\".",
+          "evidence": [
+            {
+              "kind": "header",
+              "label": "Access-Control-Allow-Origin",
+              "value": "*"
+            },
+            {
+              "kind": "header",
+              "label": "Access-Control-Allow-Credentials",
+              "value": "true"
+            }
+          ]
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "header",
+          "label": "Tested Origin",
+          "value": "https://launchproof.invalid"
+        }
+      ],
+      "durationMs": 246
+    },
+    {
+      "id": "http.errors",
+      "title": "Error handling and information disclosure",
+      "category": "http",
+      "status": "warn",
+      "summary": "1 error-handling issue(s) observed.",
+      "findings": [
+        {
+          "id": "FND-620502E2",
+          "checkId": "http.errors",
+          "title": "Error responses disclose internal details",
+          "description": "A request to a random path returned content containing stack-trace or internal error markers.",
+          "severity": "medium",
+          "confidence": "medium",
+          "verification": "observed",
+          "category": "http",
+          "impact": "File paths, framework versions, and internal logic help attackers target exploits.",
+          "remediation": "Disable debug error pages in production and return a generic error response with a correlation ID.",
+          "evidence": [
+            {
+              "kind": "http",
+              "label": "Probe",
+              "value": "/launchproof-not-found-nlugqf"
+            },
+            {
+              "kind": "http",
+              "label": "Status",
+              "value": "404"
+            },
+            {
+              "kind": "text",
+              "label": "Validation",
+              "value": "Body contained stack-trace or internal error markers."
+            }
+          ]
+        }
+      ],
+      "evidence": [],
+      "durationMs": 249
+    },
+    {
+      "id": "http.exposure",
+      "title": "Sensitive path exposure",
+      "category": "http",
+      "status": "fail",
+      "summary": "4 sensitive path(s) are publicly reachable.",
+      "findings": [
+        {
+          "id": "FND-B6A2F493",
+          "checkId": "http.exposure",
+          "title": "Environment file is publicly accessible",
+          "description": "An environment file is served over HTTP. It can contain database, payment, and signing credentials.",
+          "severity": "critical",
+          "confidence": "high",
+          "verification": "observed",
+          "category": "http",
+          "impact": "Direct access to credentials or source can lead to full compromise.",
+          "remediation": "Block the path at the edge or web server, remove the file from the deployed artifact, and confirm with an unauthenticated request.",
+          "evidence": [
+            {
+              "kind": "http",
+              "label": "Status",
+              "value": "200"
+            },
+            {
+              "kind": "http",
+              "label": "Content-Type",
+              "value": "text/plain; charset=utf-8"
+            },
+            {
+              "kind": "text",
+              "label": "Validation",
+              "value": "Content matched the expected signature for Environment file."
+            }
+          ],
+          "location": {
+            "url": "http://127.0.0.1:4173/.env"
+          },
+          "references": [
+            "https://cwe.mitre.org/data/definitions/538.html"
+          ]
+        },
+        {
+          "id": "FND-66A5572E",
+          "checkId": "http.exposure",
+          "title": "Git configuration is publicly accessible",
+          "description": "The .git directory is publicly served, exposing repository metadata and potentially full source history.",
+          "severity": "critical",
+          "confidence": "high",
+          "verification": "observed",
+          "category": "http",
+          "impact": "Direct access to credentials or source can lead to full compromise.",
+          "remediation": "Block the path at the edge or web server, remove the file from the deployed artifact, and confirm with an unauthenticated request.",
+          "evidence": [
+            {
+              "kind": "http",
+              "label": "Status",
+              "value": "200"
+            },
+            {
+              "kind": "http",
+              "label": "Content-Type",
+              "value": "text/plain; charset=utf-8"
+            },
+            {
+              "kind": "text",
+              "label": "Validation",
+              "value": "Content matched the expected signature for Git configuration."
+            }
+          ],
+          "location": {
+            "url": "http://127.0.0.1:4173/.git/config"
+          },
+          "references": [
+            "https://cwe.mitre.org/data/definitions/538.html"
+          ]
+        },
+        {
+          "id": "FND-C74AF9FA",
+          "checkId": "http.exposure",
+          "title": "Server status page is publicly accessible",
+          "description": "A server status page is publicly reachable.",
+          "severity": "medium",
+          "confidence": "high",
+          "verification": "observed",
+          "category": "http",
+          "impact": "Internal information is exposed to unauthenticated visitors.",
+          "remediation": "Block the path at the edge or web server, remove the file from the deployed artifact, and confirm with an unauthenticated request.",
+          "evidence": [
+            {
+              "kind": "http",
+              "label": "Status",
+              "value": "200"
+            },
+            {
+              "kind": "http",
+              "label": "Content-Type",
+              "value": "text/html; charset=utf-8"
+            },
+            {
+              "kind": "text",
+              "label": "Validation",
+              "value": "Content matched the expected signature for Server status page."
+            }
+          ],
+          "location": {
+            "url": "http://127.0.0.1:4173/server-status"
+          },
+          "references": [
+            "https://cwe.mitre.org/data/definitions/538.html"
+          ]
+        },
+        {
+          "id": "FND-521AB411",
+          "checkId": "http.exposure",
+          "title": "Debug endpoint is publicly accessible",
+          "description": "A debug endpoint responds publicly and may expose environment, configuration, or stack details.",
+          "severity": "high",
+          "confidence": "high",
+          "verification": "observed",
+          "category": "http",
+          "impact": "Internal information is exposed to unauthenticated visitors.",
+          "remediation": "Block the path at the edge or web server, remove the file from the deployed artifact, and confirm with an unauthenticated request.",
+          "evidence": [
+            {
+              "kind": "http",
+              "label": "Status",
+              "value": "200"
+            },
+            {
+              "kind": "http",
+              "label": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "kind": "text",
+              "label": "Validation",
+              "value": "Content matched the expected signature for Debug endpoint."
+            }
+          ],
+          "location": {
+            "url": "http://127.0.0.1:4173/api/debug"
+          },
+          "references": [
+            "https://cwe.mitre.org/data/definitions/538.html"
+          ]
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "text",
+          "label": "Paths probed",
+          "value": "/.env, /.git/config, /.git/HEAD, /backup.sql, /.DS_Store, /package.json, /server-status, /api/debug"
+        }
+      ],
+      "durationMs": 2008,
+      "details": "Only a small, fixed list of common paths is probed. A clean result does not prove that no sensitive file is exposed."
+    },
+    {
+      "id": "http.headers",
+      "title": "HTTP security headers",
+      "category": "http",
+      "status": "warn",
+      "summary": "5 security header(s) missing or weak.",
+      "findings": [
+        {
+          "id": "FND-4E603BDE",
+          "checkId": "http.headers",
+          "title": "Content-Security-Policy header is missing",
+          "description": "The response does not define a Content-Security-Policy, so the browser applies no restriction on script, style, frame, or connection sources.",
+          "severity": "medium",
+          "confidence": "high",
+          "verification": "observed",
+          "category": "http",
+          "impact": "Injected scripts have fewer obstacles and XSS impact is amplified.",
+          "remediation": "Add a restrictive Content-Security-Policy. Start with default-src 'self' and allow only the origins the application needs.",
+          "evidence": []
+        },
+        {
+          "id": "FND-F0B27C77",
+          "checkId": "http.headers",
+          "title": "X-Content-Type-Options is missing",
+          "description": "Browsers may MIME-sniff responses, which can turn an uploaded text file into executable script.",
+          "severity": "low",
+          "confidence": "high",
+          "verification": "observed",
+          "category": "http",
+          "impact": "Content sniffing can enable script execution from user-uploaded content.",
+          "remediation": "Set X-Content-Type-Options: nosniff on every response.",
+          "evidence": []
+        },
+        {
+          "id": "FND-1621EAB5",
+          "checkId": "http.headers",
+          "title": "Clickjacking protection is missing",
+          "description": "Neither X-Frame-Options nor CSP frame-ancestors restricts embedding of this page.",
+          "severity": "medium",
+          "confidence": "high",
+          "verification": "observed",
+          "category": "http",
+          "impact": "The application can be embedded in an attacker-controlled page and used for clickjacking.",
+          "remediation": "Set X-Frame-Options: DENY (or SAMEORIGIN) and a CSP frame-ancestors directive.",
+          "evidence": []
+        },
+        {
+          "id": "FND-15AC7110",
+          "checkId": "http.headers",
+          "title": "Referrer-Policy is missing",
+          "description": "No referrer policy is set, so full URLs may leak to third parties and across origins.",
+          "severity": "low",
+          "confidence": "high",
+          "verification": "observed",
+          "category": "http",
+          "impact": "Tokens or identifiers in URLs can leak through the Referer header.",
+          "remediation": "Set Referrer-Policy: strict-origin-when-cross-origin or no-referrer.",
+          "evidence": []
+        },
+        {
+          "id": "FND-4E5EF2C9",
+          "checkId": "http.headers",
+          "title": "Permissions-Policy is missing",
+          "description": "The response does not restrict access to browser features such as camera, microphone, and geolocation.",
+          "severity": "low",
+          "confidence": "high",
+          "verification": "observed",
+          "category": "http",
+          "impact": "Embedded or compromised content has broader browser capabilities than necessary.",
+          "remediation": "Add a Permissions-Policy that disables features the app does not use.",
+          "evidence": []
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "http",
+          "label": "Status",
+          "value": "200 OK"
+        },
+        {
+          "kind": "header",
+          "label": "Content-Security-Policy",
+          "value": "absent"
+        },
+        {
+          "kind": "header",
+          "label": "Strict-Transport-Security",
+          "value": "absent"
+        }
+      ],
+      "durationMs": 7
+    },
+    {
+      "id": "http.transport",
+      "title": "Transport encryption",
+      "category": "http",
+      "status": "pass",
+      "summary": "Loopback target uses HTTP; transport encryption is not applicable to local development.",
+      "findings": [],
+      "evidence": [
+        {
+          "kind": "http",
+          "label": "Final URL",
+          "value": "http://127.0.0.1:4173/"
+        }
+      ],
+      "durationMs": 0
+    },
+    {
+      "id": "api.contracts",
+      "title": "API contract verification",
+      "category": "api",
+      "status": "fail",
+      "summary": "2 endpoint request(s) executed; 1 contract issue(s) found.",
+      "findings": [
+        {
+          "id": "FND-5985BFC7",
+          "checkId": "api.contracts",
+          "title": "GET /api/users accepts unauthenticated requests",
+          "description": "The endpoint is marked as requiring authentication, but an anonymous request returned HTTP 200.",
+          "severity": "high",
+          "confidence": "high",
+          "verification": "observed",
+          "category": "api",
+          "impact": "Private data or actions may be available without a session.",
+          "remediation": "Enforce authentication server-side before reading or mutating protected data.",
+          "evidence": [
+            {
+              "kind": "http",
+              "label": "Status",
+              "value": "200 OK"
+            },
+            {
+              "kind": "http",
+              "label": "Final URL",
+              "value": "http://127.0.0.1:4173/api/users"
+            },
+            {
+              "kind": "metric",
+              "label": "Duration",
+              "value": "252 ms"
+            },
+            {
+              "kind": "http",
+              "label": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "kind": "metric",
+              "label": "Body bytes",
+              "value": "234"
+            }
+          ],
+          "location": {
+            "url": "http://127.0.0.1:4173/api/users"
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "http",
+          "label": "GET /api/health",
+          "value": "200 · 248 ms"
+        },
+        {
+          "kind": "http",
+          "label": "GET /api/users",
+          "value": "200 · 249 ms"
+        }
+      ],
+      "durationMs": 751
+    },
+    {
+      "id": "authorization.objects",
+      "title": "Object-level authorization",
+      "category": "authorization",
+      "status": "fail",
+      "summary": "1 cross-identity scenario(s) tested; 1 authorization failure(s) observed.",
+      "findings": [
+        {
+          "id": "FND-E03A80F3",
+          "checkId": "authorization.objects",
+          "title": "Possible broken object-level authorization: User 2 profile",
+          "description": "other accessed a resource owned by owner and received HTTP 200; expected 401 or 403 or 404.",
+          "severity": "critical",
+          "confidence": "high",
+          "verification": "observed",
+          "category": "authorization",
+          "impact": "Users may read or modify other users' data by changing an identifier or URL. This is one of the most common and damaging application vulnerabilities.",
+          "remediation": "Enforce object ownership on the server for every request. Never rely on client-side checks or unguessable identifiers.",
+          "evidence": [
+            {
+              "kind": "http",
+              "label": "Method",
+              "value": "GET"
+            },
+            {
+              "kind": "http",
+              "label": "URL",
+              "value": "http://127.0.0.1:4173/api/users/2"
+            },
+            {
+              "kind": "http",
+              "label": "Owner status",
+              "value": "200"
+            },
+            {
+              "kind": "http",
+              "label": "Second identity status",
+              "value": "200"
+            },
+            {
+              "kind": "text",
+              "label": "Expectation",
+              "value": "401 or 403 or 404"
+            }
+          ],
+          "location": {
+            "url": "http://127.0.0.1:4173/api/users/2"
+          },
+          "references": [
+            "https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/"
+          ]
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "metric",
+          "label": "Scenarios tested",
+          "value": "1"
+        },
+        {
+          "kind": "metric",
+          "label": "Scenarios skipped",
+          "value": "0"
+        }
+      ],
+      "durationMs": 501
+    },
+    {
+      "id": "browser.links",
+      "title": "Internal links",
+      "category": "browser",
+      "status": "warn",
+      "summary": "5 internal link(s) checked; 1 broken.",
+      "findings": [
+        {
+          "id": "FND-54139B5E",
+          "checkId": "browser.links",
+          "title": "Broken internal link: /broken",
+          "description": "Linked from /; returned HTTP 404.",
+          "severity": "low",
+          "confidence": "high",
+          "verification": "observed",
+          "category": "browser",
+          "impact": "Users following the link reach an error page.",
+          "remediation": "Update the link or restore the route, and add a link check to CI.",
+          "evidence": [
+            {
+              "kind": "http",
+              "label": "Status",
+              "value": "404"
+            },
+            {
+              "kind": "text",
+              "label": "Source page",
+              "value": "/"
+            }
+          ],
+          "location": {
+            "url": "http://127.0.0.1:4173/broken"
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "metric",
+          "label": "Links checked",
+          "value": "5"
+        },
+        {
+          "kind": "metric",
+          "label": "Pages sampled",
+          "value": "3"
+        }
+      ],
+      "durationMs": 140,
+      "details": "Only same-origin links found on sampled pages are checked. External links and JavaScript-driven navigation are not covered."
+    },
+    {
+      "id": "browser.mobile",
+      "title": "Mobile layout",
+      "category": "browser",
+      "status": "warn",
+      "summary": "1 mobile layout issue(s) observed.",
+      "findings": [
+        {
+          "id": "FND-26478C19",
+          "checkId": "browser.mobile",
+          "title": "Horizontal overflow on /",
+          "description": "The page is 1072px wide in a 390px viewport, causing horizontal scrolling.",
+          "severity": "low",
+          "confidence": "high",
+          "verification": "observed",
+          "category": "browser",
+          "impact": "Mobile users must pan sideways and content may be clipped.",
+          "remediation": "Constrain wide elements, use max-width: 100%, and test at the configured mobile viewport.",
+          "evidence": [
+            {
+              "kind": "metric",
+              "label": "Scroll width",
+              "value": "1072px"
+            },
+            {
+              "kind": "metric",
+              "label": "Viewport width",
+              "value": "390px"
+            }
+          ],
+          "location": {
+            "url": "/"
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "metric",
+          "label": "Viewport",
+          "value": "390×844"
+        }
+      ],
+      "durationMs": 110,
+      "details": "Overflow detection only; this is not a full responsive or touch-target audit."
+    },
+    {
+      "id": "browser.page-load",
+      "title": "Browser page load",
+      "category": "browser",
+      "status": "pass",
+      "summary": "The application loaded in Chromium without observed console or network errors.",
+      "findings": [],
+      "evidence": [
+        {
+          "kind": "http",
+          "label": "Root status",
+          "value": "200"
+        },
+        {
+          "kind": "text",
+          "label": "Page title",
+          "value": "Vulnerable Demo"
+        },
+        {
+          "kind": "metric",
+          "label": "Navigation",
+          "value": "43 ms"
+        }
+      ],
+      "durationMs": 46
+    },
+    {
+      "id": "browser.workflows",
+      "title": "Browser user workflows",
+      "category": "browser",
+      "status": "warn",
+      "summary": "1 workflow(s) passed and 0 failed.",
+      "findings": [
+        {
+          "id": "FND-5B70CEE7",
+          "checkId": "browser.workflows",
+          "title": "Console error on /login",
+          "description": "Deliberate demo console error for LaunchProof",
+          "severity": "low",
+          "confidence": "high",
+          "verification": "observed",
+          "category": "browser",
+          "impact": "Console errors often precede broken user flows and indicate unhandled failures.",
+          "remediation": "Fix the underlying error and keep the console clean for tested pages.",
+          "evidence": [
+            {
+              "kind": "log",
+              "label": "Console error",
+              "value": "Deliberate demo console error for LaunchProof"
+            }
+          ],
+          "location": {
+            "url": "/login"
+          }
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "metric",
+          "label": "Login form",
+          "value": "passed · 86 ms"
+        }
+      ],
+      "durationMs": 89
+    },
+    {
+      "id": "accessibility.axe",
+      "title": "Accessibility (axe-core)",
+      "category": "accessibility",
+      "status": "warn",
+      "summary": "3 page(s) scanned with tags wcag2a, wcag2aa; 1 violation(s) found.",
+      "findings": [
+        {
+          "id": "FND-FD71DA80",
+          "checkId": "accessibility.axe",
+          "title": "Accessibility: Elements must meet minimum color contrast ratio thresholds",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds This is an automated rule match; manual review with assistive technology is still required.",
+          "severity": "medium",
+          "confidence": "high",
+          "verification": "observed",
+          "category": "accessibility",
+          "impact": "Users relying on assistive technology may be unable to complete this part of the page.",
+          "remediation": "Fix the reported elements and re-run axe. See https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=axeAPI",
+          "evidence": [
+            {
+              "kind": "text",
+              "label": "Rule",
+              "value": "color-contrast"
+            },
+            {
+              "kind": "text",
+              "label": "Selectors",
+              "value": ".muted"
+            },
+            {
+              "kind": "text",
+              "label": "Failure summary",
+              "value": "Fix any of the following:\n  Element has insufficient color contrast of 3.19 (foreground color: #70747c, background color: #24272d, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+            }
+          ],
+          "location": {
+            "url": "/"
+          },
+          "references": [
+            "https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=axeAPI"
+          ]
+        }
+      ],
+      "evidence": [
+        {
+          "kind": "metric",
+          "label": "/",
+          "value": "1 violation rule(s)"
+        },
+        {
+          "kind": "metric",
+          "label": "/login",
+          "value": "0 violation rule(s)"
+        },
+        {
+          "kind": "metric",
+          "label": "/about",
+          "value": "0 violation rule(s)"
+        }
+      ],
+      "durationMs": 433,
+      "details": "Automated checks cover only a subset of WCAG. Manual keyboard, screen-reader, zoom, and contrast testing is still required."
+    },
+    {
+      "id": "performance.metrics",
+      "title": "Navigation performance",
+      "category": "performance",
+      "status": "pass",
+      "summary": "Sampled 2 page(s); all measured budgets were met.",
+      "findings": [],
+      "evidence": [
+        {
+          "kind": "metric",
+          "label": "/ FCP",
+          "value": "12 ms"
+        },
+        {
+          "kind": "metric",
+          "label": "/ LCP",
+          "value": "12 ms"
+        },
+        {
+          "kind": "metric",
+          "label": "/ CLS",
+          "value": "0"
+        },
+        {
+          "kind": "metric",
+          "label": "/ JS transfer",
+          "value": "0 KB"
+        },
+        {
+          "kind": "metric",
+          "label": "/ requests",
+          "value": "0"
+        },
+        {
+          "kind": "metric",
+          "label": "/login FCP",
+          "value": "16 ms"
+        },
+        {
+          "kind": "metric",
+          "label": "/login LCP",
+          "value": "16 ms"
+        },
+        {
+          "kind": "metric",
+          "label": "/login CLS",
+          "value": "0"
+        },
+        {
+          "kind": "metric",
+          "label": "/login JS transfer",
+          "value": "0 KB"
+        },
+        {
+          "kind": "metric",
+          "label": "/login requests",
+          "value": "0"
+        }
+      ],
+      "durationMs": 1107,
+      "details": "Single-run measurements from this machine and network. Treat them as directional, not as a production benchmark."
+    },
+    {
+      "id": "database.supabase-rls",
+      "title": "Supabase row-level security",
+      "category": "database",
+      "status": "skipped",
+      "summary": "No SQL migrations were found in supabase/migrations.",
+      "findings": [],
+      "evidence": [],
+      "durationMs": 0,
+      "details": "Static RLS analysis requires SQL migrations under supabase/migrations. Configured or live database policies were not verified."
+    }
+  ],
+  "findings": [
+    {
+      "id": "FND-B6A2F493",
+      "checkId": "http.exposure",
+      "title": "Environment file is publicly accessible",
+      "description": "An environment file is served over HTTP. It can contain database, payment, and signing credentials.",
+      "severity": "critical",
+      "confidence": "high",
+      "verification": "observed",
+      "category": "http",
+      "impact": "Direct access to credentials or source can lead to full compromise.",
+      "remediation": "Block the path at the edge or web server, remove the file from the deployed artifact, and confirm with an unauthenticated request.",
+      "evidence": [
+        {
+          "kind": "http",
+          "label": "Status",
+          "value": "200"
+        },
+        {
+          "kind": "http",
+          "label": "Content-Type",
+          "value": "text/plain; charset=utf-8"
+        },
+        {
+          "kind": "text",
+          "label": "Validation",
+          "value": "Content matched the expected signature for Environment file."
+        }
+      ],
+      "location": {
+        "url": "http://127.0.0.1:4173/.env"
+      },
+      "references": [
+        "https://cwe.mitre.org/data/definitions/538.html"
+      ]
+    },
+    {
+      "id": "FND-66A5572E",
+      "checkId": "http.exposure",
+      "title": "Git configuration is publicly accessible",
+      "description": "The .git directory is publicly served, exposing repository metadata and potentially full source history.",
+      "severity": "critical",
+      "confidence": "high",
+      "verification": "observed",
+      "category": "http",
+      "impact": "Direct access to credentials or source can lead to full compromise.",
+      "remediation": "Block the path at the edge or web server, remove the file from the deployed artifact, and confirm with an unauthenticated request.",
+      "evidence": [
+        {
+          "kind": "http",
+          "label": "Status",
+          "value": "200"
+        },
+        {
+          "kind": "http",
+          "label": "Content-Type",
+          "value": "text/plain; charset=utf-8"
+        },
+        {
+          "kind": "text",
+          "label": "Validation",
+          "value": "Content matched the expected signature for Git configuration."
+        }
+      ],
+      "location": {
+        "url": "http://127.0.0.1:4173/.git/config"
+      },
+      "references": [
+        "https://cwe.mitre.org/data/definitions/538.html"
+      ]
+    },
+    {
+      "id": "FND-E03A80F3",
+      "checkId": "authorization.objects",
+      "title": "Possible broken object-level authorization: User 2 profile",
+      "description": "other accessed a resource owned by owner and received HTTP 200; expected 401 or 403 or 404.",
+      "severity": "critical",
+      "confidence": "high",
+      "verification": "observed",
+      "category": "authorization",
+      "impact": "Users may read or modify other users' data by changing an identifier or URL. This is one of the most common and damaging application vulnerabilities.",
+      "remediation": "Enforce object ownership on the server for every request. Never rely on client-side checks or unguessable identifiers.",
+      "evidence": [
+        {
+          "kind": "http",
+          "label": "Method",
+          "value": "GET"
+        },
+        {
+          "kind": "http",
+          "label": "URL",
+          "value": "http://127.0.0.1:4173/api/users/2"
+        },
+        {
+          "kind": "http",
+          "label": "Owner status",
+          "value": "200"
+        },
+        {
+          "kind": "http",
+          "label": "Second identity status",
+          "value": "200"
+        },
+        {
+          "kind": "text",
+          "label": "Expectation",
+          "value": "401 or 403 or 404"
+        }
+      ],
+      "location": {
+        "url": "http://127.0.0.1:4173/api/users/2"
+      },
+      "references": [
+        "https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization/"
+      ]
+    },
+    {
+      "id": "FND-521AB411",
+      "checkId": "http.exposure",
+      "title": "Debug endpoint is publicly accessible",
+      "description": "A debug endpoint responds publicly and may expose environment, configuration, or stack details.",
+      "severity": "high",
+      "confidence": "high",
+      "verification": "observed",
+      "category": "http",
+      "impact": "Internal information is exposed to unauthenticated visitors.",
+      "remediation": "Block the path at the edge or web server, remove the file from the deployed artifact, and confirm with an unauthenticated request.",
+      "evidence": [
+        {
+          "kind": "http",
+          "label": "Status",
+          "value": "200"
+        },
+        {
+          "kind": "http",
+          "label": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "kind": "text",
+          "label": "Validation",
+          "value": "Content matched the expected signature for Debug endpoint."
+        }
+      ],
+      "location": {
+        "url": "http://127.0.0.1:4173/api/debug"
+      },
+      "references": [
+        "https://cwe.mitre.org/data/definitions/538.html"
+      ]
+    },
+    {
+      "id": "FND-5985BFC7",
+      "checkId": "api.contracts",
+      "title": "GET /api/users accepts unauthenticated requests",
+      "description": "The endpoint is marked as requiring authentication, but an anonymous request returned HTTP 200.",
+      "severity": "high",
+      "confidence": "high",
+      "verification": "observed",
+      "category": "api",
+      "impact": "Private data or actions may be available without a session.",
+      "remediation": "Enforce authentication server-side before reading or mutating protected data.",
+      "evidence": [
+        {
+          "kind": "http",
+          "label": "Status",
+          "value": "200 OK"
+        },
+        {
+          "kind": "http",
+          "label": "Final URL",
+          "value": "http://127.0.0.1:4173/api/users"
+        },
+        {
+          "kind": "metric",
+          "label": "Duration",
+          "value": "252 ms"
+        },
+        {
+          "kind": "http",
+          "label": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "kind": "metric",
+          "label": "Body bytes",
+          "value": "234"
+        }
+      ],
+      "location": {
+        "url": "http://127.0.0.1:4173/api/users"
+      }
+    },
+    {
+      "id": "FND-EC670DFD",
+      "checkId": "http.cors",
+      "title": "Wildcard CORS with credentials",
+      "description": "The server allows any origin together with credentials.",
+      "severity": "high",
+      "confidence": "high",
+      "verification": "observed",
+      "category": "http",
+      "impact": "Any website can make authenticated cross-origin requests and read the responses where browsers permit it.",
+      "remediation": "Replace the wildcard with an allowlist of trusted origins and never combine credentials with \"*\".",
+      "evidence": [
+        {
+          "kind": "header",
+          "label": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "kind": "header",
+          "label": "Access-Control-Allow-Credentials",
+          "value": "true"
+        }
+      ]
+    },
+    {
+      "id": "FND-FD71DA80",
+      "checkId": "accessibility.axe",
+      "title": "Accessibility: Elements must meet minimum color contrast ratio thresholds",
+      "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds This is an automated rule match; manual review with assistive technology is still required.",
+      "severity": "medium",
+      "confidence": "high",
+      "verification": "observed",
+      "category": "accessibility",
+      "impact": "Users relying on assistive technology may be unable to complete this part of the page.",
+      "remediation": "Fix the reported elements and re-run axe. See https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=axeAPI",
+      "evidence": [
+        {
+          "kind": "text",
+          "label": "Rule",
+          "value": "color-contrast"
+        },
+        {
+          "kind": "text",
+          "label": "Selectors",
+          "value": ".muted"
+        },
+        {
+          "kind": "text",
+          "label": "Failure summary",
+          "value": "Fix any of the following:\n  Element has insufficient color contrast of 3.19 (foreground color: #70747c, background color: #24272d, font size: 9.8pt (13px), font weight: normal). Expected contrast ratio of 4.5:1"
+        }
+      ],
+      "location": {
+        "url": "/"
+      },
+      "references": [
+        "https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=axeAPI"
+      ]
+    },
+    {
+      "id": "FND-1621EAB5",
+      "checkId": "http.headers",
+      "title": "Clickjacking protection is missing",
+      "description": "Neither X-Frame-Options nor CSP frame-ancestors restricts embedding of this page.",
+      "severity": "medium",
+      "confidence": "high",
+      "verification": "observed",
+      "category": "http",
+      "impact": "The application can be embedded in an attacker-controlled page and used for clickjacking.",
+      "remediation": "Set X-Frame-Options: DENY (or SAMEORIGIN) and a CSP frame-ancestors directive.",
+      "evidence": []
+    },
+    {
+      "id": "FND-4E603BDE",
+      "checkId": "http.headers",
+      "title": "Content-Security-Policy header is missing",
+      "description": "The response does not define a Content-Security-Policy, so the browser applies no restriction on script, style, frame, or connection sources.",
+      "severity": "medium",
+      "confidence": "high",
+      "verification": "observed",
+      "category": "http",
+      "impact": "Injected scripts have fewer obstacles and XSS impact is amplified.",
+      "remediation": "Add a restrictive Content-Security-Policy. Start with default-src 'self' and allow only the origins the application needs.",
+      "evidence": []
+    },
+    {
+      "id": "FND-A3C28AEF",
+      "checkId": "http.cookies",
+      "title": "Cookie \"session\" is missing HttpOnly",
+      "description": "A response cookie is readable from JavaScript.",
+      "severity": "medium",
+      "confidence": "high",
+      "verification": "observed",
+      "category": "http",
+      "impact": "Any XSS on the site can steal this cookie and hijack the session.",
+      "remediation": "Set HttpOnly on session and authentication cookies.",
+      "evidence": [
+        {
+          "kind": "text",
+          "label": "Cookie name",
+          "value": "session"
+        }
+      ]
+    },
+    {
+      "id": "FND-620502E2",
+      "checkId": "http.errors",
+      "title": "Error responses disclose internal details",
+      "description": "A request to a random path returned content containing stack-trace or internal error markers.",
+      "severity": "medium",
+      "confidence": "medium",
+      "verification": "observed",
+      "category": "http",
+      "impact": "File paths, framework versions, and internal logic help attackers target exploits.",
+      "remediation": "Disable debug error pages in production and return a generic error response with a correlation ID.",
+      "evidence": [
+        {
+          "kind": "http",
+          "label": "Probe",
+          "value": "/launchproof-not-found-nlugqf"
+        },
+        {
+          "kind": "http",
+          "label": "Status",
+          "value": "404"
+        },
+        {
+          "kind": "text",
+          "label": "Validation",
+          "value": "Body contained stack-trace or internal error markers."
+        }
+      ]
+    },
+    {
+      "id": "FND-225430D5",
+      "checkId": "configuration.repository",
+      "title": "No .gitignore file",
+      "description": "The project does not define a .gitignore, so build output, dependencies, and environment files can be committed accidentally.",
+      "severity": "medium",
+      "confidence": "high",
+      "verification": "observed",
+      "category": "configuration",
+      "impact": "Secrets and large generated directories can enter version control.",
+      "remediation": "Add a .gitignore covering node_modules, build output, and .env files.",
+      "evidence": []
+    },
+    {
+      "id": "FND-C74AF9FA",
+      "checkId": "http.exposure",
+      "title": "Server status page is publicly accessible",
+      "description": "A server status page is publicly reachable.",
+      "severity": "medium",
+      "confidence": "high",
+      "verification": "observed",
+      "category": "http",
+      "impact": "Internal information is exposed to unauthenticated visitors.",
+      "remediation": "Block the path at the edge or web server, remove the file from the deployed artifact, and confirm with an unauthenticated request.",
+      "evidence": [
+        {
+          "kind": "http",
+          "label": "Status",
+          "value": "200"
+        },
+        {
+          "kind": "http",
+          "label": "Content-Type",
+          "value": "text/html; charset=utf-8"
+        },
+        {
+          "kind": "text",
+          "label": "Validation",
+          "value": "Content matched the expected signature for Server status page."
+        }
+      ],
+      "location": {
+        "url": "http://127.0.0.1:4173/server-status"
+      },
+      "references": [
+        "https://cwe.mitre.org/data/definitions/538.html"
+      ]
+    },
+    {
+      "id": "FND-54139B5E",
+      "checkId": "browser.links",
+      "title": "Broken internal link: /broken",
+      "description": "Linked from /; returned HTTP 404.",
+      "severity": "low",
+      "confidence": "high",
+      "verification": "observed",
+      "category": "browser",
+      "impact": "Users following the link reach an error page.",
+      "remediation": "Update the link or restore the route, and add a link check to CI.",
+      "evidence": [
+        {
+          "kind": "http",
+          "label": "Status",
+          "value": "404"
+        },
+        {
+          "kind": "text",
+          "label": "Source page",
+          "value": "/"
+        }
+      ],
+      "location": {
+        "url": "http://127.0.0.1:4173/broken"
+      }
+    },
+    {
+      "id": "FND-5B70CEE7",
+      "checkId": "browser.workflows",
+      "title": "Console error on /login",
+      "description": "Deliberate demo console error for LaunchProof",
+      "severity": "low",
+      "confidence": "high",
+      "verification": "observed",
+      "category": "browser",
+      "impact": "Console errors often precede broken user flows and indicate unhandled failures.",
+      "remediation": "Fix the underlying error and keep the console clean for tested pages.",
+      "evidence": [
+        {
+          "kind": "log",
+          "label": "Console error",
+          "value": "Deliberate demo console error for LaunchProof"
+        }
+      ],
+      "location": {
+        "url": "/login"
+      }
+    },
+    {
+      "id": "FND-C103DB91",
+      "checkId": "http.cookies",
+      "title": "Cookie \"session\" has no SameSite policy",
+      "description": "The cookie does not declare SameSite, leaving cross-site sending behavior to browser defaults.",
+      "severity": "low",
+      "confidence": "high",
+      "verification": "observed",
+      "category": "http",
+      "impact": "Cross-site request forgery protection is weaker and browser-dependent.",
+      "remediation": "Set SameSite=Lax or Strict unless the cookie is required for a cross-site flow.",
+      "evidence": [
+        {
+          "kind": "text",
+          "label": "Cookie name",
+          "value": "session"
+        }
+      ]
+    },
+    {
+      "id": "FND-26478C19",
+      "checkId": "browser.mobile",
+      "title": "Horizontal overflow on /",
+      "description": "The page is 1072px wide in a 390px viewport, causing horizontal scrolling.",
+      "severity": "low",
+      "confidence": "high",
+      "verification": "observed",
+      "category": "browser",
+      "impact": "Mobile users must pan sideways and content may be clipped.",
+      "remediation": "Constrain wide elements, use max-width: 100%, and test at the configured mobile viewport.",
+      "evidence": [
+        {
+          "kind": "metric",
+          "label": "Scroll width",
+          "value": "1072px"
+        },
+        {
+          "kind": "metric",
+          "label": "Viewport width",
+          "value": "390px"
+        }
+      ],
+      "location": {
+        "url": "/"
+      }
+    },
+    {
+      "id": "FND-C9F09943",
+      "checkId": "configuration.repository",
+      "title": "Missing license file",
+      "description": "The repository has no LICENSE.",
+      "severity": "low",
+      "confidence": "high",
+      "verification": "observed",
+      "category": "configuration",
+      "impact": "Without a license, others have no clear legal right to use the project.",
+      "remediation": "Add a LICENSE file.",
+      "evidence": []
+    },
+    {
+      "id": "FND-DFF9AD3C",
+      "checkId": "configuration.repository",
+      "title": "Missing README file",
+      "description": "The repository has no README.md.",
+      "severity": "low",
+      "confidence": "high",
+      "verification": "observed",
+      "category": "configuration",
+      "impact": "New contributors and users lack orientation.",
+      "remediation": "Add a README.md file.",
+      "evidence": []
+    },
+    {
+      "id": "FND-B90A8C0A",
+      "checkId": "configuration.repository",
+      "title": "No continuous integration workflow",
+      "description": "No GitHub Actions or GitLab CI configuration was found.",
+      "severity": "low",
+      "confidence": "high",
+      "verification": "observed",
+      "category": "configuration",
+      "impact": "Checks depend on local discipline and regressions can reach the default branch.",
+      "remediation": "Add a CI workflow that installs from the lockfile and runs lint, typecheck, tests, and build.",
+      "evidence": []
+    },
+    {
+      "id": "FND-4E5EF2C9",
+      "checkId": "http.headers",
+      "title": "Permissions-Policy is missing",
+      "description": "The response does not restrict access to browser features such as camera, microphone, and geolocation.",
+      "severity": "low",
+      "confidence": "high",
+      "verification": "observed",
+      "category": "http",
+      "impact": "Embedded or compromised content has broader browser capabilities than necessary.",
+      "remediation": "Add a Permissions-Policy that disables features the app does not use.",
+      "evidence": []
+    },
+    {
+      "id": "FND-15AC7110",
+      "checkId": "http.headers",
+      "title": "Referrer-Policy is missing",
+      "description": "No referrer policy is set, so full URLs may leak to third parties and across origins.",
+      "severity": "low",
+      "confidence": "high",
+      "verification": "observed",
+      "category": "http",
+      "impact": "Tokens or identifiers in URLs can leak through the Referer header.",
+      "remediation": "Set Referrer-Policy: strict-origin-when-cross-origin or no-referrer.",
+      "evidence": []
+    },
+    {
+      "id": "FND-F0B27C77",
+      "checkId": "http.headers",
+      "title": "X-Content-Type-Options is missing",
+      "description": "Browsers may MIME-sniff responses, which can turn an uploaded text file into executable script.",
+      "severity": "low",
+      "confidence": "high",
+      "verification": "observed",
+      "category": "http",
+      "impact": "Content sniffing can enable script execution from user-uploaded content.",
+      "remediation": "Set X-Content-Type-Options: nosniff on every response.",
+      "evidence": []
+    }
+  ],
+  "limitations": [
+    "Static analysis is heuristic. Pattern matches indicate code worth reviewing; they do not prove exploitability, and no finding does not prove safety.",
+    "Secret values are masked before entering the report. Masking still means a credential may have leaked; rotate anything confirmed.",
+    "HTTP checks were unauthenticated unless configured identities were executed. Authenticated areas may behave differently.",
+    "TLS certificate chains, protocol versions, and cipher configuration were not independently assessed in this version.",
+    "Browser checks exercise only the configured workflows and sampled pages; untested flows and states remain unverified.",
+    "Performance measurements are single-run observations from this machine and network, not a production benchmark.",
+    "Database policies were assessed statically only, if at all; deployed RLS behavior was not verified."
+  ],
+  "configuration": {
+    "target": "http://127.0.0.1:4173/",
+    "mode": "local",
+    "failOn": "high",
+    "networkEnabled": true,
+    "fileScan": {
+      "include": [],
+      "excludeCount": 17,
+      "gitHistory": false,
+      "maxFiles": 8000
+    },
+    "api": {
+      "baseUrl": "http://127.0.0.1:4173",
+      "endpointCount": 2,
+      "openapi": null,
+      "unsafeMethods": false
+    },
+    "authIdentities": [
+      "owner",
+      "other"
+    ],
+    "authorizationResources": 1,
+    "browser": {
+      "enabled": true,
+      "workflows": 1,
+      "baseUrl": "http://127.0.0.1:4173"
+    },
+    "accessibility": {
+      "enabled": true,
+      "tags": [
+        "wcag2a",
+        "wcag2aa"
+      ]
+    },
+    "performance": {
+      "enabled": true,
+      "lighthouse": false
+    },
+    "supabase": {
+      "staticAnalysis": true,
+      "liveConfigured": false
+    }
+  }
+}

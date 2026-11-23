@@ -1,0 +1,50 @@
+{
+  "name": "launchproof-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "LaunchProof — evidence-backed verification for AI-built applications.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "npm run build -w @launchproof/core && npm run build -w @launchproof/browser && npm run build -w launchproof",
+    "build:web": "npm run build -w @launchproof/web",
+    "dev:web": "npm run dev -w @launchproof/web",
+    "typecheck": "npm run typecheck -w @launchproof/core && npm run typecheck -w @launchproof/browser && npm run typecheck -w launchproof && npm run typecheck -w @launchproof/web",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "audit": "npm audit --audit-level=high",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:core": "vitest run packages/core/test",
+    "test:e2e": "vitest run packages/browser/test",
+    "verify": "npm run format:check && npm run lint && npm run build && npm run typecheck && npm run test && npm run build:web",
+    "clean": "rm -rf packages/*/dist apps/web/.next apps/web/out",
+    "cli": "node packages/cli/bin/launchproof.mjs",
+    "demo:vulnerable": "node examples/vulnerable-demo/server.mjs",
+    "demo:secure": "node examples/secure-demo/server.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.5",
+    "@types/node": "24.19.2",
+    "axe-core": "4.14.1",
+    "eslint": "9.39.5",
+    "globals": "16.4.0",
+    "playwright": "1.65.1",
+    "prettier": "3.10.1",
+    "tsup": "8.5.0",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.73.0",
+    "vitest": "5.1.1"
+  },
+  "overrides": {
+    "postcss": "8.5.33"
+  }
+}

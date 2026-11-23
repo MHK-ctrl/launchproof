@@ -1,0 +1,78 @@
+name: Bug report
+description: Report a reproducible problem with LaunchProof
+title: 'bug: '
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Do **not** include credentials, tokens, private URLs, or report
+        artifacts containing sensitive data. For security vulnerabilities, follow SECURITY.md instead
+        of opening a public issue.
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: A clear description of the behavior and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+      placeholder: |
+        1. Config used (redact secrets)
+        2. Command executed
+        3. Observed output
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: LaunchProof version / commit
+      placeholder: v0.1.0 or commit SHA
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: macOS 15 / Node 22.14 / npm 11
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - CLI
+        - Static security
+        - Secrets
+        - HTTP
+        - API
+        - Authorization
+        - Browser / Playwright
+        - Accessibility
+        - Performance
+        - Supabase
+        - Reports
+        - Website
+        - Documentation
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant output
+      description: Redact secrets, cookies, personal data, and private hostnames.
+      render: shell
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Confirmation
+      options:
+        - label: I removed credentials and sensitive data from this report.
+          required: true
+        - label: I checked that this is not a security vulnerability requiring private disclosure.
+          required: true

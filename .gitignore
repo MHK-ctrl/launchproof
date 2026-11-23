@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+.next/
+out/
+.turbo/
+*.tsbuildinfo
+
+# LaunchProof local state
+.launchproof/
+launchproof-scan.json
+
+# Test output
+coverage/
+test-results/
+playwright-report/
+*.trace.zip
+
+# Environment files — never commit credentials
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# Logs and temporary files
+*.log
+npm-debug.log*
+.tmp/
+*.tmp
+
+# Hosting
+.vercel/
+.netlify/
+
+# Generated website content
+apps/web/.content/

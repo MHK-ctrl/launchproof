@@ -1,0 +1,13 @@
+node_modules
+dist
+.next
+out
+.content
+coverage
+.launchproof
+package-lock.json
+apps/web/data/sample-scan.json
+apps/web/public/sample-report.html
+apps/web/public/sample-report.json
+*.min.js
+*.min.css

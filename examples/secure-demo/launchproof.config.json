@@ -1,0 +1,96 @@
+{
+  "version": 1,
+  "project": {
+    "name": "secure-demo",
+    "description": "Hardened local demo used as a contrast target in tests."
+  },
+  "app": {
+    "url": "http://127.0.0.1:4174",
+    "healthPath": "/api/health"
+  },
+  "authorization": {
+    "authorized": false,
+    "scope": [],
+    "allowLocal": true,
+    "allowPrivateNetwork": false
+  },
+  "scan": {
+    "network": true,
+    "failOn": "high"
+  },
+  "api": {
+    "baseUrl": "http://127.0.0.1:4174",
+    "allowUnsafeMethods": false,
+    "endpoints": [
+      {
+        "name": "Health",
+        "path": "/api/health",
+        "expectStatus": 200,
+        "expectJson": true,
+        "requiredJsonKeys": ["status"]
+      },
+      {
+        "name": "Authenticated user list",
+        "path": "/api/users",
+        "identity": "owner",
+        "expectStatus": 200,
+        "expectJson": true,
+        "requiredJsonKeys": ["users"],
+        "requiresAuth": true
+      }
+    ]
+  },
+  "auth": {
+    "identities": {
+      "owner": {
+        "headersEnv": { "x-user-id": "LP_DEMO_OWNER_ID" }
+      },
+      "other": {
+        "headersEnv": { "x-user-id": "LP_DEMO_OTHER_ID" }
+      }
+    }
+  },
+  "authorizationTests": {
+    "allowUnsafeMethods": false,
+    "resources": [
+      {
+        "name": "Own profile",
+        "path": "/api/users/1",
+        "method": "GET",
+        "ownerIdentity": "owner",
+        "otherIdentity": "other",
+        "expectStatusForOther": [401, 403, 404]
+      }
+    ]
+  },
+  "browser": {
+    "enabled": true,
+    "baseUrl": "http://127.0.0.1:4174",
+    "headless": true,
+    "workflows": [
+      {
+        "name": "Login form",
+        "path": "/login",
+        "steps": [
+          { "action": "fill", "selector": "#email", "value": "demo@example.test" },
+          { "action": "fill", "selector": "#password", "value": "demo-password", "secret": true },
+          { "action": "click", "selector": "#submit" },
+          { "action": "expectText", "text": "Signed in" }
+        ]
+      }
+    ]
+  },
+  "accessibility": {
+    "enabled": true,
+    "tags": ["wcag2a", "wcag2aa"],
+    "paths": ["/", "/login"]
+  },
+  "performance": {
+    "enabled": true,
+    "paths": ["/"]
+  },
+  "report": {
+    "outputDir": ".launchproof",
+    "formats": ["terminal", "json", "html", "sarif"]
+  }
+}

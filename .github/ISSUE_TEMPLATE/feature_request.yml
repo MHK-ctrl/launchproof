@@ -1,0 +1,58 @@
+name: Feature request
+description: Suggest a check, integration, or usability improvement
+title: 'feat: '
+labels: ['enhancement']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Feature requests are welcome. Please keep the project's principles in mind: local-first,
+        evidence-based, safe by default, and honest about coverage.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What verification gap or usability problem would this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the smallest useful version. Include config or report shape if relevant.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Static security
+        - Secrets
+        - HTTP
+        - API
+        - Authorization
+        - Browser
+        - Accessibility
+        - Performance
+        - Supabase
+        - Reports
+        - CLI / DX
+        - Website
+        - Documentation
+        - Other
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Safety
+      options:
+        - label: This proposal can work without sending project data to a third party.
+          required: true
+        - label: This proposal does not require exploitation, fuzzing, or destructive requests.
+          required: true
