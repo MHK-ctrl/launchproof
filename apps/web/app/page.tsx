@@ -170,7 +170,7 @@ export default function HomePage() {
               </Link>
             </div>
             <div className="mt-7 flex flex-wrap gap-x-5 gap-y-2 font-mono text-[10.5px] uppercase tracking-[0.08em] text-[#8499b0]">
-              <span>No account</span>
+              <span>No account required</span>
               <span>No Docker</span>
               <span>No telemetry</span>
               <span>Authorization required for remote targets</span>
@@ -443,8 +443,8 @@ export default function HomePage() {
                 Point it at the app you just built.
               </h2>
               <p className="mt-2 max-w-lg text-[13.5px] text-[#9bafc5]">
-                Start with the local checkout. No account, no cloud, no Docker. Browser checks are
-                optional and clearly reported when unavailable.
+                Start with the local checkout. No account, cloud, or Docker is required. Browser
+                checks are optional and clearly reported when unavailable; cloud upload is opt-in.
               </p>
             </div>
             <div className="flex shrink-0 flex-wrap gap-2">

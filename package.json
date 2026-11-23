@@ -32,6 +32,7 @@
     "demo:secure": "node examples/secure-demo/server.mjs"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.17",
     "@eslint/js": "9.39.5",
     "@types/node": "24.19.2",
     "axe-core": "4.14.1",

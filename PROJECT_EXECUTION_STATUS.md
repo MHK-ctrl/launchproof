@@ -10,13 +10,14 @@ Last updated: 2026-11-23
 
 LaunchProof is implemented as a local-first npm-workspaces monorepo with a working CLI, static and
 live verification engine, optional Playwright browser checks, report renderers, demo applications,
-tests, documentation, CI, and a statically exported public website.
+tests, documentation, CI, prerendered public pages, and an optional server-rendered cloud dashboard.
 
 The source tree has completed the phase 18 release-readiness audit and is published as a public
 source repository at https://github.com/MHK-ctrl/launchproof. Hosted CI passes on Node.js 22 and 24.
-The website is **not** deployed, no npm package is published, and no GitHub release or tag exists. No
-external security audit has been performed, and no real Supabase project or large third-party
-application has been validated.
+The public site and the cloud dashboard are **not** deployed, no npm package is published, and no
+GitHub release or tag exists. No external security audit has been performed. The cloud schema and
+RLS policies have local PGlite tests but no live Supabase project; no real GitHub OAuth, live CLI
+upload, or large third-party application has been validated.
 
 ## Environment
 
@@ -45,12 +46,13 @@ application has been validated.
 | 11. CLI                        | Done         | All required commands, JSON/quiet/verbose/CI modes, exit codes                       |
 | 12. Demo apps                  | Done         | Intentionally vulnerable and hardened loopback servers                               |
 | 13. Tests                      | Done         | Unit, live integration, browser E2E, CLI smoke; 53/53 passing                        |
-| 14. Website                    | Done locally | 7 content routes plus 404/robots exported; not deployed                              |
+| 14. Website                    | Done locally | Public pages prerendered; optional dashboard is server-rendered; not deployed        |
 | 15. Documentation + CI         | Done         | README, guides, policies, templates, workflow, deployment configs                    |
 | 16. GitHub publication         | Done         | Public repository `MHK-ctrl/launchproof`; hosted CI green; no release tag yet        |
 | 17. Live deployment            | Blocked      | Requires Vercel authentication and deployment approval                               |
 | 18. Final release audit        | Done         | Security, scanner, browser, report, website, docs, CI, deps verified; CONDITIONAL GO |
 | 19. Public GitHub publication  | Done         | 137 files published; Node 22/24 CI passed; repository metadata and clone verified    |
+| 20. Cloud dashboard            | Done locally | Auth, repo connect, private scans, CLI upload, RLS tests; **not deployed**           |
 
 ## Initial implementation verification (historical)
 
@@ -329,3 +331,73 @@ check, typecheck, Chromium headless-shell install, tests, website build, and art
 
 Website deployment is the next separate mission. It requires `vercel login`, explicit deployment
 approval, and post-deployment verification before any public URL is claimed.
+
+## Phase 20 — Optional cloud dashboard and explicit CLI upload
+
+Implemented locally on 2026-11-23 on branch `feat/cloud-dashboard`. This phase does **not** claim a
+deployment, a live Supabase run, or a real GitHub OAuth run. Those are blocked on owner credentials.
+
+### Delivered
+
+- Next.js server output (static export removed) with dynamic dashboard/auth/API routes and
+  prerendered public pages.
+- Supabase SSR authentication, GitHub sign-in through Supabase, and a separate repository consent
+  flow using GitHub OAuth `repo` scope.
+- Encrypted, user-bound, 15-minute HttpOnly connect cookie for the GitHub provider token. The token is
+  never stored in PostgreSQL or logs.
+- Migration `supabase/migrations/202611230001_cloud_dashboard.sql` with:
+  - `profiles`, `repositories`, `scans`, `findings`, `cli_auth_requests`, `cli_tokens`;
+  - composite tenant foreign keys;
+  - RLS policies and revoked anonymous grants;
+  - profile trigger and `repository_scan_stats` security-invoker view.
+- Private dashboard: overview, repositories, scan history, scan detail, settings, account.
+- APIs for repository connection/listing/deletion, scan upload/list/detail/findings/download/delete,
+  account read/delete, health, and CLI token/me/logout/repositories.
+- CLI browser loopback login with state + PKCE, one-time code, hashed seven-day tokens, revocation,
+  Keychain/0600 storage, and no token printing.
+- Explicit `--upload` on `scan`/`security`, plus `upload`, `repositories`, `status`, `login`, and
+  `logout` commands. Uploads show a sanitized preview and require confirmation unless `--yes`.
+- Server-side strict upload schema, 2 MB limit, 300-check/2,000-finding caps, secret/path redaction,
+  safe relative paths, sensitive-reference rejection, and gate recomputation.
+- Account deletion deletes the auth user first (cascade), then clears session and connect cookie.
+- Documentation: `CLOUD_DASHBOARD_ARCHITECTURE.md`, `MULTI_TENANT_SECURITY_DESIGN.md`,
+  `CLOUD_DASHBOARD_SETUP.md`, `PRIVACY_DATA_FLOW.md`, `LIVE_DEPLOYMENT_REPORT.md`; README and
+  deployment docs updated.
+
+### Verification run on this tree
+
+| Command                                 | Result                                                      |
+| --------------------------------------- | ----------------------------------------------------------- |
+| `npm run build`                         | Exit 0; core, browser, and CLI bundles built                |
+| `npm run typecheck -w @launchproof/web` | Exit 0                                                      |
+| `npm run build:web`                     | Exit 0; public pages `○`, dashboard/auth/CLI/API routes `ƒ` |
+| `npm test`                              | 15 files, 68 tests passed                                   |
+| PGlite RLS suite                        | 9 tests passed                                              |
+| Sanitization suite                      | 6 tests passed                                              |
+| Keychain stdin behavior                 | Add/read/delete of a temporary generic-password item passed |
+
+The RLS suite executes the real migration under PGlite with `auth.uid()` derived from a request
+claim. It covers own-row access, cross-tenant reads and primary-key lookups, spoofed inserts,
+cross-tenant foreign keys, update/delete isolation, the aggregate view, and anonymous denial. It is
+not a hosted Supabase test.
+
+### Not verified / blocked
+
+- No Supabase project or credentials; migration has not run against hosted Postgres/PostgREST.
+- No GitHub OAuth App, callback consent, or provider-token exchange has been exercised.
+- No Vercel login, preview, production deployment, hostname, or deployed header check.
+- No live CLI login, token exchange, upload, download, revocation, account deletion, or two-account
+  isolation test.
+- GitHub Actions/OIDC automatic upload is **not implemented**.
+- The GitHub `repo` scope is broad and cannot be made read-only for private repositories with GitHub
+  OAuth. The server only issues GET requests and does not store the provider token.
+- No MFA, audit logging, distributed rate limiting, monitoring, or scheduled cleanup of expired CLI
+  authorization rows.
+- No external security audit or penetration test.
+
+### Next exact action
+
+Owner supplies a Supabase project (URL, anon key, service-role key, applied migration), a GitHub OAuth
+App, and Vercel authentication/approval. Then follow `CLOUD_DASHBOARD_SETUP.md`: local two-account
+verification, preview deployment, full checklist, explicit production approval, production deploy,
+and record the real hostname. Do not announce a URL before it exists.

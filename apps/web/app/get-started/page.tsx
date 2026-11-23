@@ -50,8 +50,9 @@ export default function GetStartedPage() {
           From checkout to evidence in minutes.
         </h1>
         <p className="mt-4 text-[14.5px] leading-relaxed text-[#9bafc5]">
-          v0.1.0 is a source release. There is no account, cloud dependency, or Docker image. Start
-          with static analysis, then opt into live checks for a system you own.
+          v0.1.0 is a source release. There is no required account, cloud dependency, or Docker
+          image. Start with static analysis, then opt into live checks for a system you own. An
+          optional cloud dashboard is included in the source but is not yet deployed.
         </p>
       </div>
 

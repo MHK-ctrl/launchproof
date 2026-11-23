@@ -1,0 +1,254 @@
+# Cloud Dashboard Setup
+
+This guide configures the **optional** LaunchProof cloud dashboard: GitHub sign-in, repository
+connection, private scan history, and explicit CLI uploads.
+
+Local scans do not need any of this. If you only want the CLI, skip this document.
+
+**Current state:** the code and migration exist, but no Supabase project, GitHub OAuth app, Vercel
+deployment, or production URL has been created. The commands below have therefore **not** been run
+against a live environment. Do not paste passwords, OAuth secrets, service-role keys, or CLI tokens
+into chat or commit them.
+
+## 1. What you need
+
+- A Supabase account and one project (the free tier is sufficient for a small preview).
+- A GitHub account that can create an OAuth App.
+- A Vercel account for the hosted dashboard (or another Node.js host that supports Next.js 16).
+- Node.js 22.12+ and npm for local development.
+- The repository checked out locally.
+
+The dashboard uses:
+
+- Supabase Auth with the GitHub provider;
+- Supabase PostgreSQL with the included migration;
+- Next.js server routes for OAuth callbacks, repository metadata, scans, and CLI auth;
+- Vercel (or equivalent) for the Next.js runtime.
+
+No paid plan is required by this setup. Do not enable paid add-ons or purchase a domain for this
+step.
+
+## 2. Create the Supabase project
+
+1. Create a project in the Supabase dashboard.
+2. Open **Project Settings -> API** and record:
+   - Project URL;
+   - anon/public key;
+   - service-role key.
+3. Treat the service-role key as a server secret. It bypasses RLS and must never be placed in a
+   `NEXT_PUBLIC_*` variable, browser code, CLI output, or git.
+4. Choose a region close to the expected users.
+
+### 2.1 Apply the migration
+
+The migration is:
+
+```text
+supabase/migrations/202611230001_cloud_dashboard.sql
+```
+
+Use one of these paths:
+
+**SQL editor (no CLI needed):**
+
+1. Open the Supabase SQL editor.
+2. Paste the entire migration file.
+3. Run it once against a new project.
+4. Confirm the tables `profiles`, `repositories`, `scans`, `findings`, `cli_auth_requests`, and
+   `cli_tokens`, plus the `repository_scan_stats` view, exist.
+
+**Supabase CLI:**
+
+```bash
+supabase link --project-ref <project-ref>
+supabase db push
+```
+
+The migration expects the standard Supabase `auth.users` table and `auth.uid()` function. It creates
+the profile trigger, composite foreign keys, indexes, grants, RLS policies, and the aggregate view.
+
+Do not re-run a partially applied migration blindly in production. Use a fresh project for the first
+verification.
+
+## 3. Configure GitHub OAuth
+
+Supabase's GitHub provider uses a GitHub OAuth App. The browser talks to Supabase, and Supabase talks
+to GitHub.
+
+1. In GitHub, go to **Settings -> Developer settings -> OAuth Apps -> New OAuth App**.
+2. Set:
+   - **Application name:** `LaunchProof` (or your deployment name).
+   - **Homepage URL:** your application origin, for example `http://127.0.0.1:3000` for local work.
+   - **Authorization callback URL:** the Supabase callback:
+     `https://<project-ref>.supabase.co/auth/v1/callback`.
+3. Create the app and record the client ID. Generate a client secret and keep it private.
+4. In Supabase, open **Authentication -> Providers -> GitHub**, enable it, and enter the client ID and
+   secret.
+5. In Supabase **Authentication -> URL Configuration**:
+   - Set **Site URL** to the application origin.
+   - Add redirect URLs for every origin you will use:
+     - `http://127.0.0.1:3000/auth/callback`
+     - `https://<your-app-host>/auth/callback`
+   - Keep the list narrow. Do not add wildcard hosts.
+
+The app requests the GitHub `repo` scope for repository connection. GitHub has no read-only scope for
+private repositories. The LaunchProof server only performs GET requests to GitHub and never stores the
+provider token; see [MULTI_TENANT_SECURITY_DESIGN.md](MULTI_TENANT_SECURITY_DESIGN.md). If broad
+private-repository consent is unacceptable, do not connect private repositories; public repository
+metadata still works with the same consent flow, and a future GitHub App could offer finer scopes.
+
+## 4. Environment variables
+
+Copy `.env.example` to `.env` for local work. Set these for the web app:
+
+```dotenv
+NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
+SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
+APP_BASE_URL=http://127.0.0.1:3000
+LAUNCHPROOF_ENCRYPTION_KEY=<base64-32-byte-key>
+```
+
+Generate the encryption key locally:
+
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"
+```
+
+Rules:
+
+- `NEXT_PUBLIC_*` values are visible to the browser. Never put the service-role key there.
+- `SUPABASE_SERVICE_ROLE_KEY` is server-only.
+- `APP_BASE_URL` is the public origin used for auth callbacks and CLI approval URLs. It must match the
+  URL configured in Supabase and GitHub. A path is ignored; only the origin is used.
+- `LAUNCHPROOF_ENCRYPTION_KEY` must decode to exactly 32 bytes. Changing it invalidates outstanding
+  GitHub connect cookies, which is safe; users simply reconnect.
+- Never commit `.env`. It is ignored by git.
+
+Optional CLI variables:
+
+```dotenv
+LAUNCHPROOF_API_URL=http://127.0.0.1:3000
+# For CI only. Prefer `launchproof login` locally.
+# LAUNCHPROOF_CLI_TOKEN=<revocable-cli-token>
+```
+
+The CLI refuses a plain-HTTP API URL unless the host is loopback.
+
+## 5. Run locally
+
+```bash
+npm install
+npm run build
+npm run dev:web
+```
+
+Open `http://127.0.0.1:3000`.
+
+Expected local flow:
+
+1. `/login` -> GitHub -> `/auth/callback` -> `/dashboard`.
+2. **Repositories -> Connect GitHub** -> GitHub consent -> `/dashboard/repositories/connect`.
+3. Select a repository and connect it.
+4. Run a local scan and upload explicitly:
+
+```bash
+node packages/cli/bin/launchproof.mjs login
+node packages/cli/bin/launchproof.mjs repositories
+node packages/cli/bin/launchproof.mjs scan . --upload --repository <connected-repository-id>
+```
+
+If the public site builds but `/dashboard` returns a configuration error, check the five server
+variables and confirm the migration ran.
+
+### Common local problems
+
+| Symptom                                    | Check                                                                 |
+| ------------------------------------------ | --------------------------------------------------------------------- |
+| Login redirects to an error page           | Supabase provider enabled, callback URL exact, redirect allowlist     |
+| `localhost` works but `127.0.0.1` does not | Add both origins to Supabase redirect URLs and set `APP_BASE_URL`     |
+| GitHub connect says no access              | Approve the GitHub repository prompt; the cookie lasts 15 minutes     |
+| Repository list is empty                   | The GitHub account has no repositories, or consent was not granted    |
+| CLI login page says unavailable            | Supabase env and migration; check server logs without printing tokens |
+| Upload says not signed in                  | Run `launchproof login`; check `LAUNCHPROOF_API_URL`                  |
+| Upload says repository not connected       | Connect it in the dashboard, then run `launchproof repositories`      |
+| RLS error in the dashboard                 | Migration/grants incomplete; re-check policies and table grants       |
+
+## 6. Deploy to Vercel
+
+The repository's `vercel.json` already defines:
+
+- `framework: "nextjs"`;
+- `installCommand: "npm ci"`;
+- `buildCommand: "npm run build:web"`;
+- no static export;
+- security and no-store headers.
+
+Steps, after owner approval:
+
+1. Import the repository into Vercel. Use the repository root, not `apps/web`, because this is an npm
+   workspace.
+2. Add the five server environment variables from section 4 in **Project Settings -> Environment
+   Variables**. Apply them to Production and Preview as appropriate. The service-role key and
+   encryption key must not be exposed to the client bundle.
+3. Deploy a **preview** first. Vercel will generate a hostname; do not invent one.
+4. Set `APP_BASE_URL` to the preview origin and redeploy, because the value is read at runtime.
+5. Add the preview `/auth/callback` URL to Supabase's redirect allowlist. The GitHub OAuth callback
+   stays `https://<project-ref>.supabase.co/auth/v1/callback`; do not change it to the Vercel host.
+6. Verify the flow in section 7.
+7. Only after the preview passes and the owner approves production, promote/deploy to production.
+8. Record the exact hostname in `PROJECT_EXECUTION_STATUS.md` and `LIVE_DEPLOYMENT_REPORT.md` only
+   after it exists.
+
+Do not deploy before the isolation tests pass, and do not claim a live URL until the deployed flow
+has been checked.
+
+## 7. Post-deployment verification
+
+- [ ] `/` and the public pages return 200 without requiring a session.
+- [ ] `/dashboard` without a session redirects to `/login`.
+- [ ] GitHub sign-in returns to the intended dashboard path, not an open redirect.
+- [ ] A new profile row exists and belongs to the signed-in user.
+- [ ] Connecting a repository stores only metadata and no GitHub token.
+- [ ] `launchproof login` completes through the browser and reports Keychain/file storage.
+- [ ] `launchproof status` shows the expected account and expiry.
+- [ ] `launchproof scan . --upload` prints the preview and requires confirmation.
+- [ ] A cancelled upload leaves the local report untouched.
+- [ ] A failed upload leaves the local report untouched and reports the failure.
+- [ ] The uploaded scan appears only for the uploading user.
+- [ ] A second account cannot see the first account's repository, scan, findings, or download.
+- [ ] Manipulated scan/repository UUIDs return 404 for the second account.
+- [ ] Anonymous API requests return 401 and no private data.
+- [ ] `launchproof logout` revokes the token; subsequent uploads fail.
+- [ ] “Revoke all CLI tokens” in settings invalidates the CLI token.
+- [ ] Account deletion removes the dashboard data and signs the browser out.
+- [ ] Response headers include `Cache-Control: private, no-store` on private data.
+- [ ] No tokens, full local paths, source contents, or `.env` values appear in dashboard data,
+      network requests, or server logs.
+
+If any isolation check fails, stop and fix it before announcing or promoting the deployment.
+
+## 8. Operations and retention
+
+- There is no automatic upload, background job, analytics, or email system.
+- Supabase and Vercel are the processors. Review their retention and log settings before production.
+- Application code does not write scan contents or tokens to application logs. Platform access logs
+  may still contain request metadata.
+- Deleting an account cascades private rows and deletes the auth user. Local CLI files are not
+  touched; run `launchproof logout` and remove the local report directory separately if desired.
+- CLI tokens expire after seven days. Revoke them individually with `logout` or all at once in
+  dashboard settings.
+- Rotate the Supabase service-role key and OAuth client secret if either is exposed. Rotating the
+  encryption key invalidates only outstanding connect cookies.
+
+## 9. What is not implemented
+
+- GitHub Actions integration or OIDC-based automatic uploads.
+- GitHub App installation tokens or read-only private-repository scopes.
+- Teams, organizations, roles, invitations, or shared repositories.
+- Public share links, email notifications, billing, or usage plans.
+- Production monitoring, alerting, or audit logs.
+- A custom domain, DNS, or TLS setup beyond the host's generated certificate.
+
+See [LIVE_DEPLOYMENT_REPORT.md](LIVE_DEPLOYMENT_REPORT.md) for the exact blocker list and
+[DEPLOYMENT_READINESS.md](DEPLOYMENT_READINESS.md) for the deployment checklist.

@@ -30,8 +30,8 @@ export default function AboutPage() {
             text: 'Every finding states severity, confidence, and whether it was observed, pattern-matched, or inferred. A gate result never appears without the threshold that produced it.',
           },
           {
-            title: 'Local-first, no account',
-            text: 'Core scanning runs on your machine. Reports are written locally. There is no telemetry, hosted dashboard requirement, or hidden upload.',
+            title: 'Local-first, optional cloud',
+            text: 'Core scanning runs on your machine and reports are written locally. There is no telemetry and no automatic upload. An optional cloud dashboard stores only a sanitized summary when you explicitly pass --upload and confirm it.',
           },
           {
             title: 'Safe by default',
@@ -78,12 +78,17 @@ export default function AboutPage() {
               >
                 GitHub
               </a>
-              ; the CLI is not yet published to npm and no hosted service exists.
+              ; the CLI is not yet published to npm.
+            </li>
+            <li>
+              — An optional Supabase/Vercel cloud dashboard source is included: GitHub sign-in,
+              repository connection, private scan history, and explicit CLI upload. It is not yet
+              deployed, so no hosted service or public dashboard URL is claimed.
             </li>
             <li>— Documentation records limitations instead of implying complete coverage.</li>
             <li>
-              — Deployment configuration for the static website is included; publishing requires the
-              owner’s approval.
+              — Publishing the hosted dashboard requires owner-approved Supabase, GitHub OAuth, and
+              Vercel credentials.
             </li>
           </ul>
         </section>
@@ -91,6 +96,9 @@ export default function AboutPage() {
           <p className="eyebrow">Roadmap</p>
           <h2 className="mt-2 text-[19px] font-semibold text-[#e8eff9]">What comes next</h2>
           <ul className="mt-3 space-y-2 text-[13px] leading-relaxed text-[#93a6bd]">
+            <li>
+              — Deploy and verify the optional cloud dashboard after owner-approved credentials.
+            </li>
             <li>— First tagged release and npm publication.</li>
             <li>— More framework-aware discovery and API route extraction.</li>
             <li>— Improved authenticated browser flows and recorded traces.</li>

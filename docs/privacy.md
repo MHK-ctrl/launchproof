@@ -64,14 +64,15 @@ longer needed.
 ## Retention and deletion
 
 Delete the `.launchproof/` directory to remove local artifacts. CI artifacts follow your retention
-policy. LaunchProof has no remote copy to delete.
+policy. If you explicitly uploaded a report to the optional cloud dashboard, delete the scan or the
+account in the dashboard; local files are not touched by that deletion. See
+[PRIVACY_DATA_FLOW.md](../PRIVACY_DATA_FLOW.md).
 
 ## Website
 
-The public website is statically exported. It does not run scans, accept credentials, or collect
-analytics. The sample report viewer fetches a committed JSON file from the same origin.
+The public website pages are prerendered. They do not run scans or collect analytics, and the sample
+report viewer fetches a committed JSON file from the same origin.
 
-## Future changes
-
-If a hosted service is ever added, it must be opt-in, documented here, and must not become a
-requirement for the core workflow. This source preview has no such service.
+An optional cloud dashboard is implemented but not deployed. It accepts GitHub sign-in and explicit
+CLI uploads of sanitized scan summaries. It is not required for local scanning. The full field-level
+data flow is documented in [PRIVACY_DATA_FLOW.md](../PRIVACY_DATA_FLOW.md).

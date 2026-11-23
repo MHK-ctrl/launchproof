@@ -77,7 +77,8 @@ export default function SecurityPage() {
               Where scans run
             </h3>
             <p className="mt-1.5">
-              On your machine. Core features do not call a LaunchProof service because none exists.
+              On your machine. Core scanning and local reports require no LaunchProof service. The
+              optional cloud API receives a sanitized summary only after an explicit upload.
             </p>
           </div>
           <div>
@@ -85,8 +86,9 @@ export default function SecurityPage() {
               What leaves the machine
             </h3>
             <p className="mt-1.5">
-              Requests to the target you configured, the npm registry for audits, and—only if
-              enabled—your chosen AI provider.
+              Requests to the target you configured, the npm registry for audits, your chosen AI
+              provider only if enabled, and—only with <code className="font-mono">--upload</code>—a
+              sanitized scan summary after a confirmation prompt.
             </p>
           </div>
           <div>
@@ -95,7 +97,10 @@ export default function SecurityPage() {
             </h3>
             <p className="mt-1.5">
               Report artifacts under <code className="font-mono">.launchproof/</code> in your
-              project, plus optional screenshots. Delete them like any other build artifact.
+              project, plus optional screenshots. If you upload, the cloud database stores sanitized
+              findings, check summaries, counts, timestamps, commit/branch, and repository metadata
+              scoped to your account. Source code, raw files, secret values, and full local paths
+              are not uploaded.
             </p>
           </div>
         </div>
