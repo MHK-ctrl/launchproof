@@ -181,7 +181,9 @@ Limits: CLI authorization starts 10/min per user, CLI login page 10/min per user
 download 60/min per user, account deletion 5/hour per user. The client address comes only from
 `x-vercel-forwarded-for` when `VERCEL`/`VERCEL_ENV` indicates a verified Vercel runtime; otherwise it
 is `local`/`unknown`. The stored key is a SHA-256 hash, never a raw IP. A caller-supplied
-`x-forwarded-for` or `x-real-ip` is not trusted.
+`x-forwarded-for` or `x-real-ip` is not trusted. Outside a verified Vercel runtime, unauthenticated
+CLI exchange therefore shares a `local` bucket; a self-hosted deployment needs a trusted proxy or
+must accept that availability limitation.
 
 ### 5.7 Upload validation and sanitization
 

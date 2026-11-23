@@ -185,6 +185,10 @@ results:
 - CSP has no `report-uri`/`report-to`, so violations are visible only in a browser console.
 - The rate-limit memory fallback is per instance and resets on deploy. If migration `003` is missing,
   limits are not globally enforced.
+- Outside a verified Vercel runtime, unauthenticated CLI exchange uses a shared `local` bucket
+  because caller-supplied address headers are not trusted. A self-hosted deployment should put a
+  trusted proxy in front or accept that availability limitation; this is not an authentication
+  bypass.
 - The GitHub OAuth `repo` scope is broader than LaunchProof's read-only use of the API.
 
 ## 5. Readiness assessment
