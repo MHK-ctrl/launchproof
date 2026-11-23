@@ -15,9 +15,12 @@ tests, documentation, CI, prerendered public pages, and an optional server-rende
 The source tree has completed the phase 18 release-readiness audit and is published as a public
 source repository at https://github.com/MHK-ctrl/launchproof. Hosted CI passes on Node.js 22 and 24.
 The public site and the cloud dashboard are **not** deployed, no npm package is published, and no
-GitHub release or tag exists. No external security audit has been performed. The cloud schema and
-RLS policies have local PGlite tests but no live Supabase project; no real GitHub OAuth, live CLI
-upload, or large third-party application has been validated.
+GitHub release or tag exists. No external security audit has been performed. The cloud schema has
+been applied to a hosted Supabase project and the hosted RLS suite passed 17/17 checks with two
+disposable identities. The Supabase GitHub provider is configured, but real GitHub OAuth has not
+been exercised, no live CLI upload has run, and no Vercel deployment exists because Vercel requires
+a new project's first deployment to be Production, which is not authorized. No large third-party
+application has been validated.
 
 ## Environment
 
@@ -25,7 +28,10 @@ upload, or large third-party application has been validated.
 - Node.js 26.0.0, npm 11.12.1, Git 2.39.5
 - Project root: `LaunchProof/`
 - GitHub CLI authenticated as `MHK-ctrl`; public repository published and CI verified
-- Vercel CLI installed but logged out; nothing deployed
+- Vercel CLI authenticated as `mdhamzakhan2k6-4663` (team `hamza-recallai`); project `launchproof`
+  is linked but has no deployments
+- Hosted Supabase project `launchproof` (`ypqpqgnviphwxddrpieq`); migrations applied; local `.env`
+  configured and gitignored
 - No system Chrome; Playwright Chromium headless shell installed for tests
 
 ## Phase checklist
@@ -49,10 +55,11 @@ upload, or large third-party application has been validated.
 | 14. Website                    | Done locally | Public pages prerendered; optional dashboard is server-rendered; not deployed        |
 | 15. Documentation + CI         | Done         | README, guides, policies, templates, workflow, deployment configs                    |
 | 16. GitHub publication         | Done         | Public repository `MHK-ctrl/launchproof`; hosted CI green; no release tag yet        |
-| 17. Live deployment            | Blocked      | Requires Vercel authentication and deployment approval                               |
+| 17. Live deployment            | Blocked      | Vercel first deployment is Production; preview-only deployment is not possible       |
 | 18. Final release audit        | Done         | Security, scanner, browser, report, website, docs, CI, deps verified; CONDITIONAL GO |
 | 19. Public GitHub publication  | Done         | 137 files published; Node 22/24 CI passed; repository metadata and clone verified    |
 | 20. Cloud dashboard            | Done locally | Auth, repo connect, private scans, CLI upload, RLS tests; **not deployed**           |
+| 21. Hosted Supabase + preview  | Partial      | Hosted RLS 17/17; OAuth configured; Vercel preview blocked by first-deploy rule      |
 
 ## Initial implementation verification (historical)
 
@@ -116,7 +123,7 @@ and lockfile detection during development.
 ## Not verified / limitations
 
 - No external security audit or penetration test of LaunchProof or its findings
-- No real Supabase project or deployed RLS policy tested
+- Hosted Supabase RLS passed 17/17 checks, but no deployed dashboard/runtime or real OAuth test exists
 - No large third-party application or production staging system tested
 - TLS certificate chains, protocol versions, and revocation are not assessed
 - Lighthouse is not bundled; requesting it yields NOT VERIFIED
@@ -384,10 +391,12 @@ claim. It covers own-row access, cross-tenant reads and primary-key lookups, spo
 cross-tenant foreign keys, update/delete isolation, the aggregate view, and anonymous denial. It is
 not a hosted Supabase test.
 
-### Not verified / blocked
+### Not verified / blocked at Phase 20 close
 
-- No Supabase project or credentials; migration has not run against hosted Postgres/PostgREST.
-- No GitHub OAuth App, callback consent, or provider-token exchange has been exercised.
+At this checkpoint (before Phase 21), no Supabase project or hosted migration existed. Phase 21 later
+applied the migration and verified hosted RLS; the remaining runtime gaps are recorded below.
+
+- No GitHub OAuth App, callback consent, or provider-token exchange had been exercised.
 - No Vercel login, preview, production deployment, hostname, or deployed header check.
 - No live CLI login, token exchange, upload, download, revocation, account deletion, or two-account
   isolation test.
@@ -404,3 +413,79 @@ Owner supplies a Supabase project (URL, anon key, service-role key, applied migr
 App, and Vercel authentication/approval. Then follow `CLOUD_DASHBOARD_SETUP.md`: local two-account
 verification, preview deployment, full checklist, explicit production approval, production deploy,
 and record the real hostname. Do not announce a URL before it exists.
+
+## Phase 21 — Hosted Supabase setup and preview gate
+
+Continued on 2026-11-23 on `feat/cloud-dashboard`; migration hardening commit `98af71e` was pushed to
+`origin/feat/cloud-dashboard`. This phase does **not** claim a Vercel deployment, a live GitHub
+sign-in, a live CLI upload, or a production URL.
+
+### Hosted Supabase — completed and verified
+
+- Organization: `LaunchProof` (`hhaljmwqphlagxetcccs`).
+- Project: `launchproof` (`ypqpqgnviphwxddrpieq`, Tokyo, free plan).
+- Applied `202611230001_cloud_dashboard.sql` and the corrective idempotent
+  `202611230002_revoke_default_table_privileges.sql` in the hosted SQL editor.
+- Hosted catalog verified: six tables, RLS enabled on all six, 16 policies, composite tenant foreign
+  keys, profile/scan/finding triggers, and `repository_scan_stats` with `security_invoker=true`.
+- Default bootstrap privileges were revoked from `anon` and `authenticated`; `TRUNCATE` is no longer
+  granted, and `authenticated` retains only the operations the application uses. This closed a real
+  hosted bug where `TRUNCATE` would have bypassed RLS.
+- Two disposable Supabase Auth identities were used for a hosted PostgREST/RLS run. All 17 checks
+  passed: own-row access, tenant-scoped lists, cross-tenant reads/updates/deletes, victim-row
+  preservation, forged `user_id`, cross-tenant scan/finding attachment, aggregate-view isolation,
+  anonymous denial, and cleanup. Both disposable identities were deleted.
+- The run was repeated after commit `98af71e`: **17/17 passed**.
+
+### GitHub OAuth configuration — configured, not exercised
+
+- GitHub OAuth App `LaunchProof`, app ID `4046464`, client ID `Ov23li2D78osdcDjz84Y`.
+- Callback: `https://ypqpqgnviphwxddrpieq.supabase.co/auth/v1/callback`.
+- Supabase GitHub provider is enabled with the client ID and callback above. The repository metadata
+  consent flow is a separate OAuth flow and has not been exercised.
+- **Security action required:** during browser automation, the Supabase provider dialog rendered the
+  client secret unmasked in tool output. The value was not intentionally copied, but it must be
+  treated as exposed. Rotate the GitHub OAuth client secret and update Supabase before any live
+  sign-in test. Do not use the exposed secret for validation.
+- Real GitHub sign-in, session establishment/refresh, sign-out, redirect rejection, repository
+  consent, and provider-token exchange are **BLOCKED / NOT TESTED** until rotation and a reachable
+  application origin exist.
+
+### Vercel — project prepared, no deployment
+
+- Account used: `mdhamzakhan2k6-4663`; team `hamza-recallai`. No account switching occurred.
+- Project `launchproof` (`prj_OMc6CDEwAcGppuZFhEqa3j0X95u3`) created and linked. Root directory `.`,
+  Git repository not connected, no deployments.
+- Preview-scoped variables set without printing values: `NEXT_PUBLIC_SUPABASE_URL`,
+  `NEXT_PUBLIC_SUPABASE_ANON_KEY` (Config), `SUPABASE_SERVICE_ROLE_KEY`,
+  `LAUNCHPROOF_ENCRYPTION_KEY` (Secret). `APP_BASE_URL` is intentionally unset until a real preview
+  origin exists.
+- `vercel deploy --environment preview` was refused by Vercel: **the first deployment of a new
+  project is always Production**. No production deployment was created, no alias/domain exists, and
+  `vercel ls launchproof` reports no deployments.
+- Because preview-only deployment is impossible under that rule without an unauthorized production
+  deployment, the preview URL, `APP_BASE_URL`, Supabase preview callback allowlist, deployed header
+  checks, hosted browser tests, and live CLI upload remain **BLOCKED**.
+
+### Verification run after this phase
+
+| Command                                                         | Result                                                              |
+| --------------------------------------------------------------- | ------------------------------------------------------------------- |
+| `npx vitest run packages/core/test/cloud-dashboard-rls.test.ts` | 9/9 passed                                                          |
+| `npm test`                                                      | 15 files, 68/68 tests passed                                        |
+| Hosted `/tmp/lp-hosted-rls.mjs`                                 | 17/17 checks passed                                                 |
+| `vercel whoami`                                                 | `mdhamzakhan2k6-4663`                                               |
+| `vercel project inspect launchproof`                            | linked, no Git, no deployment                                       |
+| `vercel deploy --environment preview`                           | refused: first deploy is prod                                       |
+| Local dev server against hosted Supabase                        | `/` 200, `/login` 200, `/dashboard` 307 to login, `/api/health` 200 |
+
+### Exact remaining blockers
+
+1. Rotate the exposed GitHub OAuth client secret and update Supabase (owner 2FA).
+2. Vercel requires one Production deployment before any Preview deployment exists. Production is not
+   authorized; owner must explicitly approve that first production deployment or choose a host/plan
+   that permits a preview-only first deployment.
+3. After a reachable preview exists: set `APP_BASE_URL`, add the exact preview callback to Supabase,
+   redeploy, and run the real GitHub OAuth, CLI, two-account, dashboard, header, and performance
+   checks.
+4. No production deployment, merge, tag, release, npm publication, or custom domain has occurred.

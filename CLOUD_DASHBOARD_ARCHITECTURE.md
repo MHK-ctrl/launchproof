@@ -1,7 +1,7 @@
 # Cloud Dashboard Architecture
 
-**Status:** implemented in the source tree; not deployed. Local scanning remains fully functional
-without any cloud configuration.
+**Status:** implemented; hosted Supabase schema and RLS verified; not deployed. Local scanning remains
+fully functional without any cloud configuration.
 
 This document describes what is actually implemented, not a future design. The dashboard is optional:
 the public site is static, and every local CLI scan still works with no account, database, or network

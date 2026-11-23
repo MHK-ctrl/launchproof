@@ -11,10 +11,11 @@ badge you have to trust.
 
 > **Status: v0.1.0 source preview.** The source is public at
 > [github.com/MHK-ctrl/launchproof](https://github.com/MHK-ctrl/launchproof). The package is **not
-> published to npm**. The optional cloud dashboard is implemented but **not deployed**, because no
-> Supabase project, GitHub OAuth credentials, or production hostname has been supplied. The static
-> public pages remain available without an account. Read [limitations](docs/limitations.md) before
-> relying on a result.
+> published to npm**. The optional cloud dashboard is implemented and backed by a hosted Supabase
+> database whose RLS passed 17/17 adversarial checks, but it is **not deployed**: Vercel requires a
+> new project's first deployment to be Production, and production is not authorized. Real GitHub
+> OAuth and CLI upload remain untested. The prerendered public pages remain available without an
+> account. Read [limitations](docs/limitations.md) before relying on a result.
 
 ## Why
 
@@ -288,15 +289,15 @@ end-to-end tests for workflows, axe, links, mobile layout, and performance; and 
 version, help, init, config, and invalid flags.
 
 The cloud suite adds PGlite tests for the migration's RLS policies and composite foreign keys, plus
-sanitization tests for the CLI payload and server normalizer. Those tests exercise the SQL and
-normalization locally; they are **not** a live Supabase project test. Real GitHub OAuth, repository
-connection, CLI login, upload, dashboard isolation, and production deployment remain unverified until
-owner credentials and a hostname are supplied. See
+sanitization tests for the CLI payload and server normalizer. The same migration and grant hardening
+were applied to a hosted Supabase project, where a two-identity PostgREST/RLS run passed 17/17
+adversarial checks. Real GitHub OAuth, repository connection, CLI login, upload, deployed dashboard
+isolation, and deployment remain unverified. See
 [PROJECT_EXECUTION_STATUS.md](PROJECT_EXECUTION_STATUS.md) and
 [LIVE_DEPLOYMENT_REPORT.md](LIVE_DEPLOYMENT_REPORT.md).
 
-It has **not** been tested against a large third-party production system, a real Supabase project,
-or every framework version. Those remain unverified unless you run them.
+It has **not** been tested against a large third-party production system, a deployed dashboard
+runtime, or every framework version. Those remain unverified unless you run them.
 
 ## Limitations
 

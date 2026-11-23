@@ -3,8 +3,10 @@
 **Scope:** the optional LaunchProof cloud dashboard, its PostgreSQL schema, API routes, server
 actions, GitHub connection flow, and CLI uploads.
 
-**Status:** implemented and locally tested with PGlite. **Not tested against a live Supabase
-project.** No deployment has occurred. The local CLI remains usable without any of this.
+**Status:** implemented and locally tested with PGlite. The migration and grant hardening were applied
+to a hosted Supabase project, where the two-identity PostgREST/RLS run passed 17/17 adversarial
+checks. **No deployed application exists**, so runtime routes, cookies, real OAuth, and live CLI
+uploads remain untested. The local CLI remains usable without any of this.
 
 ## 1. Security objective
 
@@ -217,8 +219,9 @@ dynamic.
 
 ## 7. Residual risks and unverified areas
 
-1. **No live Supabase RLS test.** PGlite validates the SQL semantics, but hosted Supabase grants,
-   JWT claims, PostgREST behavior, pooler behavior, and dashboard configuration have not been tested.
+1. **No deployed-application RLS test.** Hosted Supabase RLS, grants, JWT claims, PostgREST reads and
+   writes, and disposable two-identity adversarial cases passed 17/17. A deployed Next.js runtime,
+   real browser sessions, pooler behavior, and the Vercel environment remain untested.
 2. **Service-role key compromise bypasses RLS.** It must remain server-only and be rotated if exposed.
    There is no separate database role with narrower privileges for each service operation.
 3. **GitHub `repo` scope is broad.** GitHub offers no read-only private-repository OAuth scope. The
@@ -238,8 +241,9 @@ dynamic.
 10. **No shared-browser isolation beyond cookie clearing.** Users should sign out on shared machines.
 11. **No repository authorization model beyond the connecting user.** There are no teams, roles, or
     invitations. Each connection belongs to one account.
-12. **No production deployment has been verified.** The live auth callback, Supabase redirect
-    allowlist, Vercel environment variables, and real GitHub consent screens remain untested.
+12. **No deployment has been verified.** Vercel requires a new project's first deployment to be
+    Production, and production is not authorized. The preview callback, Vercel runtime, real GitHub
+    OAuth consent/sign-in, and live CLI upload remain untested.
 
 These limitations are also recorded in [LIVE_DEPLOYMENT_REPORT.md](LIVE_DEPLOYMENT_REPORT.md) and the
 project execution status. None of them are presented as completed work.

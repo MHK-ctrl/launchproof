@@ -5,10 +5,14 @@ connection, private scan history, and explicit CLI uploads.
 
 Local scans do not need any of this. If you only want the CLI, skip this document.
 
-**Current state:** the code and migration exist, but no Supabase project, GitHub OAuth app, Vercel
-deployment, or production URL has been created. The commands below have therefore **not** been run
-against a live environment. Do not paste passwords, OAuth secrets, service-role keys, or CLI tokens
-into chat or commit them.
+**Current state:** the code exists; the migration and grant-hardening migration have been applied to a
+hosted Supabase project (`launchproof`, ref `ypqpqgnviphwxddrpieq`), and the GitHub provider is
+configured. Hosted RLS passed 17/17 checks with disposable identities. A Vercel project is linked
+with Preview variables, but there is **no deployment**: Vercel requires a new project's first
+deployment to be Production, and production is not authorized. There is no preview or production URL.
+Real GitHub sign-in and CLI upload are not tested. The OAuth client secret must be rotated after being
+rendered unmasked in browser-automation output. Do not paste passwords, OAuth secrets, service-role
+keys, or CLI tokens into chat or commit them.
 
 ## 1. What you need
 
@@ -29,6 +33,9 @@ No paid plan is required by this setup. Do not enable paid add-ons or purchase a
 step.
 
 ## 2. Create the Supabase project
+
+The hosted project for this checkpoint already exists (`launchproof`, ref `ypqpqgnviphwxddrpieq`).
+The steps below are the reproducible setup for a fresh environment.
 
 1. Create a project in the Supabase dashboard.
 2. Open **Project Settings -> API** and record:
@@ -71,6 +78,10 @@ Do not re-run a partially applied migration blindly in production. Use a fresh p
 verification.
 
 ## 3. Configure GitHub OAuth
+
+The GitHub OAuth App `LaunchProof` already exists (app ID `4046464`), and the Supabase GitHub provider
+is enabled. Rotate the client secret before live use; it was rendered unmasked in automation output.
+The steps below are the reproducible setup for a fresh environment.
 
 Supabase's GitHub provider uses a GitHub OAuth App. The browser talks to Supabase, and Supabase talks
 to GitHub.
@@ -189,15 +200,22 @@ Steps, after owner approval:
 1. Import the repository into Vercel. Use the repository root, not `apps/web`, because this is an npm
    workspace.
 2. Add the five server environment variables from section 4 in **Project Settings -> Environment
-   Variables**. Apply them to Production and Preview as appropriate. The service-role key and
-   encryption key must not be exposed to the client bundle.
-3. Deploy a **preview** first. Vercel will generate a hostname; do not invent one.
-4. Set `APP_BASE_URL` to the preview origin and redeploy, because the value is read at runtime.
-5. Add the preview `/auth/callback` URL to Supabase's redirect allowlist. The GitHub OAuth callback
-   stays `https://<project-ref>.supabase.co/auth/v1/callback`; do not change it to the Vercel host.
-6. Verify the flow in section 7.
-7. Only after the preview passes and the owner approves production, promote/deploy to production.
-8. Record the exact hostname in `PROJECT_EXECUTION_STATUS.md` and `LIVE_DEPLOYMENT_REPORT.md` only
+   Variables**. Apply them to Preview first. The service-role key and encryption key must not be
+   exposed to the client bundle.
+3. **First-deployment gate:** Vercel assigns a new project's first deployment to Production even when
+   you request a Preview. A Preview-only first deployment is not possible. Do not work around this by
+   creating a production deployment without explicit owner approval; choose a host/plan that supports
+   a preview-only first deployment, or approve that first Production deployment explicitly.
+4. After a deployment exists, create a Preview deployment from `feat/cloud-dashboard` (or connect the
+   Git repository and push a non-production branch). Record the exact URL and commit; do not invent a
+   hostname.
+5. Set `APP_BASE_URL` to the preview origin and redeploy, because the value is read at runtime.
+6. Add the exact preview `/auth/callback` URL to Supabase's redirect allowlist. The GitHub OAuth
+   callback stays `https://<project-ref>.supabase.co/auth/v1/callback`; do not change it to the Vercel
+   host.
+7. Verify the flow in section 7.
+8. Only after the preview passes and the owner approves production, promote/deploy to production.
+9. Record the exact hostname in `PROJECT_EXECUTION_STATUS.md` and `LIVE_DEPLOYMENT_REPORT.md` only
    after it exists.
 
 Do not deploy before the isolation tests pass, and do not claim a live URL until the deployed flow

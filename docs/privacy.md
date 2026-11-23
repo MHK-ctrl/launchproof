@@ -73,6 +73,7 @@ account in the dashboard; local files are not touched by that deletion. See
 The public website pages are prerendered. They do not run scans or collect analytics, and the sample
 report viewer fetches a committed JSON file from the same origin.
 
-An optional cloud dashboard is implemented but not deployed. It accepts GitHub sign-in and explicit
-CLI uploads of sanitized scan summaries. It is not required for local scanning. The full field-level
-data flow is documented in [PRIVACY_DATA_FLOW.md](../PRIVACY_DATA_FLOW.md).
+An optional cloud dashboard is implemented but not deployed. Its hosted database schema and RLS have
+been verified, but real GitHub sign-in and CLI uploads have not been exercised. It accepts GitHub
+sign-in and explicit CLI uploads of sanitized scan summaries; it is not required for local scanning.
+The full field-level data flow is documented in [PRIVACY_DATA_FLOW.md](../PRIVACY_DATA_FLOW.md).

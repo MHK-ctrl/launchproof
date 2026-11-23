@@ -1,157 +1,206 @@
 # Live Deployment Report
 
 **Date:** 2026-11-23
-**Status:** **NOT DEPLOYED — BLOCKED ON OWNER-PROVIDED ACCOUNTS AND CREDENTIALS**
-**Production URL:** none. No hostname, alias, or custom domain has been created or claimed.
+**Branch:** `feat/cloud-dashboard` at `98af71e`
+**Status:** **NO VERCEL DEPLOYMENT — PREVIEW BLOCKED BY VERCEL'S FIRST-DEPLOYMENT RULE**
+**Production URL:** none. No production deployment, production alias, custom domain, or public preview URL
+exists.
 
-This report separates what was verified locally from what could not be verified without a real
-Supabase project, GitHub OAuth consent, and Vercel deployment. Nothing below is a substitute for a
-live test.
+This report separates what was verified against hosted services from what remains untested. A hosted
+Supabase RLS run is real hosted evidence, but it is not proof that a deployed Next.js runtime, GitHub
+sign-in, or the CLI work end to end.
 
 ## 1. Current environment
 
-- macOS on Apple Silicon.
-- Node.js `26.0.0`, npm `11.12.1`.
-- Repository branch: `feat/cloud-dashboard` (uncommitted work at the time of this report).
-- GitHub CLI authenticated as `MHK-ctrl`; the public source repository exists at
-  `https://github.com/MHK-ctrl/launchproof`.
-- Vercel CLI is installed but **logged out**. No Vercel project is linked.
-- Supabase CLI is **not installed**. No Supabase project, project ref, database URL, anon key, or
-  service-role key exists in this workspace.
-- No GitHub OAuth App client ID or secret exists in this workspace.
-- No `.env` file exists. Only `.env.example` with empty values is committed.
-- No production or preview URL exists.
+- macOS on Apple Silicon; Node.js `26.0.0`, npm `11.12.1`.
+- Repository: `https://github.com/MHK-ctrl/launchproof`, branch `feat/cloud-dashboard` at `98af71e`.
+- GitHub CLI authenticated as `MHK-ctrl`.
+- Vercel CLI authenticated as `mdhamzakhan2k6-4663` (team `hamza-recallai`). No other account was used.
+- Vercel project `launchproof` (`prj_OMc6CDEwAcGppuZFhEqa3j0X95u3`) exists and is linked from the
+  repository root. It has **no Git connection and no deployments**.
+- Hosted Supabase project `launchproof` (`ypqpqgnviphwxddrpieq`), organization `LaunchProof`
+  (`hhaljmwqphlagxetcccs`), Tokyo, free plan.
+- Local `.env` exists with mode `0600` and is gitignored. Values are not printed in this report.
+- Four Preview-scoped Vercel variables exist: `NEXT_PUBLIC_SUPABASE_URL`,
+  `NEXT_PUBLIC_SUPABASE_ANON_KEY` (Config), `SUPABASE_SERVICE_ROLE_KEY`, and
+  `LAUNCHPROOF_ENCRYPTION_KEY` (Secret). `APP_BASE_URL` is unset because no preview origin exists.
+- Supabase Site URL remains `http://127.0.0.1:3000`, with
+  `http://127.0.0.1:3000/auth/callback` allowed. No preview callback has been added.
 
-## 2. What was implemented
+## 2. Implemented
 
 - Next.js server output (static export removed) with Supabase Auth and SSR cookie handling.
-- GitHub sign-in through Supabase, a separate repository consent flow, and encrypted short-lived
-  provider-token cookie.
+- GitHub sign-in through Supabase, a separate repository consent flow, and an encrypted short-lived
+  provider-token cookie. The provider token is never stored in PostgreSQL.
 - PostgreSQL migration with profiles, repositories, scans, findings, CLI auth requests/tokens,
   composite tenant foreign keys, RLS policies, grants, and an aggregate view.
 - Private dashboard: overview, repositories, scans, scan detail, settings, account.
 - APIs for account, repositories, scans, findings, downloads, health, and CLI auth/upload.
-- CLI `login`, `logout`, `status`, `repositories`, `upload`, plus explicit `--upload` with a
-  sanitized preview and `--yes` support on local scan commands.
+- CLI `login`, `logout`, `status`, `repositories`, `upload`, plus explicit `--upload` with a sanitized
+  preview and confirmation unless `--yes`.
 - CLI token hashing, seven-day expiry, revocation, atomic one-time claim, PKCE, and loopback callback.
 - Dashboard account deletion with cascade and connect-cookie clearing.
 - Sanitization of upload text, finding paths, references, and server-side gate recomputation.
 - PGlite tenant-isolation tests and CLI/server sanitization tests.
 
-## 3. Local verification actually run
+## 3. Hosted Supabase — verified
 
-| Check                                                                 | Result                                                              |
-| --------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| `npm run build`                                                       | **Passed** — core, browser, and CLI bundles built with declarations |
-| `npm run typecheck -w @launchproof/web`                               | **Passed**                                                          |
-| `npm run build:web`                                                   | **Passed** — Next.js production build; public pages prerendered     |
-| `npm test`                                                            | **Passed — 15 files, 68 tests**                                     |
-| `npx vitest run packages/core/test/cloud-dashboard-rls.test.ts`       | **Passed — 9 tests**                                                |
-| `npx vitest run packages/core/test/cloud-upload-sanitization.test.ts` | **Passed — 6 tests**                                                |
-| Keychain stdin self-test (`security`, temp item)                      | **Passed** — value written/read, temporary item deleted             |
+The initial migration and the corrective grant migration were applied to the hosted project through
+the SQL editor:
 
-The build output labels `/dashboard/*`, `/login`, `/cli/*`, `/auth/*`, and `/api/*` as dynamic and the
-public marketing pages as static. This confirms that the static-export configuration is gone.
+- `supabase/migrations/202611230001_cloud_dashboard.sql`
+- `supabase/migrations/202611230002_revoke_default_table_privileges.sql`
 
-## 4. What has not been tested
+Hosted catalog checks confirmed:
 
-These are blockers, not completed work:
+- six tables: `profiles`, `repositories`, `scans`, `findings`, `cli_auth_requests`, `cli_tokens`;
+- RLS enabled on all six tables;
+- 16 policies;
+- composite tenant foreign keys and profile/scan/finding triggers;
+- `repository_scan_stats` with `security_invoker=true`;
+- no `anon` table privileges and no `TRUNCATE` grant for `authenticated`.
 
-1. **No live Supabase project.** The migration has only been executed under PGlite. Hosted
-   PostgREST behavior, JWT claims, grants, RLS enforcement, connection pooling, and Supabase Auth
-   provider configuration are unverified.
-2. **No GitHub OAuth App.** The real GitHub consent screen, Supabase callback URL, provider token
-   delivery, `repo` scope behavior, and repository metadata fetch have not been exercised.
-3. **No Vercel deployment.** `vercel.json`, environment injection, runtime cookies, middleware/proxy,
-   and real HTTP headers have not been tested on the host.
-4. **No production URL.** `APP_BASE_URL`, Supabase Site URL, Supabase redirect allowlist, and GitHub
-   OAuth callback have not been configured for a real origin.
-5. **No end-to-end two-account test** against a deployed instance. The PGlite suite cannot simulate
-   two real Supabase sessions, browser cookies, or serverless behavior.
-6. **No real CLI login/upload test.** The browser/device flow and upload were tested only at the unit
-   and build level; no live API accepted a token or scan.
-7. **No deployment approval.** Production deployment remains gated on explicit owner approval.
-8. **No GitHub Actions/OIDC upload.** This is intentionally not implemented, not merely untested.
-   Workflows cannot authenticate to the cloud API automatically.
+The grant fix matters: Supabase's bootstrap default privileges had granted `TRUNCATE`, which bypasses
+RLS. Without the fix, any signed-in user could have erased every tenant's rows even with correct row
+policies.
 
-## 5. Exact blockers
+A hosted PostgREST/RLS script created two disposable Supabase Auth identities and synthetic data. All
+17 checks passed:
 
-### Blocker A — Supabase project and credentials
+- own profile/repository/scan/finding access;
+- tenant-scoped repository lists;
+- cross-tenant reads return no rows;
+- cross-tenant updates and deletes affect no rows;
+- victim rows remain after adversarial deletes;
+- forged `user_id` inserts are rejected;
+- scans cannot attach to another tenant's repository;
+- findings cannot attach to another tenant's scan;
+- the aggregate view is tenant-scoped;
+- anonymous access is denied;
+- cleanup deleted both disposable identities.
 
-Needed:
+The same run was repeated after commit `98af71e`: **17/17 passed**. This is hosted database evidence,
+not a deployed-application or browser-session test.
 
-- project URL;
-- anon/public key;
-- service-role key;
-- confirmation that the migration applied cleanly;
-- Supabase Auth GitHub provider configured;
-- allowed redirect URLs for the chosen origin.
+A local Next.js dev server was also started against the hosted Supabase configuration. `/` and
+`/login` returned 200, `/dashboard` returned 307 to `/login?next=%2Fdashboard`, and `/api/health`
+returned `{"ok":true,...}`. The login HTML contained no service-role/encryption-key marker. Local
+`next dev` does not apply the Vercel header configuration, so deployed headers remain unverified.
 
-The owner must create the project and enter the credentials through the official dashboard or CLI.
-Do not paste secrets into chat. Set them locally in `.env` and in the host's environment settings.
+## 4. GitHub OAuth — configured, not exercised
 
-### Blocker B — GitHub OAuth App
+- GitHub OAuth App `LaunchProof`, app ID `4046464`, client ID `Ov23li2D78osdcDjz84Y`.
+- Authorization callback: `https://ypqpqgnviphwxddrpieq.supabase.co/auth/v1/callback`.
+- Supabase Authentication → Providers → GitHub is enabled with that client ID and callback.
+- The separate repository metadata consent flow (GitHub OAuth with `read:user repo`) has not been run.
 
-Needed:
+**Security incident requiring action:** during browser inspection, the Supabase provider dialog
+rendered the GitHub client secret unmasked in tool output. The value was not intentionally copied into
+a file, report, or command, but it must be treated as exposed. Rotate the OAuth client secret in GitHub
+and update the Supabase provider before any live sign-in test.
 
-- an OAuth App under the owner's GitHub account or organization;
-- client ID and client secret entered into Supabase;
-- authorization callback URL set to the Supabase callback
-  `https://<project-ref>.supabase.co/auth/v1/callback`;
-- consent to the `repo` scope if private repositories are to be connected.
+Real GitHub sign-in, callback/session creation, session refresh, sign-out, redirect rejection,
+repository consent, and provider-token exchange are **NOT TESTED**.
 
-LaunchProof never asks for a GitHub password or personal access token. The owner authenticates
-through GitHub and Supabase directly.
+## 5. Vercel preview — blocked by the first-deployment rule
 
-### Blocker C — Host and production approval
+The Vercel project was created and linked, and the four Preview variables were added without printing
+their values. The deployment command was:
 
-Needed:
+```bash
+vercel deploy --environment preview --yes \
+  --meta githubCommitRef=feat/cloud-dashboard \
+  --meta githubCommitSha=98af71ea07b330f77da0a6c4138ddda16930f6de
+```
 
-- `vercel login` through the official browser flow, or an equivalent Next.js host;
-- a linked project using the repository root;
-- the five server environment variables;
-- explicit approval to deploy;
-- a generated hostname, recorded only after deployment succeeds.
+Vercel refused:
 
-No paid plan, custom domain, or purchase is required for a generated hostname. None has been
-authorized or created.
+> Can't create a Preview deployment. This project has no deployments yet, and a project's first
+> deployment is assigned to Production. To deploy to Production, retry with `--prod`.
 
-### Blocker D — Real deployment verification
+Vercel's documented behavior is that the first deployment of a new project is always Production, even
+without `--prod`, when importing from Git, or when targeting Preview. Because this mission prohibits a
+production deployment, no workaround was attempted. `vercel ls launchproof` reports no deployments.
+No production alias or domain exists.
 
-After A–C, the checklist in [CLOUD_DASHBOARD_SETUP.md](CLOUD_DASHBOARD_SETUP.md) must be run against
-the deployed instance. In particular, two real accounts must be used to confirm that the second
-account cannot list, fetch, download, mutate, or delete the first account's data.
+A temporary deployment (`--temporary`) is also documented by Vercel as a production deployment and
+would expire after one hour; it is not a substitute for the required preview environment and was not
+used.
 
-## 6. Deployment sequence after credentials are supplied
+## 6. Not tested / blocked
 
-1. Apply the migration to a fresh Supabase project.
-2. Configure GitHub OAuth and the Supabase redirect allowlist.
-3. Set local environment variables and run the app.
-4. Complete a local two-account isolation check.
-5. Run `npm run build`, web typecheck, `npm run build:web`, and `npm test`.
-6. Deploy a **preview** only after the checks pass.
-7. Set `APP_BASE_URL` to the preview origin, add the preview `/auth/callback` to Supabase, redeploy.
-8. Verify the full checklist, including CLI login/upload/logout and cross-account denial.
-9. Obtain explicit production approval.
-10. Promote to production, verify again, and record the exact hostname in this report and
-    `PROJECT_EXECUTION_STATUS.md`.
+1. **No preview URL.** `APP_BASE_URL`, preview callback allowlist, deployed cookies, proxy/header
+   behavior, and Vercel runtime are unverified.
+2. **No real GitHub OAuth.** The provider is configured, but sign-in and repository consent have not
+   been exercised; the secret must be rotated first.
+3. **No live CLI auth/upload.** The browser/device flow and upload have only unit/build/PGlite
+   coverage; no live API accepted a token or scan.
+4. **No deployed two-account browser test.** Hosted database RLS passed with disposable identities,
+   but no two real browser sessions were tested against a deployed app.
+5. **No production deployment.** Production is not authorized and has not occurred.
+6. **No merge, tag, release, npm publication, or custom domain.**
+7. **No external security audit or penetration test.**
+8. **GitHub Actions/OIDC automatic upload is not implemented.**
 
-Do not skip the preview or the two-account check. A successful build is not evidence that tenant
-isolation works in the hosted environment.
+## 7. Exact blockers
 
-## 7. Rollback
+### Blocker A — rotate the exposed OAuth secret
 
-- Vercel retains prior deployments; promote a known-good deployment if the preview regresses.
-- The first deployment has no production data. If the schema is wrong, fix the migration on a fresh
-  project rather than mutating a production database in place.
+The GitHub OAuth client secret was displayed unmasked in browser-automation output. Rotate it in the
+GitHub OAuth App settings (owner sudo/2FA required) and update Supabase. Do not paste the new secret
+into chat, a repository file, or a report.
+
+### Blocker B — Vercel preview requires a first Production deployment
+
+Vercel does not permit a Preview deployment before a project's first Production deployment. Production
+is explicitly out of scope. The owner must either:
+
+- explicitly approve one initial Production deployment (which would then allow Preview deployments),
+  or
+- choose a hosting path that permits a preview-only first deployment.
+
+No production deployment will be created without that approval.
+
+### Blocker C — preview origin and callback
+
+After a reachable preview exists, set `APP_BASE_URL` to its exact origin, add
+`https://<preview-origin>/auth/callback` to Supabase's redirect allowlist, and redeploy. Keep the
+GitHub OAuth callback pointed at the Supabase callback, not the Vercel host.
+
+### Blocker D — live validation
+
+After A–C, run the checklist in `CLOUD_DASHBOARD_SETUP.md`: real GitHub sign-in, repository consent,
+CLI login/status/upload/logout, downloads, headers, account deletion, and two-account adversarial
+isolation against the deployed preview.
+
+## 8. Deployment sequence after approval
+
+1. Rotate the OAuth client secret and update Supabase.
+2. Resolve the Vercel first-deployment gate with explicit owner approval or an alternate host.
+3. Deploy the branch as a Preview; record the exact URL and commit.
+4. Set `APP_BASE_URL` to the preview origin and redeploy.
+5. Add the exact preview `/auth/callback` to Supabase.
+6. Run real OAuth, repository consent, CLI login/upload, download, and two-account checks.
+7. Inspect deployed headers, console errors, failed requests, accessibility, and basic performance.
+8. Update this report and `PROJECT_EXECUTION_STATUS.md` with only verified results.
+9. Obtain separate approval before any production promotion or custom domain.
+
+## 9. Rollback
+
+- Vercel retains prior deployments; a bad preview can be abandoned without affecting production.
+- If the schema is wrong, fix the migration on a fresh project rather than mutating a live database in
+  place.
 - Rotating `LAUNCHPROOF_ENCRYPTION_KEY` invalidates connect cookies only; users reconnect.
-- Revoking CLI tokens from settings or `launchproof logout` does not delete local reports.
-- Deleting a Supabase project removes all dashboard data and cannot be undone; export anything needed
-  first.
+- Revoking CLI tokens does not delete local reports.
+- Deleting the Supabase project removes all dashboard data and cannot be undone.
 
-## 8. Honest conclusion
+## 10. Honest conclusion
 
-The cloud dashboard is **implemented and locally verified**, but the mission's deployment and live
-isolation requirements are **not complete**. There is no live URL, no real Supabase RLS run, no real
-GitHub consent run, and no deployed CLI upload. Those remain blocked on owner credentials and
-approval, as described above.
+The cloud dashboard is implemented, locally verified, and backed by a real hosted Supabase project
+whose RLS and grant hardening passed 17/17 adversarial checks. The GitHub provider is configured, and
+the Vercel project is prepared with Preview variables.
+
+It is **not deployed**. Vercel requires a first Production deployment before any Preview deployment,
+and production is not authorized. The OAuth client secret also needs rotation after being rendered
+unmasked during automation. No live GitHub sign-in, CLI upload, deployed dashboard, or two-account
+browser test has been completed.

@@ -1,10 +1,11 @@
 # Deployment Readiness — LaunchProof Website and Cloud Dashboard
 
-**Status:** implemented locally, **not deployed**.
+**Status:** implemented locally; hosted Supabase applied and RLS verified; **not deployed**.
 **Recommended host:** Vercel with the Next.js server runtime.
-**Required services:** Supabase (Auth + PostgreSQL) and a GitHub OAuth App.
-**Production approval:** required and not yet given.
-**Production URL:** none. Do not announce one until a real deployment has been verified.
+**Required services:** Supabase (Auth + PostgreSQL) and a GitHub OAuth App (configured).
+**Deployment gate:** Vercel requires a new project's first deployment to be Production; a Preview-only
+first deployment is not possible. Production approval has not been given.
+**Production URL / preview URL:** none. Do not announce one until a real deployment has been verified.
 
 > The public marketing pages can still be hosted without a database; the private dashboard and CLI
 > upload require Supabase. This document does not claim that any of those services are configured.
@@ -29,14 +30,17 @@
 
 ## 2. What is not ready
 
-- No Supabase project or credentials.
-- No GitHub OAuth App or consent test.
-- No Vercel login, project link, preview, or production deployment.
-- No production hostname, so `APP_BASE_URL`, Supabase Site URL/redirects, and canonical metadata do
+- Hosted Supabase project exists, migrations applied, and hosted RLS passed 17/17 checks, but there
+  is no deployed application runtime.
+- GitHub OAuth App is configured in Supabase, but real sign-in, consent, and provider-token exchange
+  are not tested. The client secret must be rotated after being rendered unmasked in automation.
+- Vercel project is linked with Preview variables, but **no deployment** exists because Vercel
+  requires the first deployment to be Production.
+- No preview or production hostname, so `APP_BASE_URL`, preview redirects, and canonical metadata do
   not exist.
-- No live RLS, auth, repository connection, CLI login, upload, download, revocation, or account
-  deletion test.
-- No real two-account isolation test in a hosted environment.
+- No live auth, repository connection, CLI login, upload, download, revocation, or account deletion
+  test.
+- No deployed two-account browser isolation test; only hosted database RLS and local PGlite tests.
 - GitHub Actions/OIDC upload is not implemented.
 - The cloud dashboard does not have a custom domain, monitoring, audit logging, or a scheduled cleanup
   job for expired CLI authorization rows.
@@ -45,13 +49,15 @@
 
 ### Supabase
 
-- Create a project.
-- Apply `supabase/migrations/202611230001_cloud_dashboard.sql`.
-- Enable the GitHub provider with an OAuth App client ID/secret.
+- Project `launchproof` (`ypqpqgnviphwxddrpieq`) exists on the free plan.
+- `202611230001_cloud_dashboard.sql` and `202611230002_revoke_default_table_privileges.sql` are
+  applied.
+- GitHub provider is enabled with the OAuth App client ID and callback. Rotate the client secret
+  before live use; it was exposed in automation output.
 - Set Site URL and a narrow redirect allowlist:
   - local: `http://127.0.0.1:3000/auth/callback`
-  - preview/production: `https://<host>/auth/callback`
-- Record the project URL, anon key, and service-role key.
+  - preview/production: `https://<host>/auth/callback` (only after the host exists)
+- Record the project URL, anon key, and service-role key outside git.
 
 ### GitHub OAuth App
 
@@ -117,8 +123,9 @@ Verify:
 - a second account cannot see or mutate the first account's data;
 - logout revokes the token.
 
-Current local results: build, web typecheck, production web build, and `npm test` (15 files, 68 tests)
-pass. Live Supabase/GitHub/CLI flows are blocked on credentials and have not been run.
+Current results: build, web typecheck, production web build, and `npm test` (15 files, 68 tests)
+pass. Hosted Supabase RLS passed 17/17 checks. Live GitHub OAuth, deployed browser flows, and CLI
+upload remain untested.
 
 ## 5. Deployment steps after approval
 
@@ -126,19 +133,18 @@ pass. Live Supabase/GitHub/CLI flows are blocked on credentials and have not bee
 2. Complete `vercel login` through the official flow.
 3. Import the repository at the **repository root** (npm workspace), not `apps/web`.
 4. Add the five web environment variables to Preview and Production as appropriate.
-5. Deploy a preview:
-   ```bash
-   vercel deploy
-   ```
-6. Set `APP_BASE_URL` to the preview origin and redeploy.
-7. Add the preview `/auth/callback` URL to Supabase.
-8. Run the full checklist in `CLOUD_DASHBOARD_SETUP.md` against the preview.
-9. Obtain explicit approval for production.
-10. Deploy production:
-    ```bash
-    vercel deploy --prod
-    ```
-11. Record the exact hostname and verification date in `PROJECT_EXECUTION_STATUS.md` and
+5. Resolve the first-deployment gate. Vercel assigns a new project's first deployment to Production
+   even when Preview is requested; a Preview-only first deployment is impossible. Use a host/plan
+   that supports it, or obtain explicit approval for that first Production deployment. Do not treat
+   an unapproved first deployment as a preview.
+6. After a deployment exists, create a Preview deployment from `feat/cloud-dashboard` and record the
+   exact URL and commit.
+7. Set `APP_BASE_URL` to the preview origin and redeploy.
+8. Add the exact preview `/auth/callback` URL to Supabase.
+9. Run the full checklist in `CLOUD_DASHBOARD_SETUP.md` against the preview.
+10. Obtain explicit approval for production.
+11. Deploy production only after that approval.
+12. Record the exact hostname and verification date in `PROJECT_EXECUTION_STATUS.md` and
     `LIVE_DEPLOYMENT_REPORT.md` only after it exists.
 
 Do not connect a custom domain, enable a paid plan, or create a GitHub release as part of this step
@@ -164,7 +170,8 @@ without separate approval.
 
 ## 7. Risks
 
-- RLS is tested locally with PGlite, not with a real Supabase instance.
+- RLS passed local PGlite tests and 17/17 hosted PostgREST checks, but no deployed application
+  runtime or real two-browser-session test exists.
 - The service-role key bypasses RLS if it leaks; it is a high-value server secret.
 - The GitHub `repo` scope is broad and cannot be made read-only for private repositories through
   GitHub OAuth. A GitHub App would be required for finer permissions.
@@ -172,7 +179,8 @@ without separate approval.
 - No MFA, audit log, monitoring, or alerting is implemented.
 - Sanitization is heuristic; review finding text before uploading.
 - Vercel's runtime, proxy, header, and cookie behavior are unverified until a real preview exists.
-- No deployment has occurred, so no production availability, performance, or recovery claim is made.
+- No deployment has occurred, so no preview/production availability, performance, or recovery claim is
+  made. Hosted database RLS is verified; deployed runtime behavior is not.
 
 ## 8. Rollback
 

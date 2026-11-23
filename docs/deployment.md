@@ -28,8 +28,11 @@ serve the dashboard or API routes.
 - security headers and private/no-store headers for dashboard and API paths.
 
 The repository root is the project root because this is an npm workspace. Configure the environment
-variables from `.env.example`, including `APP_BASE_URL`, before deploying. No deployment has been
-performed and no live URL is claimed.
+variables from `.env.example`, including `APP_BASE_URL`, before deploying. A Vercel project is linked
+with Preview variables, but **no deployment exists**. Vercel assigns a new project's first deployment
+to Production even when Preview is requested, and production is not authorized; preview-only hosting
+requires a different host/plan or explicit approval for that first Production deployment. No preview
+or production URL is claimed.
 
 ## Netlify
 
