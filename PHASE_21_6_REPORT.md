@@ -26,6 +26,11 @@ alias, no domain, no merge, no tag, no release, no npm publish.
 | Local runtime      | Node `26.0.0`, npm `11.12.1`                                              | VERIFIED — LOCAL         |
 | Local `.env`       | present, gitignored (`.gitignore:23`), mode not modified in this phase    | VERIFIED — LOCAL         |
 
+The audit records themselves were committed to this branch after the audit, so HEAD may be later
+than the audited commit. Any commit deployed must have the same application, SQL, and configuration
+content as `4151a129`; the only permitted delta before deployment is this phase's Markdown
+documentation. Verify that rule (`git diff --stat 4151a129..HEAD -- ':!*.md'`) before deploying.
+
 The Phase 21.5 commit was still HEAD; nothing was reset, reverted, or overwritten. A generated
 `apps/web/next-env.d.ts` change produced by the local dev-server smoke check was discarded because it
 was a Next.js regeneration of a tracked file, not authored work; the committed version was restored
