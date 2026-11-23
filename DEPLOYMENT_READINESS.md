@@ -184,7 +184,9 @@ part of this step without separate approval.
 
 ## 8. Rollback
 
-- Promote a previous Vercel deployment if a production regression is found, or remove the bad one.
+- This initial deployment has no previous Vercel deployment to promote. If it regresses, remove the
+  bad deployment (or project), restore the Supabase Site URL and redirect allowlist to the local-only
+  values, and redeploy only after a fix passes locally.
 - The database schema should be tested on a fresh project first; do not mutate production tables
   blindly.
 - Rotating `LAUNCHPROOF_ENCRYPTION_KEY` invalidates connect cookies only.

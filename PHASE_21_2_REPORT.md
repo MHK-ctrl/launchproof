@@ -159,7 +159,7 @@ updated; no secret value recorded. The callback remains
 | `APP_BASE_URL` plan          | READY             | Set only after the real origin exists, then redeploy                                         |
 | Authentication callback plan | READY             | Keep GitHub callback at Supabase; add exact Vercel `/auth/callback` to Supabase after deploy |
 | Production security review   | READY             | No blocking code defect; CSP, external audit, monitoring, and distributed limits remain gaps |
-| Deployment rollback strategy | READY             | Vercel retains deployments; previous deployment can be promoted if a bad release is found    |
+| Deployment rollback strategy | READY             | Initial deploy has no prior target; remove the bad deployment and revert Supabase settings   |
 | Deployment approval          | BLOCKED           | No explicit Production deployment authorization has been given                               |
 
 ## 8. What remains NOT TESTED
@@ -189,8 +189,9 @@ surface, environment variable names, audit/test results, known risks, and rollba
 
 ## 10. Rollback plan
 
-- If a deployment is bad, Vercel retains prior deployments; promote a known-good deployment or
-  delete the bad one.
+- Because this is the initial deployment, there is no prior Vercel deployment to promote. If it is
+  bad, remove the deployment (or project), restore the Supabase Site URL and redirect allowlist to
+  the local-only values, and redeploy only after a fix is verified locally.
 - The Supabase schema is additive and applied manually; do not mutate live tables blindly. Test
   schema changes on a fresh project first.
 - Rotating `LAUNCHPROOF_ENCRYPTION_KEY` invalidates connect cookies only; users reconnect.

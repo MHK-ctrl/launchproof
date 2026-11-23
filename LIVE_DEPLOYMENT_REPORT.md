@@ -153,8 +153,9 @@ Only after explicit approval:
 
 ## 9. Rollback
 
-- Vercel retains prior deployments. If a deployment regresses, promote a known-good deployment or
-  remove the bad one.
+- This initial deployment has no previous Vercel deployment to promote. If it regresses, remove the
+  bad deployment (or project), restore the Supabase Site URL and redirect allowlist to the local-only
+  values, and redeploy only after a fix is verified locally.
 - Do not mutate live database tables blindly; test schema changes on a fresh project first.
 - Rotating `LAUNCHPROOF_ENCRYPTION_KEY` invalidates GitHub connect cookies only; users reconnect.
 - CLI token revocation does not delete local reports.
