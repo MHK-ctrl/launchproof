@@ -123,19 +123,22 @@ The workflow is `.github/workflows/ci.yml`:
 
 Before announcing the release:
 
-- [ ] Push the initial commit and confirm the workflow starts.
-- [ ] Confirm both Node 22 and Node 24 jobs pass.
-- [ ] Confirm the website artifact uploads on one job only.
+- [x] Push the initial commit and confirm the workflow starts.
+- [x] Confirm both Node 22 and Node 24 jobs pass.
+- [x] Confirm the website artifact uploads on one job only.
 - [ ] Confirm a deliberately failing check fails the workflow (can be tested on a throwaway branch).
 - [ ] Enable branch protection requiring the successful matrix.
 
-CI has not run yet because no repository exists. Local checks are not a substitute for the hosted run.
+CI has run successfully on the public repository. The final verified code/workflow run is
+https://github.com/MHK-ctrl/launchproof/actions/runs/45131442874 (Node 22 and Node 24 both passed).
+See [GITHUB_PUBLICATION_REPORT.md](GITHUB_PUBLICATION_REPORT.md) for the failure and remediation
+history.
 
 ## 7. Release preparation
 
-- [ ] Confirm `package.json` and all workspace versions are `0.1.0`.
-- [ ] Confirm `CHANGELOG.md` has a `0.1.0` source-preview entry.
-- [ ] Confirm `V0.1.0_RELEASE_NOTES_DRAFT.md` is accurate.
+- [x] Confirm `package.json` and all workspace versions are `0.1.0`.
+- [x] Confirm `CHANGELOG.md` has a `0.1.0` source-preview entry.
+- [x] Confirm `V0.1.0_RELEASE_NOTES_DRAFT.md` is accurate and still in draft state.
 - [ ] Suggested release title: **LaunchProof v0.1.0 — Source Preview**
 - [ ] Suggested tag: `v0.1.0`
 - [ ] Suggested release type: **pre-release** (source preview, not npm-published).

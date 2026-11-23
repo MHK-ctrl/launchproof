@@ -12,8 +12,9 @@ LaunchProof is implemented as a local-first npm-workspaces monorepo with a worki
 live verification engine, optional Playwright browser checks, report renderers, demo applications,
 tests, documentation, CI, and a statically exported public website.
 
-The source tree has completed the phase 18 release-readiness audit and is conditionally ready for
-owner-approved publication. It has **not** been published to npm, pushed to GitHub, or deployed. No
+The source tree has completed the phase 18 release-readiness audit and is published as a public
+source repository at https://github.com/MHK-ctrl/launchproof. Hosted CI passes on Node.js 22 and 24.
+The website is **not** deployed, no npm package is published, and no GitHub release or tag exists. No
 external security audit has been performed, and no real Supabase project or large third-party
 application has been validated.
 
@@ -22,7 +23,7 @@ application has been validated.
 - macOS 26.6.2, Apple Silicon arm64, 18 GB unified memory assumed per brief
 - Node.js 26.0.0, npm 11.12.1, Git 2.39.5
 - Project root: `LaunchProof/`
-- GitHub CLI authenticated as the repository owner account; nothing pushed
+- GitHub CLI authenticated as `MHK-ctrl`; public repository published and CI verified
 - Vercel CLI installed but logged out; nothing deployed
 - No system Chrome; Playwright Chromium headless shell installed for tests
 
@@ -46,9 +47,10 @@ application has been validated.
 | 13. Tests                      | Done         | Unit, live integration, browser E2E, CLI smoke; 53/53 passing                        |
 | 14. Website                    | Done locally | 7 content routes plus 404/robots exported; not deployed                              |
 | 15. Documentation + CI         | Done         | README, guides, policies, templates, workflow, deployment configs                    |
-| 16. GitHub release             | Blocked      | Publication requires explicit owner approval                                         |
+| 16. GitHub publication         | Done         | Public repository `MHK-ctrl/launchproof`; hosted CI green; no release tag yet        |
 | 17. Live deployment            | Blocked      | Requires Vercel authentication and deployment approval                               |
 | 18. Final release audit        | Done         | Security, scanner, browser, report, website, docs, CI, deps verified; CONDITIONAL GO |
+| 19. Public GitHub publication  | Done         | 136 files published; Node 22/24 CI passed; repository metadata and clone verified    |
 
 ## Initial implementation verification (historical)
 
@@ -123,18 +125,21 @@ and lockfile detection during development.
 - npm publication has not occurred; install is from source
 - Git history scanning is filename-only and bounded
 
-## Release blockers and required approvals
+## Remaining approvals and recommended work
 
-1. **GitHub publication:** requires explicit owner approval. No remote exists and nothing has been
-   pushed. The source tree is ready for an owner-controlled initial commit and push.
+1. **GitHub publication:** complete. Public repository, `main` branch, initial commit, metadata,
+   clean clone, secret scanning, and Node 22/24 hosted CI are verified. No GitHub release or tag has
+   been created.
 2. **Website deployment:** requires `vercel login` (CLI is logged out) and explicit deployment
    approval. `vercel.json` and `netlify.toml` are prepared; after deployment, every route and the
    sample report must be verified before claiming a live URL.
-3. **npm publication:** requires choosing the final package ownership/scope and owner approval. The
-   CLI package name is currently `launchproof`; the workspace packages are `@launchproof/core` and
-   `@launchproof/browser`.
+3. **npm publication:** deferred and not required for launch. Requires final package ownership/scope
+   and explicit approval. The CLI package name is currently `launchproof`; the workspace packages are
+   `@launchproof/core` and `@launchproof/browser`.
 4. **Real-project validation:** recommended before a 1.0 claim. Run against one staging app, review
    false positives, and document results.
+5. **Branch protection:** recommended for `main` when the repository begins accepting contributions;
+   require the CI `Verify` matrix before merge.
 
 ## Resource profile
 
@@ -212,7 +217,8 @@ server or application vulnerabilities and remain below the `high` gate threshold
 
 ### Skipped / unavailable checks
 
-- GitHub Actions was not run because no repository exists.
+- At phase 18 completion, GitHub Actions had not run because no repository existed. Hosted CI has
+  since passed in phase 19.
 - No production deployment, public alias, domain, or npm publication was performed.
 - No real Supabase project was tested; live RLS behavior remains unverified.
 - No external security audit or penetration test was performed.
@@ -223,21 +229,103 @@ server or application vulnerabilities and remain below the `high` gate threshold
 1. DNS rebinding / hostile DNS is not defended against; scope is host-pattern based. Documented in
    `SECURITY_REVIEW.md` and `docs/limitations.md`.
 2. No real large third-party application or staging system has been validated.
-3. No hosted CI run exists yet.
+3. Hosted CI did not exist at phase 18 completion; phase 19 records the successful hosted runs.
 4. Canonical URL, sitemap, and absolute social metadata wait for a real deployment hostname.
 5. Windows and real mobile browsers are not manually validated.
 6. npm package ownership/name availability is unresolved; npm publication is not required for launch.
 
 ### Decisions pending user approval
 
-- **Approval A — GitHub publication:** repository owner/account, name `launchproof`, visibility, and
-  initial commit/push. No repository exists.
-- **Approval B — Website deployment:** Vercel production deployment after `vercel login`, or Netlify
-  as fallback. No deployment exists.
+- **Approval A — GitHub publication:** completed in phase 19; public repository and hosted CI are
+  verified.
+- **Approval B — Website deployment:** still pending. Vercel production deployment requires
+  `vercel login` and explicit approval; no deployment exists.
 - **npm publication:** separately deferred; no registry changes were made.
+
+### Next exact action at phase 18 close
+
+Approval A was provided after this phase and completed in phase 19. The next remaining approval is
+for website deployment.
+
+## Phase 19 — Public GitHub publication and hosted CI
+
+Completed on 2026-11-23. This phase published the reviewed source and verified the real hosted
+pipeline; it did not deploy the website, publish to npm, or create a GitHub release or tag.
+
+### Publication record
+
+- **Repository:** https://github.com/MHK-ctrl/launchproof
+- **Owner:** `MHK-ctrl`
+- **Name:** `launchproof`
+- **Visibility:** Public
+- **Default branch:** `main`
+- **Initial commit:** `87b121717cf7e9981a38f1b2ce613f21ead8646c`
+  (`feat: initial LaunchProof v0.1.0 release`)
+- **CI formatting fix:** `c035df55b1d6d5e1005c5e0c7cec8396db1dd422`
+- **Workflow runtime update:** `c2715989c38f65d240a8d75cd3a5c79d7ba11edd`
+- **Tracked files:** 136
+- **License:** MIT
+- **Topics:** 12, covering developer tools, application security, AI development, browser testing,
+  accessibility, API testing, Playwright, DevSecOps, TypeScript, and open source.
+- **Private vulnerability reporting:** enabled.
+- **Secret scanning alerts:** 0.
+
+### Publication changes
+
+- Updated every repository placeholder with the verified URL.
+- Added the real CI badge and a source link to the website footer.
+- Added a factual terminal-output example to the README.
+- Restored `PROJECT_URL` and SARIF `informationUri` using the real URL.
+- Added generated `apps/web/next-env.d.ts` to `.prettierignore` after the first hosted run exposed a
+  clean-checkout formatting failure.
+- Updated CI to `actions/checkout@v7`, `actions/setup-node@v7`, and `actions/upload-artifact@v7`.
+- Added `GITHUB_PUBLICATION_REPORT.md` and updated the checklist, audit, release notes, and this log.
+
+### Hosted CI record
+
+| Run         | Commit    | Result | Evidence                                                   |
+| ----------- | --------- | ------ | ---------------------------------------------------------- |
+| 45130503645 | `87b1217` | Failed | Format check flagged generated `apps/web/next-env.d.ts`    |
+| 45130767473 | `c035df5` | Passed | Node 22 and 24; Chromium tests and website build passed    |
+| 45131442874 | `c271598` | Passed | Final code/workflow run with current action majors; 2m 24s |
+
+Final verified run: https://github.com/MHK-ctrl/launchproof/actions/runs/45131442874
+
+Both Node 22 and Node 24 jobs passed every step: install, dependency audit, build, lint, format
+check, typecheck, Chromium headless-shell install, tests, website build, and artifact upload on Node 22. No deployment step exists.
+
+### Repository verification
+
+- `git ls-remote` confirmed `refs/heads/main` at the expected commit.
+- A fresh `git clone --depth 1` from the public URL succeeded with 136 tracked files.
+- The clean clone contained no `node_modules`, `dist`, `.next`, `out`, `.launchproof`, `.env`, keys,
+  traces, or local scan reports.
+- GitHub reported the repository public, default branch `main`, MIT license, and the intended
+  description and topics.
+- README rendering, CI badge URL, and source links were verified against the real repository.
+- GitHub secret scanning reported 0 alerts.
+
+### Final local verification (post-publication)
+
+- Formatting and format check: exit 0.
+- Lint: exit 0.
+- Typecheck: exit 0 after the ordered package build.
+- Tests: 13 files, 53 tests passed.
+- Package build: exit 0.
+- Website production build: exit 0, 11 generated entries.
+- Dependency audit: 0 vulnerabilities.
+
+### Remaining limitations
+
+- Website not deployed; no public site URL, alias, or domain.
+- No GitHub release or tag; release creation remains a separate approval decision.
+- No npm package published; ownership/name availability unresolved.
+- Branch protection is not yet enabled on `main`.
+- No external security audit; DNS rebinding, real Supabase, and large third-party application
+  validation remain unverified.
+- Dependency deprecation warnings from transitive packages are non-failing and documented.
 
 ### Next exact action
 
-Provide Approval A for GitHub publication (owner/account, repository name, and visibility), or
-complete `vercel login` and provide Approval B for website deployment. Until one is approved, no
-public action is permitted.
+Website deployment is the next separate mission. It requires `vercel login`, explicit deployment
+approval, and post-deployment verification before any public URL is claimed.

@@ -234,6 +234,7 @@ docs               Architecture, CLI, configuration, testing, security, privacy,
 - [Security review](SECURITY_REVIEW.md)
 - [Deployment readiness](DEPLOYMENT_READINESS.md)
 - [GitHub publication checklist](GITHUB_PUBLICATION_CHECKLIST.md)
+- [GitHub publication report](GITHUB_PUBLICATION_REPORT.md)
 - [v0.1.0 release notes draft](V0.1.0_RELEASE_NOTES_DRAFT.md)
 
 ## What has actually been tested

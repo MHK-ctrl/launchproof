@@ -57,7 +57,7 @@ Not reviewed or not available:
 - A real Supabase project or deployed RLS policies.
 - A large third-party production application or staging environment.
 - Windows desktop behavior, Safari/Firefox browser behavior, or real mobile devices.
-- A live GitHub Actions run (no repository exists yet).
+- A live GitHub Actions run at audit time; hosted CI has since passed after publication.
 - A deployed website (deployment is approval-gated).
 - npm registry publication or package ownership.
 
@@ -229,7 +229,8 @@ contributing, code of conduct, security policy, changelog, and roadmap.
   copyleft dependency was introduced by this project. Third-party notices remain governed by each
   dependency's license.
 - The invented `github.com/launchproof/launchproof` reference in CLI help, SARIF metadata, and the
-  user agent was removed. The README uses `<repository-url>` as an explicit placeholder.
+  user agent was removed. The README used a placeholder at audit time; it now uses the verified
+  repository URL and the real CI badge.
 
 Documentation limitation: Windows-specific setup and real Supabase/RLS workflows are not validated.
 
@@ -247,8 +248,8 @@ Reviewed `.github/workflows/ci.yml`.
 - No secrets are referenced; pull-request code does not receive write tokens.
 - A failing step fails the job; there is no `continue-on-error`.
 
-CI has not run on GitHub because no repository exists. This is a publication-time verification item,
-not a local pass.
+CI had not run when this audit was written. It has since passed on the public repository for Node 22
+and Node 24; see [GITHUB_PUBLICATION_REPORT.md](GITHUB_PUBLICATION_REPORT.md).
 
 ## Dependency review
 
@@ -513,7 +514,7 @@ the final gate run; none is being waived.
 ## Failed and skipped checks
 
 - No final check failed on the reviewed tree.
-- GitHub Actions was not executed because no repository exists.
+- GitHub Actions had not run at audit time; it has since passed on the public repository.
 - No external target, real Supabase project, or third-party production app was tested.
 - TLS certificate chains and protocol details are not implemented.
 - npm publication and website deployment were intentionally not performed.
