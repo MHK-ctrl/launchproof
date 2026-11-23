@@ -50,7 +50,7 @@ application has been validated.
 | 16. GitHub publication         | Done         | Public repository `MHK-ctrl/launchproof`; hosted CI green; no release tag yet        |
 | 17. Live deployment            | Blocked      | Requires Vercel authentication and deployment approval                               |
 | 18. Final release audit        | Done         | Security, scanner, browser, report, website, docs, CI, deps verified; CONDITIONAL GO |
-| 19. Public GitHub publication  | Done         | 136 files published; Node 22/24 CI passed; repository metadata and clone verified    |
+| 19. Public GitHub publication  | Done         | 137 files published; Node 22/24 CI passed; repository metadata and clone verified    |
 
 ## Initial implementation verification (historical)
 
