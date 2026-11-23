@@ -263,7 +263,7 @@ pipeline; it did not deploy the website, publish to npm, or create a GitHub rele
   (`feat: initial LaunchProof v0.1.0 release`)
 - **CI formatting fix:** `c035df55b1d6d5e1005c5e0c7cec8396db1dd422`
 - **Workflow runtime update:** `c2715989c38f65d240a8d75cd3a5c79d7ba11edd`
-- **Tracked files:** 136
+- **Tracked files:** 137
 - **License:** MIT
 - **Topics:** 12, covering developer tools, application security, AI development, browser testing,
   accessibility, API testing, Playwright, DevSecOps, TypeScript, and open source.
@@ -297,7 +297,7 @@ check, typecheck, Chromium headless-shell install, tests, website build, and art
 ### Repository verification
 
 - `git ls-remote` confirmed `refs/heads/main` at the expected commit.
-- A fresh `git clone --depth 1` from the public URL succeeded with 136 tracked files.
+- A fresh `git clone --depth 1` from the public URL succeeded with 137 tracked files.
 - The clean clone contained no `node_modules`, `dist`, `.next`, `out`, `.launchproof`, `.env`, keys,
   traces, or local scan reports.
 - GitHub reported the repository public, default branch `main`, MIT license, and the intended

@@ -52,7 +52,7 @@ versions, and the final code/workflow run passed on both Node 22 and Node 24.
 
 ## 3. Files published
 
-The repository contains **136 tracked files**, including:
+The repository contains **137 tracked files**, including:
 
 - `packages/core` — discovery, static and network checks, result model, reports, and gate.
 - `packages/browser` — Playwright workflows, axe-core accessibility, links, mobile, performance.
@@ -76,7 +76,7 @@ The repository contains **136 tracked files**, including:
 - Private keys, certificates, local databases, Playwright traces, screenshots, logs, coverage, and
   editor or OS files.
 
-A clean clone reported 136 tracked files and no forbidden paths. GitHub secret scanning reported
+A clean clone reported 137 tracked files and no forbidden paths. GitHub secret scanning reported
 **0 alerts**.
 
 ## 4. Security review at publication
