@@ -80,7 +80,15 @@ export async function rateLimit(
   windowMs: number,
   options: { admin?: RateLimitAdmin | null } = {},
 ): Promise<RateLimitResult> {
-  if (key.length === 0 || key.length > 200 || limit < 1 || windowMs < 1_000) {
+  if (
+    key.length === 0 ||
+    key.length > 200 ||
+    !Number.isInteger(limit) ||
+    limit < 1 ||
+    limit > 100_000 ||
+    windowMs < 1_000 ||
+    windowMs > 86_400_000
+  ) {
     throw new Error('Invalid rate-limit configuration.');
   }
 

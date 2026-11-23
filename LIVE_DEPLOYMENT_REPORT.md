@@ -4,7 +4,10 @@
 **Branch:** `feat/cloud-dashboard`
 **Base commit (Phase 21.2 checkpoint):** `215a3e2610c7385cdc804b709661fea29df7754e`
 **Phase 21.3:** pre-production hardening implemented locally on `feat/cloud-dashboard`; no deployment.
-**Status:** **NO VERCEL DEPLOYMENT — INITIAL PRODUCTION DEPLOYMENT AWAITING OWNER APPROVAL**
+**Phase 21.4:** hosted schema re-audited read-only; migration 003 revised; no hosted mutation or
+deployment.
+**Status:** **NO VERCEL DEPLOYMENT — HOSTED MIGRATION 003 AND INITIAL PRODUCTION DEPLOYMENT AWAITING
+OWNER APPROVAL**
 **Production URL / preview URL:** none. No production deployment, alias, custom domain, or public
 preview URL exists.
 
@@ -68,24 +71,34 @@ access, tenant-scoped lists, cross-tenant reads/updates/deletes, victim-row pres
 `user_id`, cross-tenant scan/finding attachment, aggregate-view isolation, anonymous denial, and
 cleanup. Both disposable identities were deleted.
 
+Phase 21.4 re-audited the hosted catalog read-only. The 001/002 effects still match: the seven
+expected relations, RLS, 16 policies, triggers, composite foreign keys, and the `security_invoker`
+view. There are zero auth users and zero application rows.
+
+**Critical finding:** hosted `service_role` has `bypassrls` but no `SELECT`/`INSERT`/`UPDATE`/`DELETE`
+on the application tables. A real PostgREST read with the service-role key returned HTTP 403
+`permission denied for table profiles` (42501). Server-side admin paths would fail in a deployment.
+Migration 003 is revised to grant only the DML the application uses, but it is **not applied**.
+
 **Known gap:** `supabase_migrations.schema_migrations` does not exist in the hosted project because
-the migrations were applied manually. Phase 21.3 prepared a safe manual reconciliation SQL
-(`supabase/manual/20261123_reconcile_migration_ledger.sql`) and workflow
-(`supabase/MIGRATION_TRACKING.md`); **no hosted ledger mutation or migration was run**. No unexpected
-migration or production data was found.
+the migrations were applied manually. The reconciliation SQL
+(`supabase/manual/20261123_reconcile_migration_ledger.sql`), the guarded 003 record script
+(`supabase/manual/20261123_record_security_hardening.sql`), and the workflow
+(`supabase/MIGRATION_TRACKING.md`) are prepared and locally validated. **No hosted ledger mutation or
+migration 003 was run.** No unexpected migration or production data was found.
 
 ## 4. Local production verification
 
-| Check                                      | Result                                                          |
-| ------------------------------------------ | --------------------------------------------------------------- |
-| `npm run verify`                           | Exit 0; 15 files / 68 tests; lint, typecheck, builds, web build |
-| `npm audit --audit-level=high`             | 0 vulnerabilities                                               |
-| Secret scan (exact values, tracked/client) | 200 tracked + 19 client static files; 0 hits                    |
-| `npm run build:web`                        | Passed; Proxy recognized as middleware                          |
-| Local `next start`                         | `/api/health` 200; public routes 200                            |
-| axe WCAG A/AA, eight public pages          | 0 violations                                                    |
-| Mobile 390 px, five public pages           | No horizontal overflow                                          |
-| Signed-out `/dashboard`                    | Redirects to `/login?next=%2Fdashboard`                         |
+| Check                                  | Result                                                                        |
+| -------------------------------------- | ----------------------------------------------------------------------------- |
+| `npm run verify`                       | Exit 0; 20 files / 109 tests; lint, typecheck, builds, web build              |
+| `npm audit --audit-level=high`         | 0 vulnerabilities                                                             |
+| Secret scan (project scanner, tracked) | 216 tracked; 0 hardcoded-secret findings; one expected `.env` hygiene finding |
+| `npm run build:web`                    | Passed; Proxy recognized as middleware                                        |
+| Local `next start`                     | `/api/health` 200; public routes 200                                          |
+| axe WCAG A/AA, eight public pages      | 0 violations                                                                  |
+| Mobile 390 px, five public pages       | No horizontal overflow                                                        |
+| Signed-out `/dashboard`                | Redirects to `/login?next=%2Fdashboard`                                       |
 
 The axe pass found two genuine UI issues, which were fixed before the final run:
 
@@ -148,7 +161,10 @@ Only after explicit approval:
   production-server header/browser checks and tests. Deployed CSP/HSTS/cookie behavior is **NOT TESTED**.
 - Rate limits use an atomic Postgres fixed-window function when migration 003 is available, with a
   bounded per-process memory fallback. The DB path is shared across instances; the fallback is not.
-  Migration 003 is prepared locally and **NOT APPLIED** to hosted Supabase.
+  Migration 003 is prepared and locally verified (including 40 real concurrent connections) but
+  **NOT APPLIED** to hosted Supabase.
+- Hosted `service_role` lacks application DML until 003 is applied. No hosted rate-limiter, token
+  cleanup, or service-role REST success is claimed.
 - The GitHub `repo` scope is broad; the application only issues GETs and does not persist the
   provider token.
 - No monitoring, alerting, MFA requirement, audit log, or scheduled cleanup of expired CLI
@@ -168,9 +184,14 @@ Only after explicit approval:
 
 ## 10. Honest conclusion
 
-The compromised OAuth secret was rotated and the old secret deleted. Hosted Supabase remains
-internally consistent, with RLS and grant hardening passing 17/17 after rotation. The local production
-build, tests, dependency audit, secret scan, accessibility pass, and mobile checks pass.
+The compromised OAuth secret was rotated and the old secret deleted. Hosted Supabase 001/002 schema
+effects remain internally consistent, with RLS and grant hardening passing 17/17 in Phase 21.2. Phase
+21.4 found a separate, critical hosted defect: `service_role` lacks application DML, so server-side
+admin paths would fail with 403. Migration 003 is revised and locally verified but not applied.
+
+The local production build, 20-file/109-test suite, dependency audit, secret scan, and a true
+40-connection limiter test pass. Hosted rate limiting, token cleanup, post-003 RLS, and service-role
+REST success are **NOT TESTED**.
 
 The application is **not deployed**. Vercel classifies the initial deployment as Production, and the
 owner has not authorized it. No live URL, GitHub sign-in, CLI upload, deployed dashboard, or

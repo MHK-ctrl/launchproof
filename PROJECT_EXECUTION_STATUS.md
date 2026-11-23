@@ -594,3 +594,45 @@ status labels are in [`PHASE_21_3_REPORT.md`](PHASE_21_3_REPORT.md).
 - Vercel deployment, live OAuth, live CLI, authenticated dashboard CSP, two-account browser
   isolation, and deployed performance remain **NOT TESTED**.
 - The initial Production deployment remains **BLOCKED pending explicit owner authorization**.
+
+## Phase 21.4 — Hosted migration reconciliation and security migration review
+
+Continued on 2026-11-23 from `d15ea3c` on `feat/cloud-dashboard`. This phase re-audited hosted
+Supabase read-only, reviewed migration 003, and validated the limiter/cleanup locally. It did **not**
+mutate hosted Supabase, deploy, merge, tag, release, or publish.
+
+### Hosted read-only audit — VERIFIED — HOSTED
+
+- Exactly the six application tables and `repository_scan_stats` view exist, owned by `postgres`.
+- RLS on all six tables; 16 policies; three triggers; both composite tenant foreign keys; view is
+  `security_invoker=true`.
+- `anon` has no table grants; `authenticated` has no `TRUNCATE`; no auth users and zero application
+  rows.
+- The migration ledger is absent and `rate_limits`/the three new functions are absent.
+
+### Critical defect found — BLOCKED
+
+`service_role` has `bypassrls` but no DML on the application tables. A real PostgREST read with the
+service-role key returned 403 `permission denied for table profiles` (42501). Every server-side
+admin path would fail in a deployment. Migration 003 is revised to grant only the DML the app uses;
+this is **not fixed hosted** until the owner authorizes and applies 003.
+
+### Prepared and locally verified
+
+- Migration 003 now has a preflight, service-role grants, postgres default-ACL hardening, bounded
+  token cleanup (100/call), bounded `cleanup_rate_limits`, and stricter input validation.
+- Reconciliation SQL has stronger guards; a guarded SQL file records 003 only after verifying its
+  objects and grants.
+- `npm run verify`: **20 test files / 109 tests** passed, including migration, limiter, and RLS
+  tests. A temporary PostgreSQL instance accepted 40 concurrent limiter requests with exactly 5
+  allowed and 35 denied. `npm audit --audit-level=high`: 0 vulnerabilities. Secret scan: 0
+  hardcoded-secret findings.
+
+### Blocked / not tested
+
+- Hosted ledger reconciliation, migration 003 application, and the 003 ledger record are **BLOCKED**
+  pending explicit owner authorization. No hosted mutation was performed.
+- Hosted rate-limiter, token-cleanup, service-role REST, and post-003 RLS checks are **NOT TESTED**.
+- Vercel deployment, deployed CSP/OAuth/CLI, and two-account browser isolation remain **NOT TESTED**.
+
+Full evidence and the exact approval request are in [`PHASE_21_4_REPORT.md`](PHASE_21_4_REPORT.md).

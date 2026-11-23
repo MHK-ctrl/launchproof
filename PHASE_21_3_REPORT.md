@@ -215,3 +215,21 @@ operational and deployment-specific:
 
 Until those are done, the correct readiness statement is: **hardened and locally verified, but
 Production authorization remains blocked on hosted migration and deployed-runtime verification.**
+
+## 6. Post-phase correction — Phase 21.4
+
+The Phase 21.4 hosted audit found a defect that this phase's local tests did not model:
+
+- The hosted `service_role` had `bypassrls` but no `SELECT`/`INSERT`/`UPDATE`/`DELETE` on the
+  application tables. A real service-role PostgREST read returned HTTP 403 (42501). The original 003
+  migration created the limiter and cleanup function but did not grant service-role DML on the
+  existing application tables.
+- Migration 003 was revised to add those grants, harden postgres-owned default ACLs, cap
+  `cleanup_cli_tokens` at 100 rows per call, and add bounded `cleanup_rate_limits`.
+- The migration test suite grew from 8 to 12 tests and now covers service-role privileges, future
+  default ACLs, bounded bucket cleanup, and the 105-expired-token batch.
+- Full verification after the correction: 20 test files / 109 tests passed.
+
+This correction does **not** mean migration 003 is applied or hosted-verified. The hosted ledger,
+003 application, hosted limiter/cleanup checks, and post-003 RLS remain **BLOCKED** pending owner
+authorization. See [`PHASE_21_4_REPORT.md`](PHASE_21_4_REPORT.md).

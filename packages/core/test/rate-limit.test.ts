@@ -69,6 +69,12 @@ describe('memory rate limiter', () => {
     await expect(rateLimit('key', 0, 60_000, { admin: null })).rejects.toThrow(
       'Invalid rate-limit configuration',
     );
+    await expect(rateLimit('key', 100_001, 60_000, { admin: null })).rejects.toThrow(
+      'Invalid rate-limit configuration',
+    );
+    await expect(rateLimit('key', 1, 86_400_001, { admin: null })).rejects.toThrow(
+      'Invalid rate-limit configuration',
+    );
   });
 });
 
