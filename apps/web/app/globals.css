@@ -254,6 +254,7 @@ input {
 }
 
 .code-block {
+  white-space: pre;
   background: #070c13;
   border: 1px solid var(--border);
   border-radius: 12px;
