@@ -3,7 +3,9 @@
 The command-line interface for [LaunchProof](../../README.md): evidence-backed verification for
 security, APIs, authorization, browser workflows, accessibility, and performance.
 
-This is part of the LaunchProof monorepo and is not published to npm in the v0.1.0 source preview.
+This is v1.0.0. The CLI is distributed from the LaunchProof repository: the public npm name
+`launchproof` belongs to an unrelated project, so no npm package is published by this project yet.
+Install from a checkout, or from a tarball produced with `npm pack -w launchproof`.
 
 From the repository root:
 

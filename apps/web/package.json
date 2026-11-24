@@ -1,6 +1,6 @@
 {
   "name": "@launchproof/web",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "description": "LaunchProof public website: landing page, simulated demo, report viewer, and documentation.",
   "type": "module",

@@ -1,6 +1,8 @@
 # CLI reference
 
-The binary is `launchproof`. In this source preview, invoke it directly:
+The binary is `launchproof`. The public npm name belongs to an unrelated project, so v1.0.0 is
+distributed from the repository (or an `npm pack -w launchproof` tarball). From the repository root,
+invoke it directly:
 
 ```bash
 node packages/cli/bin/launchproof.mjs --help

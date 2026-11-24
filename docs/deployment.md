@@ -1,5 +1,10 @@
 # Deployment
 
+**Current production:** https://launchproof-rose.vercel.app (Vercel project `launchproof`, team
+`hamza-recallai`, branch `main`). The dashboard uses Supabase project `launchproof`
+(`ypqpqgnviphwxddrpieq`) with GitHub OAuth. See [LIVE_DEPLOYMENT_REPORT.md](../LIVE_DEPLOYMENT_REPORT.md)
+for the deployment ID and validation evidence.
+
 The website is no longer a static Next.js export. Public pages are server-rendered per request for
 the CSP nonce, and the private dashboard, auth callbacks, and APIs require a Node.js server runtime
 and Supabase.

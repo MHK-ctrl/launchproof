@@ -29,7 +29,7 @@ export default async function DashboardLayout({ children }: { children: ReactNod
   return (
     <div className="container py-8">
       <div className="grid gap-7 lg:grid-cols-[220px_minmax(0,1fr)]">
-        <aside className="lg:sticky lg:top-24 lg:self-start">
+        <aside className="min-w-0 lg:sticky lg:top-24 lg:self-start">
           <div className="panel p-4">
             <div className="flex items-center gap-3">
               {avatar ? (

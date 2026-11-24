@@ -2,25 +2,30 @@
 
 ## Status
 
-LaunchProof v0.1.0 is a **source preview**. It has not received an independent security audit. The
-project does not claim to be certified, compliant, or safe for every environment. Use it as a
-verification aid, not as a substitute for code review, threat modeling, or professional testing.
+LaunchProof v1.0.0 is released. It has not received an independent security audit. The project does
+not claim to be certified, compliant, or safe for every environment. Use it as a verification aid,
+not as a substitute for code review, threat modeling, or professional testing.
+
+The website and optional dashboard run at https://launchproof-rose.vercel.app. Tenant isolation, CSRF
+rejection, rate limits, account deletion, and CLI token revocation were tested against that
+deployment in Phase 21.8; GitHub repository consent and a CLI upload against a connected repository
+were not completed because GitHub required owner 2FA.
 
 ## Supported versions
 
-| Version | Supported                                                        |
-| ------- | ---------------------------------------------------------------- |
-| 0.1.x   | Source preview; security fixes are applied on the default branch |
+| Version | Supported                                             |
+| ------- | ----------------------------------------------------- |
+| 1.0.x   | Current release; security fixes are applied on `main` |
+| 0.1.x   | Superseded source preview                             |
 
 ## Reporting a vulnerability
 
 Do **not** open a public issue containing exploit details, credentials, or reproduction data that
 could harm a deployed system.
 
-- Use the repository's private **Security advisory** channel:
+- Use the repository's private **Security advisory** channel (verified enabled):
   https://github.com/MHK-ctrl/launchproof/security/advisories/new
-- If that channel is unavailable, contact the maintainer through the repository profile and request
-  a private channel.
+- For non-sensitive reports, open a regular issue without exploit details or credentials.
 
 Please include:
 
@@ -62,7 +67,9 @@ against untrusted targets.
 - Dependencies are pinned in `package-lock.json`.
 - CI installs with `npm ci` and runs lint, typecheck, tests, and builds.
 - `npm audit` is available inside scans when network checks are enabled, subject to registry data.
-- Optional browser dependencies are peer dependencies, not bundled into the published CLI.
+- Optional browser dependencies are peer dependencies, not bundled into the CLI tarball.
+- The CLI is distributed from this repository because the public npm name `launchproof` belongs to
+  an unrelated project; no npm package is published by this project.
 
 ## Data handling
 

@@ -4,6 +4,47 @@ All notable changes to LaunchProof are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project intends to follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.0.0] — 2026-11-24
+
+First supported release. The CLI and verification engine are unchanged in capability from the
+0.1.0 preview; this release adds the public website, the hosted dashboard, release documentation,
+privacy and terms pages, and production validation.
+
+### Added
+
+- Hosted website and dashboard at https://launchproof-rose.vercel.app, deployed from `main`.
+- GitHub sign-in through Supabase, private dashboard, repository connection, scan history, findings,
+  and authorized JSON report downloads.
+- CLI cloud workflow: `login` (loopback + PKCE), `status`, `repositories`, explicit `--upload`,
+  `logout`, and token revocation. Uploads are sanitized summaries only.
+- Public pages for privacy, terms, and contact/responsible disclosure, plus footer and docs links.
+- Release documentation: refreshed README, docs, changelog, launch materials, and a final completion
+  report.
+- Regression coverage for dashboard deep-link redirects and `Secure` session cookies on HTTPS.
+
+### Security
+
+- Tenant isolation verified against production with two disposable identities at the API and RLS
+  layers; cross-tenant reads, updates, uploads, and downloads were denied.
+- CSRF/origin checks reject foreign or missing `Origin` on every authenticated state-changing route.
+- Live per-user rate limiting verified (download limit returns `429` with `Retry-After`).
+- Account deletion verified for synthetic accounts: every tenant row removed, Auth user gone, stale
+  sessions denied.
+- Session cookies are marked `Secure` on HTTPS; they remain client-managed and thus not `HttpOnly`.
+- The CSP keeps a per-request nonce with `strict-dynamic`; private responses stay `no-store` and
+  `noindex`.
+
+### Known limitations
+
+- GitHub repository consent and a CLI upload against a connected repository were not exercised in
+  production because GitHub required owner 2FA during validation. No partial GitHub state exists.
+- The npm name `launchproof` is owned by an unrelated project; the CLI installs from the repository
+  or an `npm pack` tarball until a scoped package name is chosen.
+- CLI "revoke all" was not exercised; tokens were revoked individually.
+- No external security audit, penetration test, or certification has been performed.
+- No paid monitoring, alerting, or automated database backups are configured.
+- Some automated checks are heuristic and may be wrong; read the report limitations.
+
 ## [0.1.0] — 2026-11-23 — source preview (unreleased)
 
 The first public source preview. Not published to npm at the time of writing.

@@ -4,18 +4,24 @@
 
 **Build with AI. Test like a professional engineering team. Ship with evidence.**
 
+**Website:** [launchproof-rose.vercel.app](https://launchproof-rose.vercel.app) · **Docs:**
+[launchproof-rose.vercel.app/docs](https://launchproof-rose.vercel.app/docs) · **Dashboard:**
+[launchproof-rose.vercel.app/login](https://launchproof-rose.vercel.app/login)
+
 LaunchProof is an open-source, local-first verification CLI for applications built with AI. It
 checks security posture, secrets, API contracts, object-level authorization, real browser
 workflows, accessibility, and performance—then writes evidence you can inspect instead of a
 badge you have to trust.
 
-> **Status: v0.1.0 source preview.** The source is public at
-> [github.com/MHK-ctrl/launchproof](https://github.com/MHK-ctrl/launchproof). The package is **not
-> published to npm**. The optional cloud dashboard is implemented and backed by a hosted Supabase
-> database whose RLS passed 17/17 adversarial checks after the OAuth secret was rotated. It is **not
-> deployed**: Vercel requires a new project's first deployment to be Production, and the initial
-> Production deployment is awaiting explicit owner authorization. Real GitHub OAuth and CLI upload
-> remain untested. The server-rendered public pages remain available without an account. Read
+> **Status: v1.0.0.** The source is public at
+> [github.com/MHK-ctrl/launchproof](https://github.com/MHK-ctrl/launchproof) and the website and
+> optional cloud dashboard are live at [launchproof-rose.vercel.app](https://launchproof-rose.vercel.app).
+> The public npm name `launchproof` belongs to an unrelated project, so the CLI is distributed from
+> this repository (or an `npm pack` tarball) until a scoped npm package is published; do not install
+> the similarly named registry package expecting this project. Tenant isolation, CSRF rejection,
+> rate limits, account deletion, GitHub sign-in, and CLI login/revocation were tested against
+> production in Phase 21.8. GitHub repository consent and a CLI upload against a connected
+> repository remain unverified because GitHub required owner 2FA. Read
 > [limitations](docs/limitations.md) before relying on a result.
 
 ## Why
@@ -64,6 +70,10 @@ one Chromium instance, bounded response bodies, and two Vitest workers.
 
 ## Quick start (from source)
 
+The CLI is not installable from the public npm registry under the name `launchproof` (that name is
+an unrelated package). Clone and build it locally, or install a tarball built with
+`npm pack -w launchproof`.
+
 ```bash
 git clone https://github.com/MHK-ctrl/launchproof.git
 cd LaunchProof
@@ -108,9 +118,10 @@ The included [sample report](apps/web/public/sample-report.html) is the real out
 
 ### Optional cloud dashboard and CLI upload
 
-The public pages still build without any cloud configuration. The private dashboard and CLI upload
-require a Supabase project and GitHub OAuth app; see
-[Cloud dashboard setup](CLOUD_DASHBOARD_SETUP.md). Local scans and local reports never require them.
+The hosted dashboard at [launchproof-rose.vercel.app](https://launchproof-rose.vercel.app) is
+optional and gets only the sanitized summaries you explicitly upload. Local scans and local reports
+never require it. To run the cloud stack yourself, see
+[Cloud dashboard setup](CLOUD_DASHBOARD_SETUP.md).
 
 Once the web app and database are configured:
 
@@ -280,7 +291,8 @@ docs               Architecture, CLI, configuration, testing, security, privacy,
 - [Deployment readiness](DEPLOYMENT_READINESS.md)
 - [GitHub publication checklist](GITHUB_PUBLICATION_CHECKLIST.md)
 - [GitHub publication report](GITHUB_PUBLICATION_REPORT.md)
-- [v0.1.0 release notes draft](V0.1.0_RELEASE_NOTES_DRAFT.md)
+- [Changelog](CHANGELOG.md)
+- [Launch materials](launch/)
 
 ## What has actually been tested
 
@@ -292,9 +304,13 @@ version, help, init, config, and invalid flags.
 The cloud suite adds PGlite tests for the migration's RLS policies and composite foreign keys, plus
 sanitization tests for the CLI payload and server normalizer. The same migration and grant hardening
 were applied to a hosted Supabase project, where a two-identity PostgREST/RLS run passed 17/17
-adversarial checks. Real GitHub OAuth, repository connection, CLI login, upload, deployed dashboard
-isolation, and deployment remain unverified. See
-[PROJECT_EXECUTION_STATUS.md](PROJECT_EXECUTION_STATUS.md) and
+adversarial checks. Phase 21.8 then tested the deployed dashboard with two synthetic accounts:
+cross-tenant reads, updates, uploads, and downloads were denied at both the API and RLS layers, live
+rate limits and CSRF rejection worked, and account deletion removed every row. GitHub sign-in, CLI
+login/status/logout, and sign-out are verified in production; GitHub repository consent and a CLI
+upload against a connected repository remain unverified because GitHub required owner 2FA. See
+[PROJECT_EXECUTION_STATUS.md](PROJECT_EXECUTION_STATUS.md),
+[PHASE_21_8_REPORT.md](PHASE_21_8_REPORT.md), and
 [LIVE_DEPLOYMENT_REPORT.md](LIVE_DEPLOYMENT_REPORT.md).
 
 It has **not** been tested against a large third-party production system, a deployed dashboard

@@ -62,7 +62,10 @@ This page is deliberately blunt. A verification tool is only useful if its blind
 
 ## Operational
 
-- The package is not published to npm as of v0.1.0; installation is from source.
-- The website deployment configuration is prepared but not deployed by this repository.
+- The public npm name `launchproof` belongs to an unrelated project; v1.0.0 installs from the
+  repository or an `npm pack` tarball until a scoped package is published.
+- The website and dashboard are deployed at https://launchproof-rose.vercel.app. GitHub repository
+  consent and a CLI upload against a connected repository are unverified because GitHub required
+  owner 2FA during validation.
 - Windows has not been the primary test platform; bash-compatible commands are used in docs and CI.
 - LaunchProof cannot verify that you have legal authorization to test a target.

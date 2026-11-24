@@ -13,7 +13,7 @@ export function SiteFooter() {
             honest about what was not tested.
           </p>
           <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.15em] text-[#8499b0]">
-            MIT · v0.1.0 source preview
+            MIT · v1.0.0
           </p>
         </div>
         <div>
@@ -66,6 +66,21 @@ export function SiteFooter() {
             <li>
               <Link href="/about" className="hover:text-[#e8eff9]">
                 About
+              </Link>
+            </li>
+            <li>
+              <Link href="/privacy" className="hover:text-[#e8eff9]">
+                Privacy
+              </Link>
+            </li>
+            <li>
+              <Link href="/terms" className="hover:text-[#e8eff9]">
+                Terms
+              </Link>
+            </li>
+            <li>
+              <Link href="/contact" className="hover:text-[#e8eff9]">
+                Contact
               </Link>
             </li>
             <li>
