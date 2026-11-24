@@ -1,6 +1,6 @@
 # Live Deployment Report
 
-**Date:** 2026-11-23
+**Date:** 2026-11-24
 **Branch:** `feat/cloud-dashboard`
 **Base commit (Phase 21.2 checkpoint):** `215a3e2610c7385cdc804b709661fea29df7754e`
 **Phase 21.3:** pre-production hardening implemented locally on `feat/cloud-dashboard`; no deployment.
@@ -10,12 +10,16 @@ deployment.
 60/60 low-volume synthetic hosted checks completed; no deployment.
 **Phase 21.6:** final pre-deployment audit completed read-only; local verification and dependency
 audit pass; hosted state re-checked read-only; no deployment blockers found; no deployment.
-**Status:** **NO VERCEL DEPLOYMENT — INITIAL PRODUCTION DEPLOYMENT AWAITING OWNER APPROVAL**
-**Production URL / preview URL:** none. No production deployment, alias, custom domain, or public
-preview URL exists.
+**Phase 21.7:** authorized initial Production deployment completed; `APP_BASE_URL` and Supabase Auth
+URLs configured; initial live validation passed.
+**Status:** **DEPLOYED — INITIAL VALIDATION PASSED**
+**Production URL:** https://launchproof-rose.vercel.app (deployment
+`dpl_HgJwEytzp1F3Z3BNvTv9dn2phMjz`, commit `73912cf`). No custom domain or public preview URL is
+announced; deployment aliases sit behind Vercel Authentication.
 
 This report separates hosted evidence from deployed-runtime evidence. The Supabase database and OAuth
-provider are real hosted services. The Next.js application is not deployed.
+provider are real hosted services, and the Next.js application is now deployed to Vercel Production.
+Sections describing the pre-deployment state (notably 5 and 11) are retained as historical records.
 
 ## 1. Current environment
 
@@ -25,8 +29,9 @@ provider are real hosted services. The Next.js application is not deployed.
 - Vercel CLI authenticated as `mdhamzakhan2k6-4663` (team `hamza-recallai`). No other account was
   used.
 - Vercel project `launchproof` (`prj_OMc6CDEwAcGppuZFhEqa3j0X95u3`) is linked from the repository
-  root. Root directory `.`, framework Next.js, install `npm ci`, build `npm run build:web`, Git
-  repository not connected, **no deployments**.
+  root. Root directory `.`, framework Next.js, install `npm ci`, build `npm run build:web`, framework
+  Output Directory override `apps/web/.next`, Git repository not connected, **Production deployed**
+  (`dpl_HgJwEytzp1F3Z3BNvTv9dn2phMjz`, Ready).
 - Hosted Supabase project `launchproof` (`ypqpqgnviphwxddrpieq`), organization `LaunchProof`
   (`hhaljmwqphlagxetcccs`), Tokyo, free plan.
 - Local `.env` is gitignored with mode `0600`. Values are not recorded in this report.
@@ -36,8 +41,8 @@ provider are real hosted services. The Next.js application is not deployed.
   - `APP_BASE_URL`: **unset** until a real deployment origin exists. This is not a blocker:
     `appBaseUrl()` falls back to `VERCEL_PROJECT_PRODUCTION_URL`, which Vercel documents as always
     set at build and runtime. The first-deployment plan sets it explicitly and redeploys.
-- Supabase Site URL remains `http://127.0.0.1:3000`; only
-  `http://127.0.0.1:3000/auth/callback` is allowed. No production callback has been added.
+- Supabase Site URL is `https://launchproof-rose.vercel.app`; the redirect allowlist contains that
+  origin's `/auth/callback` plus the retained `http://127.0.0.1:3000/auth/callback`. No wildcards.
 
 ## 2. OAuth secret rotation — completed
 
@@ -122,7 +127,7 @@ The axe pass found two genuine UI issues, which were fixed before the final run:
 Keyboard focus on `/` starts with the skip link, then the logo link and mobile menu button, then page
 actions. This is a targeted accessibility check, not a full assistive-technology audit.
 
-## 5. Why no deployment exists
+## 5. Why the first deployment required Production (historical)
 
 Vercel documents and enforces that the first deployment of a new project is assigned to Production.
 A Preview-only first deployment is not supported. The earlier attempt was refused:
@@ -132,10 +137,8 @@ A Preview-only first deployment is not supported. The earlier attempt was refuse
 
 A temporary deployment would also be Production and would expire after one hour. No temporary
 deployment, alternate project, alternate account, alias, or undocumented workaround was used.
-`vercel ls launchproof` reports no deployments.
-
-The first Production deployment requires explicit owner authorization. That authorization has not
-been given.
+`vercel ls launchproof` reported no deployments at that time. The required Production authorization
+was granted and the deployment completed in Phase 21.7.
 
 ## 6. Deployment approval gate
 
@@ -209,9 +212,9 @@ The local production build, 20-file/109-test suite, dependency audit, secret sca
 40-connection local limiter test pass. Hosted concurrency/load, the `supabase` CLI dry-run, live
 OAuth, live CLI, deployed CSP/HSTS/cookies, and two-browser isolation remain **NOT TESTED**.
 
-The application is **not deployed**. Vercel classifies the initial deployment as Production, and the
-owner has not authorized it. No live URL, GitHub sign-in, CLI upload, deployed dashboard, or
-two-account browser test is claimed. Database readiness does not authorize deployment.
+At the Phase 21.6 checkpoint the application was **not deployed**. Phase 21.7 subsequently deployed
+it with owner authorization; GitHub sign-in, the deployed dashboard, and CLI login/status/logout are
+now verified, while CLI upload and two-account browser isolation remain unverified.
 
 ## 11. Phase 21.6 final pre-deployment audit
 
@@ -234,9 +237,9 @@ phase (no read-only management credential in session) and no SQL has run since t
 verification.
 
 **Configuration:** Vercel project root `.`, Next.js 16.4.6, install `npm ci`, build
-`npm run build:web`, Node.js `26.x`, Git not connected, no deployments, region `iad1`. Production
-and Preview have the four required variables (names/scopes only; values not read). `APP_BASE_URL` is
-unset and safe for the first deployment.
+`npm run build:web`, Node.js `26.x`, Git not connected, no deployments at that checkpoint, region
+`iad1`. Production and Preview had the four required variables (names/scopes only; values not read).
+`APP_BASE_URL` was unset and safe for the first deployment.
 
 **Blockers:** none found in code, tests, build, lockfile, or project configuration. Two configuration
 steps are required after the first deployment produces the origin: set `APP_BASE_URL` and redeploy;
@@ -245,3 +248,37 @@ not defects.
 
 **Recommendation:** READY FOR INITIAL DEPLOYMENT AUTHORIZATION. Full detail and the post-deployment
 test order are in [`PHASE_21_6_REPORT.md`](PHASE_21_6_REPORT.md).
+
+## 12. Phase 21.7 initial Production deployment and live validation
+
+**Commit:** `73912cf2d6d8aaf2d65c83cd89baf6079d92c274` on `feat/cloud-dashboard`, unchanged
+throughout. No merge, tag, release, publish, OAuth secret change, or database reset.
+
+**Result:** deployed and initially validated.
+
+- **Production origin:** https://launchproof-rose.vercel.app (canonical Production domain in project
+  settings). **Deployment:** `dpl_HgJwEytzp1F3Z3BNvTv9dn2phMjz`, target Production, Ready, 40 s.
+  The alias `launchproof-hamza-recallai.vercel.app` serves the same build behind Vercel
+  Authentication, so it is not used as the public origin.
+- **Build fix (settings only):** the first two attempts failed because Vercel looked for `.next` at
+  the repository root while Next.js writes it to `apps/web/.next`. Root Directory was returned to the
+  repository root; framework Output Directory was overridden to `apps/web/.next`; install `npm ci`
+  and build `npm run build:web` were kept. No source file changed.
+- **`APP_BASE_URL`:** added for Production only (`https://launchproof-rose.vercel.app`, Config) and
+  redeployed; production `Location` headers confirm the value is in use.
+- **Supabase Auth:** Site URL is the production origin; the redirect allowlist has exactly the
+  production `/auth/callback` and the retained localhost callback. GitHub OAuth callback unchanged.
+- **Verified live:** all public routes and `/api/health` return 200; signed-out dashboard redirects to
+  `/login?next=`; `/api/account`, `/api/repositories`, `/api/scans`, and both CLI endpoints return
+  401 without credentials; invalid `/auth/callback` codes redirect to
+  `/auth/error?reason=exchange_failed`; CSP nonce, HSTS, `X-Frame-Options: DENY`, `nosniff`,
+  `Referrer-Policy`, `Permissions-Policy`, and private `no-store`/`noindex` are present; GitHub
+  sign-in, dashboard pages, authenticated reads, invalid-upload rejection (400), CLI
+  login/status/logout, and sign-out all behaved correctly.
+- **Still not tested:** repository connect/consent and provider-token exchange, CLI
+  upload/download/revoke-all, account deletion, two-account isolation, live rate limits, performance
+  and load, mobile/accessibility, and runtime-log review.
+- **Open observations:** signed-out `/dashboard/settings` redirects with `next=/dashboard`; Supabase
+  session cookies are client-managed (`HttpOnly=false`, `Secure=false`) and rely on the CSP.
+
+Full detail, evidence, and the untested-area list: [`PHASE_21_7_REPORT.md`](PHASE_21_7_REPORT.md).

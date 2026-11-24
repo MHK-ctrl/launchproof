@@ -217,8 +217,15 @@ CLI, and API routes. Verify them on the deployed host, not just locally.
 Steps, after owner approval:
 
 1. Confirm the exact commit, branch, clean worktree, and successful production build.
-2. Confirm the linked Vercel project uses the repository root, not `apps/web`, because this is an npm
-   workspace. Account: `mdhamzakhan2k6-4663`, team `hamza-recallai`.
+2. Confirm the linked Vercel project uses the repository root as **Root Directory** (this is an npm
+   workspace), and that **Project Settings -> Build and Deployment -> Framework Settings** has
+   **Override Output Directory** enabled with `apps/web/.next`, install `npm ci`, and build
+   `npm run build:web`. Without the output-directory override Vercel fails with
+   `[NEXT_OUTPUT_DIR_MISSING]` because Next.js writes into `apps/web/.next`. Do not point Root
+   Directory at `apps/web` while the repository-root `vercel.json` still supplies `npm run
+build:web`; that command would run inside `apps/web` and fail with
+   `[BUILD_UTILS_SPAWN_1]` (both failures occurred in Phase 21.7). Account:
+   `mdhamzakhan2k6-4663`, team `hamza-recallai`.
 3. In **Project Settings -> Environment Variables**, confirm the four required values are present in
    Production as well as Preview: `NEXT_PUBLIC_SUPABASE_URL`,
    `NEXT_PUBLIC_SUPABASE_ANON_KEY` (Config), `SUPABASE_SERVICE_ROLE_KEY`, and
@@ -229,7 +236,9 @@ Steps, after owner approval:
    creating a production deployment without explicit owner approval; obtain approval for that first
    Production deployment or use a host/plan that supports a preview-only first deployment.
 5. Create the initial Production deployment and record the real URL, commit, branch, and build log.
-   Do not invent a hostname.
+   Do not invent a hostname. Vercel lists the project's actual Production domain under
+   **Settings -> Domains**; use that domain as the origin (Phase 21.7: `launchproof-rose.vercel.app`).
+   Deployment-specific aliases may sit behind Vercel Authentication and are not the public origin.
 6. Set `APP_BASE_URL` to the exact production origin and redeploy, because the value is read at
    runtime.
 7. Add exactly `https://<production-origin>/auth/callback` to Supabase's redirect allowlist. The

@@ -4,7 +4,7 @@ Persistent execution checklist for the v0.1.0 source preview. Statuses are updat
 corresponding command was actually run. This file distinguishes implemented, tested-passed,
 not-tested, and blocked work.
 
-Last updated: 2026-11-23
+Last updated: 2026-11-24
 
 ## Release summary
 
@@ -14,14 +14,16 @@ tests, documentation, CI, server-rendered public pages, and an optional server-r
 
 The source tree has completed the phase 18 release-readiness audit and is published as a public
 source repository at https://github.com/MHK-ctrl/launchproof. Hosted CI passes on Node.js 22 and 24.
-The public site and the cloud dashboard are **not** deployed, no npm package is published, and no
-GitHub release or tag exists. No external security audit has been performed. The cloud schema has
+The public site and the cloud dashboard are deployed in **Production** on Vercel at
+https://launchproof-rose.vercel.app (Phase 21.7, commit `73912cf`). No npm package is published and
+no GitHub release or tag exists. No external security audit has been performed. The cloud schema has
 been applied to a hosted Supabase project and the hosted RLS suite passed 17/17 checks with two
-disposable identities. The Supabase GitHub provider is configured, but real GitHub OAuth has not
-been exercised, no live CLI upload has run, and no Vercel deployment exists because Vercel requires
-a new project's first deployment to be Production, which is not authorized. The compromised GitHub
-OAuth client secret was rotated in Phase 21.2, the old secret was deleted, and the Supabase provider
-was updated without recording the new value. No large third-party application has been validated.
+disposable identities. The Supabase GitHub provider is configured, and real GitHub OAuth sign-in,
+the private dashboard, and CLI login/status/revocation have been exercised against the production
+origin. Repository connect/consent and live CLI upload remain untested, as does two-account
+isolation. The compromised GitHub OAuth client secret was rotated in Phase 21.2, the old secret was
+deleted, and the Supabase provider was updated without recording the new value. No large third-party
+application has been validated.
 
 ## Environment
 
@@ -30,7 +32,8 @@ was updated without recording the new value. No large third-party application ha
 - Project root: `LaunchProof/`
 - GitHub CLI authenticated as `MHK-ctrl`; public repository published and CI verified
 - Vercel CLI authenticated as `mdhamzakhan2k6-4663` (team `hamza-recallai`); project `launchproof`
-  is linked but has no deployments; Preview and Production variables configured
+  is linked and deployed to Production at `https://launchproof-rose.vercel.app`; Preview and
+  Production variables configured, plus Production `APP_BASE_URL`
 - Hosted Supabase project `launchproof` (`ypqpqgnviphwxddrpieq`); migrations applied manually; local
   `.env` configured and gitignored; no auth users or tenant rows
 - No system Chrome; Playwright Chromium headless shell installed for tests
@@ -56,7 +59,7 @@ was updated without recording the new value. No large third-party application ha
 | 14. Website                     | Done locally | Public pages server-rendered; optional dashboard is server-rendered; not deployed    |
 | 15. Documentation + CI          | Done         | README, guides, policies, templates, workflow, deployment configs                    |
 | 16. GitHub publication          | Done         | Public repository `MHK-ctrl/launchproof`; hosted CI green; no release tag yet        |
-| 17. Live deployment             | Blocked      | Vercel first deployment is Production; preview-only deployment is not possible       |
+| 17. Live deployment             | Done         | Production deployed in Phase 21.7; initial live validation passed                    |
 | 18. Final release audit         | Done         | Security, scanner, browser, report, website, docs, CI, deps verified; CONDITIONAL GO |
 | 19. Public GitHub publication   | Done         | 137 files published; Node 22/24 CI passed; repository metadata and clone verified    |
 | 20. Cloud dashboard             | Done locally | Auth, repo connect, private scans, CLI upload, RLS tests; **not deployed**           |
@@ -66,6 +69,7 @@ was updated without recording the new value. No large third-party application ha
 | 21.4 Hosted audit + 003 review  | Done         | Hosted read-only audit; service-role 403 defect found and fixed in migration 003     |
 | 21.5 Hosted apply + validation  | Done         | Ledger 001/002/003; 60/60 synthetic hosted checks; zero rows/users left behind       |
 | 21.6 Final pre-deployment audit | Ready        | Local verify/audit pass; hosted read-only re-check matches; no deployment blockers   |
+| 21.7 Production deploy + tests  | Done         | Vercel Production live; auth, dashboard, CLI login/status, headers, gating verified  |
 
 ## Initial implementation verification (historical)
 
@@ -756,3 +760,42 @@ modify OAuth secrets, or mutate the hosted database.
 
 Full evidence, the exact deployment plan, and the post-deployment test plan are in
 [`PHASE_21_6_REPORT.md`](PHASE_21_6_REPORT.md).
+
+## Phase 21.7 — Initial Vercel Production deployment and first live validation
+
+Authorized and completed on `feat/cloud-dashboard` at
+`73912cf2d6d8aaf2d65c83cd89baf6079d92c274`. No code changed; only Vercel build settings,
+`APP_BASE_URL`, Supabase Auth URL configuration, and documentation were updated.
+
+- **Production:** https://launchproof-rose.vercel.app — deployment
+  `dpl_HgJwEytzp1F3Z3BNvTv9dn2phMjz`, target Production, status Ready, 40 s build. The deployment
+  alias `launchproof-hamza-recallai.vercel.app` serves the same build behind Vercel Authentication.
+- **Build configuration:** Root Directory remains the repository root; framework Output Directory
+  overridden to `apps/web/.next`; install `npm ci`; build `npm run build:web`; Node.js 26.x; region
+  `iad1`; Git integration not connected.
+- **Deployment attempts:** two failed attempts (`NEXT_OUTPUT_DIR_MISSING` at 34 s, then
+  `BUILD_UTILS_SPAWN_1` at 13 s) were resolved with Vercel project settings only, without touching
+  the authorized commit. Two subsequent deployments were Ready.
+- **`APP_BASE_URL`:** set to `https://launchproof-rose.vercel.app` for Production (Config type) and
+  redeployed. Preview remained unchanged.
+- **Supabase:** Site URL is now the production origin; redirect allowlist has exactly the retained
+  localhost callback plus `https://launchproof-rose.vercel.app/auth/callback`. No wildcard. GitHub
+  OAuth callback unchanged; no OAuth secret change.
+- **Verified in Production:** HTTPS/200 and canonical domain; all public routes and `/api/health`;
+  signed-out dashboard redirects; `401` on all private APIs; sanitized `/auth/callback` error;
+  CSP nonce, HSTS, `X-Frame-Options`, `nosniff`, `Referrer-Policy`, `Permissions-Policy`, `COOP`,
+  and private `no-store`/`noindex`; GitHub sign-in; dashboard Overview/Repositories/Scans/Settings/
+  Account; authenticated account/repository/scan reads; invalid upload `400`; CLI login (loopback +
+  PKCE), `status`, and `logout`; CLI upload correctly refused with no connected repository; sign-out.
+- **Not tested:** two-account isolation, repository connect/consent and provider-token exchange,
+  CLI upload/download/revoke-all, account deletion, live rate limits, deployment performance/load,
+  mobile and accessibility, and runtime-log review.
+- **Observations (open, non-blocking):** signed-out `/dashboard/settings` redirect keeps
+  `next=/dashboard`; Supabase session cookies are client-managed (`HttpOnly=false`, `Secure=false`)
+  and rely on the CSP for mitigation.
+- **Cleanup:** temporary CLI config directory and synthetic scan fixtures were deleted; the CLI token
+  was revoked server-side; the browser session was signed out; the worktree stayed clean.
+- **Restrictions honored:** no merge to `main`, tag, release, publish, database reset, secret
+  exposure, real-user data, load testing, Docker, or deployment of a different commit.
+
+Full evidence and the untested-area list are in [`PHASE_21_7_REPORT.md`](PHASE_21_7_REPORT.md).

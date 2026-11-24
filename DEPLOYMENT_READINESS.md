@@ -1,15 +1,13 @@
 # Deployment Readiness — LaunchProof Website and Cloud Dashboard
 
-**Status:** implemented locally; hosted 001/002/003 schema, ledger, grants, and RLS verified hosted;
-60/60 low-volume synthetic hosted checks passed; the service-role admin path is unblocked; OAuth
-secret rotated; Phase 21.6 final pre-deployment audit found **no deployment blockers**; **not
-deployed**.
+**Status:** implemented and **deployed to Vercel Production**; hosted 001/002/003 schema, ledger,
+grants, and RLS verified hosted; 60/60 low-volume synthetic hosted checks passed; the service-role
+admin path is unblocked; OAuth secret rotated; Phase 21.7 initial live validation passed.
 **Recommended host:** Vercel with the Next.js server runtime.
 **Required services:** Supabase (Auth + PostgreSQL) and a GitHub OAuth App (configured).
-**Deployment gate:** Vercel requires a new project's first deployment to be Production; a Preview-only
-first deployment is not possible. The initial Production deployment is **BLOCKED pending explicit
-owner authorization**.
-**Production URL / preview URL:** none. Do not announce one until a real deployment has been verified.
+**Deployment gate:** closed in Phase 21.7 — the authorized Production deployment is live.
+**Production URL:** https://launchproof-rose.vercel.app (deployment
+`dpl_HgJwEytzp1F3Z3BNvTv9dn2phMjz`). No custom domain is configured; no preview URL is announced.
 
 > The public marketing pages can be hosted without a database; the private dashboard and CLI upload
 > require Supabase. This document distinguishes verified hosted evidence from untested deployed
@@ -43,20 +41,25 @@ owner authorization**.
   tests; `npm audit` 0 vulnerabilities; lockfile in sync) and re-checked the hosted state read-only:
   service-role 200 on all eight relations with zero rows, anon 401 on all eight, and the 003 limiter
   and cleanup RPCs exposed. No deployment blocker was found.
+- Phase 21.7 deployed that commit to Production and passed initial live validation: public routes and
+  `/api/health`, signed-out redirects, `401` on private APIs, CSP/headers, Supabase Auth URLs, GitHub
+  sign-in, the private dashboard, authenticated reads, CLI login/status/revocation, and sign-out.
+- Vercel project settings now include the framework Output Directory override `apps/web/.next` at
+  repository-root scope, and `APP_BASE_URL` is set for Production.
 
 ## 2. What is not ready
 
-- No deployed application runtime. Vercel's first deployment for this project is Production, and
-  production is not authorized.
-- Real GitHub sign-in, consent, provider-token exchange, and sign-out are not tested because no
-  application origin exists.
-- No production `APP_BASE_URL` or Supabase production callback; inventing either before the host
-  exists would be inaccurate.
-- No live CLI login, upload, download, revocation, or account deletion test.
-- No deployed two-account browser isolation test; only hosted database RLS and local PGlite tests.
-- No deployed header, cookie, CSP, HSTS, or performance measurement. CSP and security headers are
-  implemented locally and verified by local production-server checks and tests; deployed runtime
-  behavior is **NOT TESTED**.
+- Repository connect/consent, the encrypted provider-token cookie, and repository metadata fetch are
+  **NOT TESTED** in Production (require installing/authorizing the GitHub App and selecting a repo).
+- CLI `scan --upload`, report download, and "revoke all" are **NOT TESTED** (upload correctly refused
+  with no connected repository); CLI login, status, and logout are verified in Production.
+- Two-account browser/API isolation against production is **NOT TESTED**; only hosted database RLS,
+  local PGlite, and the Phase 21.5 synthetic suite cover isolation.
+- Account deletion, live rate-limit enforcement, authenticated cross-origin rejection, deployment
+  performance/load, mobile layout, accessibility, and runtime-log review are **NOT TESTED**.
+- No custom domain, monitoring, alerting, audit logging, or MFA requirement is configured.
+- Supabase session cookies are client-managed (`HttpOnly=false`, `Secure=false`) and rely on the CSP
+  for mitigation; cookie-option hardening is a follow-up.
 - GitHub Actions/OIDC upload is not implemented.
 - No custom domain, monitoring, alerting, audit logging, MFA requirement, or scheduled cleanup job
   for expired CLI authorization rows.
@@ -88,10 +91,10 @@ owner authorization**.
   ACLs. No scheduled cleanup job is configured.
 - GitHub provider is enabled with the matching OAuth App client ID and the callback
   `https://ypqpqgnviphwxddrpieq.supabase.co/auth/v1/callback`. The secret was rotated in Phase 21.2.
-- Site URL remains `http://127.0.0.1:3000`; redirect allowlist contains only
-  `http://127.0.0.1:3000/auth/callback`.
-- After the production origin exists, add only `https://<production-origin>/auth/callback` and update
-  the Site URL if appropriate; do not use wildcard hosts.
+- Site URL is `https://launchproof-rose.vercel.app`; the redirect allowlist contains exactly
+  `http://127.0.0.1:3000/auth/callback` (retained for local development) and
+  `https://launchproof-rose.vercel.app/auth/callback`. No wildcard hosts.
+- To add another origin later, add its exact `/auth/callback` path; do not use wildcards.
 - Record the project URL, anon key, and service-role key outside git.
 
 ### GitHub OAuth App
@@ -115,13 +118,13 @@ LAUNCHPROOF_ENCRYPTION_KEY=<base64-32-byte-key>
 
 Current Vercel state, names and scopes only (Phase 21.6; no value was read):
 
-| Variable                        | Required    | Preview             | Production          | Validation                                                                                                                                                                                                                 |
-| ------------------------------- | ----------- | ------------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`      | Yes         | Configured (Config) | Configured (Config) | Present; public.                                                                                                                                                                                                           |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes         | Configured (Config) | Configured (Config) | Present; public by design.                                                                                                                                                                                                 |
-| `SUPABASE_SERVICE_ROLE_KEY`     | Yes         | Configured (Secret) | Configured (Secret) | Present; server-only, value hidden.                                                                                                                                                                                        |
-| `LAUNCHPROOF_ENCRYPTION_KEY`    | Yes         | Configured (Secret) | Configured (Secret) | Present; must decode to 32 bytes, validated on first GitHub connect after deployment.                                                                                                                                      |
-| `APP_BASE_URL`                  | Recommended | Not set             | Not set             | Safe for the first deployment: `appBaseUrl()` falls back to `VERCEL_PROJECT_PRODUCTION_URL` (always set at build and runtime). Set it explicitly to the real origin immediately after the first deployment, then redeploy. |
+| Variable                        | Required    | Preview             | Production                                     | Validation                                                                                                                           |
+| ------------------------------- | ----------- | ------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Yes         | Configured (Config) | Configured (Config)                            | Present; public.                                                                                                                     |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes         | Configured (Config) | Configured (Config)                            | Present; public by design.                                                                                                           |
+| `SUPABASE_SERVICE_ROLE_KEY`     | Yes         | Configured (Secret) | Configured (Secret)                            | Present; server-only, value hidden.                                                                                                  |
+| `LAUNCHPROOF_ENCRYPTION_KEY`    | Yes         | Configured (Secret) | Configured (Secret)                            | Present; must decode to 32 bytes, validated on first GitHub connect after deployment.                                                |
+| `APP_BASE_URL`                  | Recommended | Not set             | `https://launchproof-rose.vercel.app` (Config) | Set in Phase 21.7 and verified by production redirect `Location` values. Preview keeps the `VERCEL_PROJECT_PRODUCTION_URL` fallback. |
 
 Generate the encryption key with:
 
@@ -247,25 +250,20 @@ part of this step without separate approval.
 
 ## 9. Approval boundary
 
-The database gate is complete; one deployment approval remains.
+Both gates are complete.
 
 **Database gate — COMPLETED in Phase 21.5:**
 
 The three reviewed hosted SQL operations ran in order, the ledger contains 001/002/003, and the hosted
 synthetic suite passed 60/60 checks with verified teardown.
 
-**Deployment gate — OPEN:**
+**Deployment gate — COMPLETED in Phase 21.7:**
 
-> **Authorize the initial LaunchProof Production deployment to Vercel.**
-
-The Phase 21.6 audit found no genuine deployment blocker. After the first deployment produces the
-production origin, set `APP_BASE_URL` and redeploy, then update the Supabase Site URL and add
-exactly `https://<production-origin>/auth/callback` to the redirect allowlist before functional
-testing.
-
-Database readiness does not authorize deployment. No production deployment will occur until explicit
-owner authorization is given in a subsequent message.
+The authorized initial Production deployment is live at https://launchproof-rose.vercel.app, with
+`APP_BASE_URL` set and the Supabase Site URL/redirect allowlist updated. Initial live validation
+passed; the untested items in section 2 still require a second account, a connected repository, or
+load testing. No merge to `main`, tag, GitHub release, or npm publish was performed.
 
 See [CLOUD_DASHBOARD_SETUP.md](CLOUD_DASHBOARD_SETUP.md) for step-by-step setup,
-[PHASE_21_2_REPORT.md](PHASE_21_2_REPORT.md) for this phase's evidence, and
-[LIVE_DEPLOYMENT_REPORT.md](LIVE_DEPLOYMENT_REPORT.md) for the current no-deployment state.
+[PHASE_21_7_REPORT.md](PHASE_21_7_REPORT.md) for deployment evidence, and
+[LIVE_DEPLOYMENT_REPORT.md](LIVE_DEPLOYMENT_REPORT.md) for the live state.
