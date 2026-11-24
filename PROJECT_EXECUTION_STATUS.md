@@ -1,10 +1,10 @@
 # LaunchProof — Execution Status
 
-Persistent execution checklist for the v0.1.0 source preview. Statuses are updated only after the
+Persistent execution checklist for LaunchProof v1.0.0. Statuses are updated only after the
 corresponding command was actually run. This file distinguishes implemented, tested-passed,
 not-tested, and blocked work.
 
-Last updated: 2026-11-24
+Last updated: 2026-11-24 (Phase 21.9 release)
 
 ## Release summary
 
@@ -12,18 +12,24 @@ LaunchProof is implemented as a local-first npm-workspaces monorepo with a worki
 live verification engine, optional Playwright browser checks, report renderers, demo applications,
 tests, documentation, CI, server-rendered public pages, and an optional server-rendered cloud dashboard.
 
-The source tree has completed the phase 18 release-readiness audit and is published as a public
-source repository at https://github.com/MHK-ctrl/launchproof. Hosted CI passes on Node.js 22 and 24.
-The public site and the cloud dashboard are deployed in **Production** on Vercel at
-https://launchproof-rose.vercel.app (Phase 21.7, commit `73912cf`). No npm package is published and
-no GitHub release or tag exists. No external security audit has been performed. The cloud schema has
-been applied to a hosted Supabase project and the hosted RLS suite passed 17/17 checks with two
-disposable identities. The Supabase GitHub provider is configured, and real GitHub OAuth sign-in,
-the private dashboard, and CLI login/status/revocation have been exercised against the production
-origin. Repository connect/consent and live CLI upload remain untested, as does two-account
-isolation. The compromised GitHub OAuth client secret was rotated in Phase 21.2, the old secret was
-deleted, and the Supabase provider was updated without recording the new value. No large third-party
-application has been validated.
+**v1.0.0 is released.** `main` contains merge commit `d9a967f` and tag `v1.0.0`; the GitHub release is
+https://github.com/MHK-ctrl/launchproof/releases/tag/v1.0.0. The public site and dashboard are
+**Production** on Vercel at https://launchproof-rose.vercel.app (latest release deploy
+`dpl_DXbBmXAMTrrUNEK9zoFF6ur1c3W5`, plus CSS follow-up `dpl_7HGYF2poRGSVPUWgwfTENnm8ozxG`). Hosted CI
+passes on Node.js 22 and 24.
+
+The cloud schema is applied to a hosted Supabase project and the hosted RLS suite passed 17/17
+checks. Phase 21.8 production validation confirmed two-identity tenant isolation, CSRF rejection,
+live rate limits, account deletion, GitHub OAuth sign-in, and CLI login/status/revocation. GitHub
+repository connect/consent and a CLI upload against a connected repository remain unverified because
+GitHub required owner 2FA.
+
+No npm package is published: the public name `launchproof` belongs to an unrelated maintainer. The
+CLI ships from the repository or a self-contained `npm pack` tarball. No external security audit has
+been performed, and no large third-party application has been validated. The compromised GitHub
+OAuth client secret was rotated in Phase 21.2, the old secret was deleted, and the Supabase provider
+was updated without recording the new value. See
+[PHASE_21_9_FINAL_COMPLETION_REPORT.md](PHASE_21_9_FINAL_COMPLETION_REPORT.md).
 
 ## Environment
 
@@ -57,13 +63,13 @@ application has been validated.
 | 11. CLI                         | Done         | All required commands, JSON/quiet/verbose/CI modes, exit codes                                |
 | 12. Demo apps                   | Done         | Intentionally vulnerable and hardened loopback servers                                        |
 | 13. Tests                       | Done         | Unit, live integration, browser E2E, CLI smoke; 53/53 passing                                 |
-| 14. Website                     | Done locally | Public pages server-rendered; optional dashboard is server-rendered; not deployed             |
+| 14. Website                     | Done         | Public pages and dashboard deployed in Production; v1.0.0 live validated                      |
 | 15. Documentation + CI          | Done         | README, guides, policies, templates, workflow, deployment configs                             |
-| 16. GitHub publication          | Done         | Public repository `MHK-ctrl/launchproof`; hosted CI green; no release tag yet                 |
+| 16. GitHub publication          | Done         | Public repository `MHK-ctrl/launchproof`; v1.0.0 tag and GitHub release published             |
 | 17. Live deployment             | Done         | Production deployed in Phase 21.7; initial live validation passed                             |
 | 18. Final release audit         | Done         | Security, scanner, browser, report, website, docs, CI, deps verified; CONDITIONAL GO          |
 | 19. Public GitHub publication   | Done         | 137 files published; Node 22/24 CI passed; repository metadata and clone verified             |
-| 20. Cloud dashboard             | Done locally | Auth, repo connect, private scans, CLI upload, RLS tests; **not deployed**                    |
+| 20. Cloud dashboard             | Done         | Auth, private scans, RLS tests, CLI tokens; deployed and tenant isolation verified            |
 | 21. Hosted Supabase + preview   | Partial      | Hosted RLS 17/17; OAuth configured; Vercel preview blocked by first-deploy rule               |
 | 21.2 OAuth rotation + gate      | Ready        | Secret rotated, hosted RLS 17/17, Production vars set; deployment approval pending            |
 | 21.3 Pre-production hardening   | Done locally | CSP, headers, Postgres/memory rate limits, token cleanup, observability, tests                |
@@ -72,6 +78,7 @@ application has been validated.
 | 21.6 Final pre-deployment audit | Ready        | Local verify/audit pass; hosted read-only re-check matches; no deployment blockers            |
 | 21.7 Production deploy + tests  | Done         | Vercel Production live; auth, dashboard, CLI login/status, headers, gating verified           |
 | 21.8 Post-deploy validation     | Done         | Tenant isolation, CSRF, rate limits, deletion, CLI tokens verified; GitHub/CLI upload blocked |
+| 21.9 v1.0.0 release + deploy    | Done         | PR #1 merged; tag/release published; Production deployed; smoke tests and mobile fix verified |
 
 ## Initial implementation verification (historical)
 
@@ -326,7 +333,7 @@ check, typecheck, Chromium headless-shell install, tests, website build, and art
 - README rendering, CI badge URL, and source links were verified against the real repository.
 - GitHub secret scanning reported 0 alerts.
 
-### Final local verification (post-publication)
+### Final local verification (post-publication; historical, before v1.0.0)
 
 - Formatting and format check: exit 0.
 - Lint: exit 0.
@@ -531,7 +538,7 @@ remains **BLOCKED pending explicit owner authorization**.
   `supabase_migrations.schema_migrations` ledger because both migrations were applied manually in the
   SQL editor; this is a documented operational gap.
 
-### Vercel — prepared, not deployed
+### Vercel — prepared (historical Phase 21.2 state; superseded by Production deployment)
 
 - Account `mdhamzakhan2k6-4663`, team `hamza-recallai`; project `launchproof`
   (`prj_OMc6CDEwAcGppuZFhEqa3j0X95u3`), root `.`, Next.js, `npm ci`, `npm run build:web`, no Git

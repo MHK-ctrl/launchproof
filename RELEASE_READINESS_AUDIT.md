@@ -19,8 +19,14 @@
 > private dashboard, Supabase schema/RLS, GitHub OAuth flow, and explicit CLI upload were added after
 > this audit. Static-export statements in this historical audit are superseded by
 > [CLOUD_DASHBOARD_ARCHITECTURE.md](CLOUD_DASHBOARD_ARCHITECTURE.md) and
-> [PROJECT_EXECUTION_STATUS.md](PROJECT_EXECUTION_STATUS.md). The dashboard is not deployed and has
-> not been tested against a live Supabase project.
+> [PROJECT_EXECUTION_STATUS.md](PROJECT_EXECUTION_STATUS.md).
+>
+> **v1.0.0 final update:** the website and dashboard are deployed in Production at
+> https://launchproof-rose.vercel.app, and hosted RLS/tenant-isolation checks passed. GitHub
+> repository consent and a CLI upload against a connected repository remain unverified because
+> GitHub required owner 2FA. See
+> [PHASE_21_9_FINAL_COMPLETION_REPORT.md](PHASE_21_9_FINAL_COMPLETION_REPORT.md). The audit findings
+> below are retained as the historical v0.1.0 record.
 
 ## Executive summary
 

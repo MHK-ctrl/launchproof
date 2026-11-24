@@ -1,7 +1,7 @@
 # Live Deployment Report
 
 **Date:** 2026-11-24
-**Branch:** `feat/cloud-dashboard`
+**Branch:** `main` (v1.0.0)
 **Base commit (Phase 21.2 checkpoint):** `215a3e2610c7385cdc804b709661fea29df7754e`
 **Phase 21.3:** pre-production hardening implemented locally on `feat/cloud-dashboard`; no deployment.
 **Phase 21.4:** hosted schema re-audited read-only; migration 003 revised; no hosted mutation or
@@ -14,10 +14,13 @@ audit pass; hosted state re-checked read-only; no deployment blockers found; no 
 URLs configured; initial live validation passed.
 **Phase 21.8:** post-deployment validation of the same pinned deployment; tenant isolation, CSRF, rate
 limiting, account deletion, and CLI tokens verified; GitHub connect and CLI upload blocked by 2FA.
-**Status:** **DEPLOYED — VALIDATED WITH NON-BLOCKING ISSUES**
-**Production URL:** https://launchproof-rose.vercel.app (deployment
-`dpl_HgJwEytzp1F3Z3BNvTv9dn2phMjz`, commit `73912cf`). No custom domain or public preview URL is
-announced; deployment aliases sit behind Vercel Authentication.
+**Phase 21.9:** v1.0.0 merged, tagged, and released; Production deployed from release commit `d9a967f`
+and updated with the code-block CSS fix (`07376fd`); public routes, headers, gating, and 390px
+mobile layout validated.
+**Status:** **RELEASED — v1.0.0 DEPLOYED AND VALIDATED WITH DOCUMENTED LIMITATIONS**
+**Production URL:** https://launchproof-rose.vercel.app (release deployment
+`dpl_DXbBmXAMTrrUNEK9zoFF6ur1c3W5`; current `dpl_7HGYF2poRGSVPUWgwfTENnm8ozxG`). No custom domain
+is configured. See [PHASE_21_9_FINAL_COMPLETION_REPORT.md](PHASE_21_9_FINAL_COMPLETION_REPORT.md).
 
 This report separates hosted evidence from deployed-runtime evidence. The Supabase database and OAuth
 provider are real hosted services, and the Next.js application is now deployed to Vercel Production.
@@ -26,7 +29,7 @@ Sections describing the pre-deployment state (notably 5 and 11) are retained as 
 ## 1. Current environment
 
 - macOS on Apple Silicon; Node.js `26.0.0`, npm `11.12.1`.
-- Repository: `https://github.com/MHK-ctrl/launchproof`, branch `feat/cloud-dashboard`.
+- Repository: `https://github.com/MHK-ctrl/launchproof`, branch `main`, tag `v1.0.0`.
 - GitHub CLI authenticated as `MHK-ctrl`.
 - Vercel CLI authenticated as `mdhamzakhan2k6-4663` (team `hamza-recallai`). No other account was
   used.
@@ -309,7 +312,7 @@ No deployment occurred; the live build remains `dpl_HgJwEytzp1F3Z3BNvTv9dn2phMjz
   by GitHub sudo-mode/2FA, so provider-token cookie and repository association remain untested and no
   partial state exists.
 - **Cookies:** session cookies remain client-managed (`HttpOnly=false`, `Secure=false`). Local fixes
-  for `Secure` and for deep-link redirects are on `feat/cloud-dashboard`, not deployed.
+  for `Secure` and deep-link redirects were deployed in Phase 21.8 and are part of v1.0.0.
 - **Logs/reliability:** 103 runtime records, all info level, no errors or secret-like strings; the
   origin and `/api/health` stayed healthy.
 - **Mobile:** login is usable at 390 px; dashboard navigation overflows horizontally (P3, unfixed).
