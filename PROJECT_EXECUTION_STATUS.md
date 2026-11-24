@@ -139,21 +139,21 @@ and lockfile detection during development.
   not-found; no fake metrics, stars, or testimonials
 - CI workflow, Vercel/Netlify configs, issue/PR templates, community and security policies
 
-## Not verified / limitations
+## Not verified / limitations (Phase 18 snapshot; see release summary for current status)
 
 - No external security audit or penetration test of LaunchProof or its findings
-- Hosted Supabase RLS passed 17/17 checks, but no deployed dashboard/runtime or real OAuth test exists
+- Hosted Supabase RLS passed 17/17 and production OAuth/dashboard checks were later verified; GitHub repository connect and CLI upload remain unverified
 - No large third-party application or production staging system tested
 - TLS certificate chains, protocol versions, and revocation are not assessed
 - Lighthouse is not bundled; requesting it yields NOT VERIFIED
 - Browser checks cover only configured workflows and sampled pages
 - Performance numbers are single local runs, not production benchmarks
 - Windows and Linux desktop behavior are not manually tested (CI covers Linux)
-- Website deployment has not been performed, so no live URL is claimed
+- Website deployment was later completed at https://launchproof-rose.vercel.app
 - npm publication has not occurred; install is from source
 - Git history scanning is filename-only and bounded
 
-## Remaining approvals and recommended work
+## Remaining approvals and recommended work (Phase 18 snapshot; current actions in the Phase 21.9 report)
 
 1. **GitHub publication:** complete. Public repository, `main` branch, initial commit, metadata,
    clean clone, secret scanning, and Node 22/24 hosted CI are verified. No GitHub release or tag has
@@ -842,7 +842,7 @@ Completed against the pinned Production deployment `dpl_HgJwEytzp1F3Z3BNvTv9dn2p
 - **Findings:** no P0/P1/P2. P3: deep-link redirect collapse (fixed locally), `Secure=false` session
   cookies (fixed locally), dashboard horizontal overflow at 390 px (recorded, not changed). Info:
   broad GitHub `repo` scope is documented by design.
-- **Source changes (not deployed):** proxy path header, dashboard layout redirect target, `Secure`
+- **Source changes (deployed in Phase 21.9):** proxy path header, dashboard layout redirect target, `Secure`
   cookie options for browser/server/proxy clients, two small helper modules, and regression tests.
   `npm run verify` exit 0; `npm test` 21 files / 115 tests.
 - **Cleanup:** both synthetic Auth users and all rows deleted; this phase's owner CLI token and auth
