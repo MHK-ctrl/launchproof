@@ -1,0 +1,311 @@
+{
+  "phase": "21.5",
+  "run_at": "2026-11-23T17:00:23.785Z",
+  "project_ref": "ypqpqgnviphwxddrpieq",
+  "result": "PASS",
+  "checks_total": 60,
+  "checks_passed": 60,
+  "checks_failed": 0,
+  "checks": [
+    {
+      "name": "preflight application tables are empty",
+      "pass": true,
+      "detail": "{\"profiles\":0,\"repositories\":0,\"scans\":0,\"findings\":0,\"cli_auth_requests\":0,\"cli_tokens\":0,\"rate_limits\":0,\"repository_scan_stats\":0}"
+    },
+    {
+      "name": "preflight auth users are empty",
+      "pass": true,
+      "detail": "0"
+    },
+    {
+      "name": "profile trigger creates A profile",
+      "pass": true,
+      "detail": "created"
+    },
+    {
+      "name": "profile trigger creates B profile",
+      "pass": true,
+      "detail": "created"
+    },
+    {
+      "name": "disposable identities signed in",
+      "pass": true,
+      "detail": "2 tokens"
+    },
+    {
+      "name": "service_role can SELECT profiles",
+      "pass": true,
+      "detail": "200"
+    },
+    {
+      "name": "service_role can SELECT repositories",
+      "pass": true,
+      "detail": "200"
+    },
+    {
+      "name": "service_role can SELECT scans",
+      "pass": true,
+      "detail": "200"
+    },
+    {
+      "name": "service_role can SELECT findings",
+      "pass": true,
+      "detail": "200"
+    },
+    {
+      "name": "service_role can SELECT cli_auth_requests",
+      "pass": true,
+      "detail": "200"
+    },
+    {
+      "name": "service_role can SELECT cli_tokens",
+      "pass": true,
+      "detail": "200"
+    },
+    {
+      "name": "service_role can SELECT rate_limits",
+      "pass": true,
+      "detail": "200"
+    },
+    {
+      "name": "service_role can SELECT repository_scan_stats",
+      "pass": true,
+      "detail": "200"
+    },
+    {
+      "name": "anon cannot SELECT profiles",
+      "pass": true,
+      "detail": "401"
+    },
+    {
+      "name": "anon cannot SELECT cli_tokens",
+      "pass": true,
+      "detail": "401"
+    },
+    {
+      "name": "anon cannot SELECT rate_limits",
+      "pass": true,
+      "detail": "401"
+    },
+    {
+      "name": "anon cannot SELECT repository_scan_stats",
+      "pass": true,
+      "detail": "401"
+    },
+    {
+      "name": "anon cannot execute consume_rate_limit",
+      "pass": true,
+      "detail": "401"
+    },
+    {
+      "name": "anon cannot execute cleanup_rate_limits",
+      "pass": true,
+      "detail": "401"
+    },
+    {
+      "name": "anon cannot execute cleanup_cli_tokens",
+      "pass": true,
+      "detail": "401"
+    },
+    {
+      "name": "user A sees only own profile",
+      "pass": true,
+      "detail": "1"
+    },
+    {
+      "name": "user B sees only own profile",
+      "pass": true,
+      "detail": "1"
+    },
+    {
+      "name": "authenticated cannot SELECT cli_tokens",
+      "pass": true,
+      "detail": "403"
+    },
+    {
+      "name": "authenticated cannot SELECT rate_limits",
+      "pass": true,
+      "detail": "403"
+    },
+    {
+      "name": "authenticated cannot SELECT cli_auth_requests",
+      "pass": true,
+      "detail": "403"
+    },
+    {
+      "name": "authenticated cannot execute consume_rate_limit",
+      "pass": true,
+      "detail": "403"
+    },
+    {
+      "name": "authenticated cannot execute cleanup_rate_limits",
+      "pass": true,
+      "detail": "403"
+    },
+    {
+      "name": "authenticated cannot execute cleanup_cli_tokens",
+      "pass": true,
+      "detail": "403"
+    },
+    {
+      "name": "authenticated can insert own cli_auth_request",
+      "pass": true,
+      "detail": "201"
+    },
+    {
+      "name": "service_role can read inserted cli_auth_request",
+      "pass": true,
+      "detail": "1"
+    },
+    {
+      "name": "user B cannot insert cli_auth_request for A",
+      "pass": true,
+      "detail": "403"
+    },
+    {
+      "name": "user A can insert own repository",
+      "pass": true,
+      "detail": "201"
+    },
+    {
+      "name": "user A can read own repository",
+      "pass": true,
+      "detail": "1"
+    },
+    {
+      "name": "user B cannot read A repository",
+      "pass": true,
+      "detail": "0"
+    },
+    {
+      "name": "user B cannot insert repository for A",
+      "pass": true,
+      "detail": "403"
+    },
+    {
+      "name": "user A can insert own scan",
+      "pass": true,
+      "detail": "201"
+    },
+    {
+      "name": "user A can insert own finding",
+      "pass": true,
+      "detail": "201"
+    },
+    {
+      "name": "user B cannot see A scan",
+      "pass": true,
+      "detail": "0"
+    },
+    {
+      "name": "user B cannot see A finding",
+      "pass": true,
+      "detail": "0"
+    },
+    {
+      "name": "user B cannot insert scan for A",
+      "pass": true,
+      "detail": "403"
+    },
+    {
+      "name": "user A sees own repository stats",
+      "pass": true,
+      "detail": "1"
+    },
+    {
+      "name": "user B cannot see A repository stats",
+      "pass": true,
+      "detail": "0"
+    },
+    {
+      "name": "service_role can read synthetic repository",
+      "pass": true,
+      "detail": "1"
+    },
+    {
+      "name": "service_role can read synthetic scan",
+      "pass": true,
+      "detail": "1"
+    },
+    {
+      "name": "rate limiter call 1 allowed with remaining 1",
+      "pass": true,
+      "detail": "{\"allowed\":true,\"remaining\":1,\"retry_after\":0}"
+    },
+    {
+      "name": "rate limiter call 2 allowed with remaining 0",
+      "pass": true,
+      "detail": "{\"allowed\":true,\"remaining\":0,\"retry_after\":0}"
+    },
+    {
+      "name": "rate limiter call 3 denied with retry_after",
+      "pass": true,
+      "detail": "{\"allowed\":false,\"remaining\":0,\"retry_after\":60}"
+    },
+    {
+      "name": "independent key has independent counter",
+      "pass": true,
+      "detail": "[{\"allowed\":true,\"remaining\":0,\"retry_after\":0},{\"allowed\":false,\"remaining\":0,\"retry_after\":60}]"
+    },
+    {
+      "name": "service_role can insert rate_limit row",
+      "pass": true,
+      "detail": "201"
+    },
+    {
+      "name": "expired rate-limit window resets",
+      "pass": true,
+      "detail": "{\"allowed\":true,\"remaining\":0,\"retry_after\":0}"
+    },
+    {
+      "name": "reset window count is 1",
+      "pass": true,
+      "detail": "1"
+    },
+    {
+      "name": "rate-limit cleanup deletes only bound 2",
+      "pass": true,
+      "detail": "2"
+    },
+    {
+      "name": "one expired cleanup row remains after bound",
+      "pass": true,
+      "detail": "1"
+    },
+    {
+      "name": "rate-limit cleanup removes remaining expired row",
+      "pass": true,
+      "detail": "1"
+    },
+    {
+      "name": "rate-limit cleanup leaves no synthetic expired rows",
+      "pass": true,
+      "detail": "0"
+    },
+    {
+      "name": "service_role can insert cli_tokens fixtures",
+      "pass": true,
+      "detail": "[201,201,201]"
+    },
+    {
+      "name": "cleanup_cli_tokens removes expired and revoked",
+      "pass": true,
+      "detail": "2"
+    },
+    {
+      "name": "cleanup_cli_tokens preserves active token",
+      "pass": true,
+      "detail": "1"
+    },
+    {
+      "name": "cleanup leaves zero application rows",
+      "pass": true,
+      "detail": "{\"profiles\":0,\"repositories\":0,\"scans\":0,\"findings\":0,\"cli_auth_requests\":0,\"cli_tokens\":0,\"rate_limits\":0,\"repository_scan_stats\":0}"
+    },
+    {
+      "name": "cleanup leaves zero synthetic auth users",
+      "pass": true,
+      "detail": "0"
+    }
+  ]
+}

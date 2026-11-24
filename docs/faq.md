@@ -2,12 +2,27 @@
 
 ### Is LaunchProof free?
 
-Yes. The source is MIT licensed. There is no paid tier, account, or hosted service in this release.
+Yes. The source is MIT licensed. There is no paid tier. The optional dashboard is free and hosted at
+[launchproof-rose.vercel.app](https://launchproof-rose.vercel.app), but local scanning needs no account.
 
 ### Is it published on npm?
 
-Not yet. v0.1.0 is a source preview. Build from the repository checkout. The command examples use
-`node packages/cli/bin/launchproof.mjs` rather than a global install.
+No. The public npm name `launchproof` is owned by an unrelated project, so v1.0.0 is distributed from
+the repository checkout or an `npm pack -w launchproof` tarball. Do not install the similarly named
+registry package expecting this project; a scoped package name is an owner decision.
+
+### Does the cloud dashboard upload my code?
+
+No. Upload happens only with `--upload` (or an explicit API call), and sends a sanitized summary:
+counts, findings, commit/branch, and repository metadata. Source code, environment values, and local
+paths are never sent. See the [privacy policy](https://launchproof-rose.vercel.app/privacy).
+
+### What is not verified about the cloud dashboard?
+
+Tenant isolation, CSRF rejection, rate limits, account deletion, and CLI login/revocation were tested
+against production. GitHub repository consent and a CLI upload against a connected repository were
+not completed because GitHub required owner 2FA. The dashboard can therefore be used, but treat the
+repository-connect path as newly released rather than battle-tested.
 
 ### Does it upload my code?
 

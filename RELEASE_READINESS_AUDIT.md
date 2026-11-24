@@ -14,6 +14,13 @@
 > https://github.com/MHK-ctrl/launchproof after this audit. Statements below describing the absence
 > of a repository are audit-time context. Hosted CI results are recorded in
 > [GITHUB_PUBLICATION_REPORT.md](GITHUB_PUBLICATION_REPORT.md).
+>
+> **Cloud-dashboard update (later phase):** the website is no longer a static export. The optional
+> private dashboard, Supabase schema/RLS, GitHub OAuth flow, and explicit CLI upload were added after
+> this audit. Static-export statements in this historical audit are superseded by
+> [CLOUD_DASHBOARD_ARCHITECTURE.md](CLOUD_DASHBOARD_ARCHITECTURE.md) and
+> [PROJECT_EXECUTION_STATUS.md](PROJECT_EXECUTION_STATUS.md). The dashboard is not deployed and has
+> not been tested against a live Supabase project.
 
 ## Executive summary
 

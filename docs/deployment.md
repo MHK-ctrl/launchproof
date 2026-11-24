@@ -1,45 +1,56 @@
-# Website deployment
+# Deployment
 
-The public website is a static Next.js export. It does not run scans and has no server-side data.
+**Current production:** https://launchproof-rose.vercel.app (Vercel project `launchproof`, team
+`hamza-recallai`, branch `main`). The dashboard uses Supabase project `launchproof`
+(`ypqpqgnviphwxddrpieq`) with GitHub OAuth. See [LIVE_DEPLOYMENT_REPORT.md](../LIVE_DEPLOYMENT_REPORT.md)
+for the deployment ID and validation evidence.
 
-## Build locally
+The website is no longer a static Next.js export. Public pages are server-rendered per request for
+the CSP nonce, and the private dashboard, auth callbacks, and APIs require a Node.js server runtime
+and Supabase.
+
+The complete setup is in [CLOUD_DASHBOARD_SETUP.md](../CLOUD_DASHBOARD_SETUP.md). Deployment
+readiness, blockers, and the approval boundary are in
+[DEPLOYMENT_READINESS.md](../DEPLOYMENT_READINESS.md).
+
+## Local build
 
 ```bash
 npm ci
+npm run build
 npm run build:web
-# output: apps/web/out
 ```
 
-Serve the `out/` directory with any static file server to verify it. The site includes trailing
-slashes and unoptimized images, so no Next.js server is required.
+The web build uses the normal Next.js server output in `apps/web/.next`. A static file server cannot
+serve the dashboard or API routes.
 
 ## Vercel
 
-`vercel.json` at the repository root configures:
+`vercel.json` configures:
 
-- install: `npm ci`
-- build: `npm run build:web`
-- output: `apps/web/out`
-- framework: none
+- framework: Next.js;
+- install: `npm ci`;
+- build: `npm run build:web`;
+- security headers and private/no-store headers for dashboard and API paths.
 
-Deployment requires authentication and the owner's approval. This repository does not deploy
-automatically and no live URL is claimed for this source preview.
+The repository root is the project root because this is an npm workspace. A Vercel project is linked
+with the four Supabase/encryption variables in Preview and Production. `APP_BASE_URL` is intentionally
+unset until the real deployment origin exists, then must be added to Production and followed by a
+redeploy. **No deployment exists.** Vercel assigns a new project's first deployment to Production even
+when Preview is requested; the initial Production deployment is awaiting explicit owner approval, and
+no preview or production URL is claimed. The OAuth client secret was rotated and the old secret was
+deleted in Phase 21.2; no secret value is recorded.
 
 ## Netlify
 
-`netlify.toml` configures the same build and publish directory, Node 22, and baseline security
-headers.
+`netlify.toml` is retained as an **unverified** fallback for the Next.js runtime, not as a static
+export. It points at `apps/web/.next` and requires Netlify's Next.js runtime plus the same Supabase
+environment. Vercel is the recommended and documented target.
 
 ## Verification after deployment
 
-A deployment is not considered verified until:
+Follow the checklist in `CLOUD_DASHBOARD_SETUP.md`, including two-account isolation, CLI
+login/upload/logout, account deletion, and header checks. Record the exact hostname and results in
+`PROJECT_EXECUTION_STATUS.md` and `LIVE_DEPLOYMENT_REPORT.md` only after the deployment exists.
 
-1. The build succeeds from a clean checkout.
-2. The home page, demo, report viewer, docs, get-started, about, and security pages respond.
-3. `/sample-report.json` loads and renders in the report viewer.
-4. The offline sample HTML opens without network access.
-5. Links and accessibility are checked.
-6. No analytics, fake metrics, or unverified claims were introduced.
-
-Record the URL and checks in the project execution status; do not claim a deployment that was not
-performed.
+Do not claim a deployment, RLS result, OAuth flow, or CLI upload that was not actually run.

@@ -24,7 +24,9 @@ packages/cli
   └─ commander commands, modes, config loading, report output, exit codes
 
 apps/web
-  └─ static Next.js site, simulated demo, sample report viewer, docs
+  ├─ public Next.js pages, simulated demo, sample report viewer, docs
+  ├─ optional private dashboard (Supabase Auth + PostgreSQL RLS)
+  └─ API routes for repositories, scans, account, and CLI uploads
 ```
 
 `runScan()` always produces a complete report object. The CLI never invents checks outside that
@@ -88,8 +90,15 @@ request is created.
 
 ## Storage and privacy
 
-Reports are written locally under `.launchproof/` (configurable). There is no server component. The
-public website is statically exported and reads a committed sample report; it never executes a scan.
+Reports are written locally under `.launchproof/` (configurable). Local scans have no server
+component. The public website pages are prerendered and read a committed sample report; they never
+execute a scan.
+
+The optional cloud dashboard is a server-rendered Next.js application. It stores only GitHub profile
+metadata, connected repository metadata, and sanitized scan summaries. Upload is explicit and
+requires a CLI token. It does not receive source files, `.env` values, evidence bodies, or full local
+paths. See [CLOUD_DASHBOARD_ARCHITECTURE.md](../CLOUD_DASHBOARD_ARCHITECTURE.md) and
+[PRIVACY_DATA_FLOW.md](../PRIVACY_DATA_FLOW.md).
 
 ## Resource bounds
 

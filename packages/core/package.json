@@ -1,6 +1,6 @@
 {
   "name": "@launchproof/core",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "LaunchProof core engine: discovery, static analysis, HTTP/API verification, findings, and reports.",
   "license": "MIT",
   "type": "module",

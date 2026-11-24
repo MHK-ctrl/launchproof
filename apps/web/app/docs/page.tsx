@@ -15,6 +15,7 @@ const SECTIONS = [
   ['configuration', 'Configuration'],
   ['authorization', 'Authorization'],
   ['reports', 'Reports'],
+  ['cloud', 'Cloud dashboard'],
   ['ci', 'CI usage'],
   ['limitations', 'Limitations'],
 ] as const;
@@ -40,7 +41,7 @@ export default function DocsPage() {
               ))}
             </nav>
             <div className="mt-6 rounded-lg border border-[#1c2938] p-3 text-[11px] leading-relaxed text-[#6e8199]">
-              v0.1.0 source preview. The npm package is not published yet.
+              v1.0.0. Install the CLI from the repository; npm distribution is pending.
             </div>
           </div>
         </aside>
@@ -52,8 +53,8 @@ export default function DocsPage() {
           </h1>
           <p className="mt-3 max-w-2xl">
             LaunchProof is a local-first CLI that verifies AI-built applications and publishes
-            evidence. This page covers the current v0.1.0 source release. It intentionally does not
-            promise capabilities that are not implemented.
+            evidence. This page covers the current v1.0.0 release. It intentionally does not promise
+            capabilities that are not implemented.
           </p>
 
           <h2 id="overview">Overview</h2>
@@ -73,8 +74,10 @@ launchproof report       # render or convert an existing report`}
 
           <h2 id="install">Install from source</h2>
           <p>
-            Node.js 22.12 or newer is required. Docker is not used. The npm package is not yet
-            published; use the repository checkout.
+            Node.js 22.12 or newer is required. Docker is not used. The public npm name
+            <code>launchproof</code> is owned by an unrelated project, so the CLI is distributed
+            from the repository checkout (or an <code>npm pack</code> tarball of the CLI workspace)
+            until a scoped package name is chosen by the owner.
           </p>
           <div className="code-block my-4">
             {`git clone https://github.com/MHK-ctrl/launchproof.git
@@ -251,6 +254,43 @@ PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npx playwright install --only-shell chromium`
             network checks off or point them at a staging system covered by your authorization and
             repository secrets. A failed gate returns exit code <code>1</code>.
           </p>
+
+          <h2 id="cloud">Cloud dashboard (optional)</h2>
+          <p>
+            The dashboard at <code>https://launchproof-rose.vercel.app</code> is optional. It uses
+            GitHub sign-in through Supabase. Signing in creates a profile; nothing from a local scan
+            is uploaded unless you pass <code>--upload</code> (or call the API explicitly).
+          </p>
+          <div className="code-block my-4">
+            {`launchproof login                 # browser + loopback PKCE approval
+launchproof status                # account and token expiry
+launchproof scan . --upload --yes # explicit sanitized upload
+launchproof logout                # revoke the token and delete local credentials`}
+          </div>
+          <ul>
+            <li>
+              Connect a repository from the dashboard to associate uploads. GitHub has no read-only
+              private-repository scope, so this asks for <code>repo</code>; the provider token is
+              encrypted into a 15-minute cookie and never stored in the database.
+            </li>
+            <li>
+              Uploads contain check summaries, counts, findings, commit/branch, and repository
+              metadata. Source code, environment values, and local paths are not uploaded.
+            </li>
+            <li>
+              Scan history, finding details, and report downloads are scoped to the signed-in
+              account; cross-account reads and downloads return 404.
+            </li>
+            <li>
+              Delete the account from <strong>Dashboard → Account</strong> to remove the profile,
+              repositories, scans, findings, and CLI tokens. CLI tokens can also be revoked in
+              Settings.
+            </li>
+            <li>
+              Read the <a href="/privacy">privacy policy</a> for what is stored and how long it
+              remains.
+            </li>
+          </ul>
 
           <h2 id="limitations">Limitations</h2>
           <ul>

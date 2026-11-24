@@ -53,7 +53,8 @@ node packages/cli/bin/launchproof.mjs analyze
 node packages/cli/bin/launchproof.mjs test`}
           </pre>
           <p className="mt-3 text-[11.5px] leading-relaxed text-[#6e8199]">
-            v0.1.0 is a source release. It is not published to npm yet.
+            v1.0.0 is released from the repository; npm distribution is pending a scoped package
+            name.
           </p>
           <Link href="/get-started" className="btn btn-primary mt-4 !py-2 !text-[12px]">
             Full setup guide

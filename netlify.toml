@@ -1,6 +1,8 @@
+# Vercel is the verified deployment target. Netlify is retained as an unverified fallback for the
+# Next.js server runtime; it requires Netlify's Next.js runtime and the same Supabase environment.
 [build]
   command = "npm run build:web"
-  publish = "apps/web/out"
+  publish = "apps/web/.next"
 
 [build.environment]
   NODE_VERSION = "22"

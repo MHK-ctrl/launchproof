@@ -36,6 +36,15 @@ import {
   type Severity,
 } from '@launchproof/core';
 import { runBrowserChecks } from '@launchproof/browser';
+import {
+  fetchRepositories,
+  getTokenOrThrow,
+  resolveRepository,
+  uploadReport,
+} from './cloud/commands.js';
+import { cloudRequest, resolveApiBase } from './cloud/http.js';
+import { login } from './cloud/login.js';
+import { deleteStoredToken, getStoredToken } from './cloud/token-store.js';
 
 const SEVERITIES: Severity[] = ['critical', 'high', 'medium', 'low', 'info'];
 const VALID_REPORT_STATUSES = new Set(['pass', 'fail', 'warn', 'skipped', 'not-verified', 'error']);
@@ -50,6 +59,7 @@ interface GlobalOptions {
   color?: boolean;
   output?: string;
   failOn?: string;
+  apiUrl?: string;
 }
 
 interface Runtime {
@@ -305,6 +315,63 @@ async function openFile(filePath: string): Promise<void> {
   child.unref();
 }
 
+interface CloudUploadOptions {
+  upload?: boolean;
+  yes?: boolean;
+  repository?: string;
+}
+
+async function isLocalProjectTarget(value: string): Promise<boolean> {
+  if (value === '.' || value === './' || value === '.\\') return true;
+  if (/^[a-z][a-z0-9+.-]*:\/\//i.test(value)) return false;
+  try {
+    const info = await fs.stat(path.resolve(process.cwd(), value));
+    return info.isDirectory();
+  } catch {
+    return false;
+  }
+}
+
+async function runLocalScan(runtime: Runtime, opts: GlobalOptions): Promise<ScanReport> {
+  runtime.config.scan.network = false;
+  return runScan({
+    rootDir: runtime.rootDir,
+    config: runtime.config,
+    configPath: runtime.configPath,
+    components: ['discovery', 'secrets', 'repository', 'static', 'dependencies', 'supabase'],
+    onProgress: progressHandler(opts),
+  });
+}
+
+async function uploadIfRequested(
+  report: ScanReport,
+  runtime: Runtime,
+  opts: GlobalOptions,
+  options: CloudUploadOptions,
+): Promise<void> {
+  if (!options.upload) return;
+  try {
+    const base = resolveApiBase(opts.apiUrl);
+    const token = await getTokenOrThrow();
+    const repository = await resolveRepository(base, token, runtime.rootDir, options.repository);
+    await uploadReport(
+      base,
+      token,
+      report,
+      repository,
+      { yes: options.yes },
+      (message) => log(message),
+      runtime.rootDir,
+    );
+  } catch (error) {
+    log(
+      pc.yellow(
+        `Scan completed, but upload did not: ${formatUnknownError(error)}\nThe local report was preserved.`,
+      ),
+    );
+  }
+}
+
 const program = new Command();
 
 program
@@ -321,6 +388,10 @@ program
   .option('--no-color', 'Disable ANSI colors')
   .option('-o, --output <dir>', 'Report output directory (default .launchproof)')
   .option('--fail-on <severity>', 'Gate threshold: critical, high, medium, low, info')
+  .option(
+    '--api-url <url>',
+    'LaunchProof cloud API URL (defaults to LAUNCHPROOF_API_URL or localhost)',
+  )
   .addHelpText(
     'after',
     `\nExit codes:\n  0  gate passed (no findings at or above the threshold)\n  1  gate failed\n  2  usage, configuration, or authorization error\n  3  unexpected error\n\nDocumentation: ${PROJECT_URL}\n`,
@@ -464,57 +535,249 @@ program
   .command('security')
   .description('Static security and hygiene checks, plus HTTP checks when network is enabled')
   .option('-u, --url <url>', 'Target URL (defaults to app.url)')
-  .action(async (options: { url?: string }) => {
-    await main(async () => {
-      const opts = program.opts<GlobalOptions>();
-      const runtime = await loadRuntime(opts);
-      const target = targetFromConfig(runtime.config, options.url);
-      const components: ScanComponent[] = [
-        'discovery',
-        'secrets',
-        'repository',
-        'static',
-        'dependencies',
-        'supabase',
-        'http',
-        'api',
-        'authorization',
-      ];
-      const report = await runScan({
-        rootDir: runtime.rootDir,
-        config: runtime.config,
-        configPath: runtime.configPath,
-        target,
-        components,
-        onProgress: progressHandler(opts),
+  .option('--upload', 'Explicitly upload the sanitized report to your LaunchProof dashboard')
+  .option('--yes', 'Confirm the sanitized upload without an interactive prompt')
+  .option('--repository <id>', 'Connected repository ID or owner/name for the upload')
+  .action(
+    async (options: { url?: string; upload?: boolean; yes?: boolean; repository?: string }) => {
+      await main(async () => {
+        const opts = program.opts<GlobalOptions>();
+        const runtime = await loadRuntime(opts);
+        const target = targetFromConfig(runtime.config, options.url);
+        const components: ScanComponent[] = [
+          'discovery',
+          'secrets',
+          'repository',
+          'static',
+          'dependencies',
+          'supabase',
+          'http',
+          'api',
+          'authorization',
+        ];
+        const report = await runScan({
+          rootDir: runtime.rootDir,
+          config: runtime.config,
+          configPath: runtime.configPath,
+          target,
+          components,
+          onProgress: progressHandler(opts),
+        });
+        const exitCode = await writeAndEmit(report, opts, runtime.config.report.outputDir);
+        await uploadIfRequested(report, runtime, opts, options);
+        return exitCode;
       });
-      return await writeAndEmit(report, opts, runtime.config.report.outputDir);
-    });
-  });
+    },
+  );
 
 program
-  .command('scan <url>')
-  .description('Authorized live HTTP, API, and authorization verification against a URL')
-  .option('--authorized', 'Confirm you are authorized to test the target')
+  .command('scan <url-or-path>')
+  .description(
+    'Scan the current project (scan .) or perform authorized live HTTP/API verification against a URL',
+  )
+  .option('--authorized', 'Confirm you are authorized to test the target URL')
   .option(
     '--scope <hosts...>',
     'Authorized host patterns (for example staging.example.com *.example.com)',
   )
-  .action(async (url: string, options: { authorized?: boolean; scope?: string[] }) => {
+  .option('--upload', 'Explicitly upload the sanitized report to your LaunchProof dashboard')
+  .option('--yes', 'Confirm the sanitized upload without an interactive prompt')
+  .option('--repository <id>', 'Connected repository ID or owner/name for the upload')
+  .action(
+    async (
+      targetValue: string,
+      options: {
+        authorized?: boolean;
+        scope?: string[];
+        upload?: boolean;
+        yes?: boolean;
+        repository?: string;
+      },
+    ) => {
+      await main(async () => {
+        const opts = program.opts<GlobalOptions>();
+        const runtime = await loadRuntime(opts);
+
+        if (await isLocalProjectTarget(targetValue)) {
+          const report = await runLocalScan(runtime, opts);
+          const exitCode = await writeAndEmit(report, opts, runtime.config.report.outputDir);
+          await uploadIfRequested(report, runtime, opts, options);
+          return exitCode;
+        }
+
+        runtime.config.scan.network = true;
+        const target = applyTargetAuthorization(runtime.config, targetValue, options);
+        const report = await runScan({
+          rootDir: runtime.rootDir,
+          config: runtime.config,
+          configPath: runtime.configPath,
+          target: target.toString(),
+          components: ['discovery', 'http', 'api', 'authorization'],
+          onProgress: progressHandler(opts),
+        });
+        const exitCode = await writeAndEmit(report, opts, runtime.config.report.outputDir);
+        await uploadIfRequested(report, runtime, opts, options);
+        return exitCode;
+      });
+    },
+  );
+
+program
+  .command('login')
+  .description('Authorize this CLI in a browser and store a revocable token')
+  .option('--no-browser', 'Print the authorization URL without opening a browser')
+  .action(async (options: { browser?: boolean }) => {
     await main(async () => {
       const opts = program.opts<GlobalOptions>();
-      const runtime = await loadRuntime(opts);
-      runtime.config.scan.network = true;
-      const target = applyTargetAuthorization(runtime.config, url, options);
-      const report = await runScan({
-        rootDir: runtime.rootDir,
-        config: runtime.config,
-        configPath: runtime.configPath,
-        target: target.toString(),
-        components: ['discovery', 'http', 'api', 'authorization'],
-        onProgress: progressHandler(opts),
-      });
-      return await writeAndEmit(report, opts, runtime.config.report.outputDir);
+      try {
+        const base = resolveApiBase(opts.apiUrl);
+        const result = await login(base, { noBrowser: options.browser === false }, (message) =>
+          log(message),
+        );
+        log(
+          `Signed in. Token stored in ${result.tokenStore === 'keychain' ? 'macOS Keychain' : 'a mode-0600 config file'}; expires ${result.expiresAt}.`,
+        );
+        return 0;
+      } catch (error) {
+        throw new CliError(formatUnknownError(error), 1);
+      }
+    });
+  });
+
+program
+  .command('logout')
+  .description('Revoke the CLI token and remove it from local credential storage')
+  .action(async () => {
+    await main(async () => {
+      const opts = program.opts<GlobalOptions>();
+      try {
+        const token = await getStoredToken();
+        if (token) {
+          const base = resolveApiBase(opts.apiUrl);
+          try {
+            await cloudRequest(base, '/api/cli/logout', { method: 'POST', token });
+          } catch (error) {
+            log(
+              `Server revocation failed, so the local token was kept: ${formatUnknownError(error)}\nRetry launchproof logout when the API is reachable.`,
+            );
+            return 1;
+          }
+        }
+        await deleteStoredToken();
+        log(
+          token ? 'CLI token revoked and local credentials removed.' : 'No stored CLI token found.',
+        );
+        return 0;
+      } catch (error) {
+        throw new CliError(formatUnknownError(error), 1);
+      }
+    });
+  });
+
+program
+  .command('status')
+  .description('Show the authenticated CLI account and token expiry')
+  .action(async () => {
+    await main(async () => {
+      const opts = program.opts<GlobalOptions>();
+      try {
+        const base = resolveApiBase(opts.apiUrl);
+        const token = await getTokenOrThrow();
+        const response = await cloudRequest<{
+          authenticated?: boolean;
+          user?: { githubUsername?: string | null; email?: string | null };
+          token?: { expiresAt?: string | null };
+        }>(base, '/api/cli/me', { token });
+        if (opts.json) {
+          process.stdout.write(`${JSON.stringify(response.data, null, 2)}\n`);
+        } else {
+          log(`API: ${base.toString()}`);
+          log(`GitHub: ${response.data.user?.githubUsername ?? 'unknown'}`);
+          log(`Token expires: ${response.data.token?.expiresAt ?? 'unknown'}`);
+        }
+        return 0;
+      } catch (error) {
+        throw new CliError(formatUnknownError(error), 1);
+      }
+    });
+  });
+
+program
+  .command('repositories')
+  .description('List connected repositories available to CLI uploads')
+  .action(async () => {
+    await main(async () => {
+      const opts = program.opts<GlobalOptions>();
+      try {
+        const base = resolveApiBase(opts.apiUrl);
+        const token = await getTokenOrThrow();
+        const repositories = await fetchRepositories(base, token);
+        if (opts.json) {
+          process.stdout.write(`${JSON.stringify({ repositories }, null, 2)}\n`);
+        } else if (repositories.length === 0) {
+          log('No active connected repositories. Connect one in the dashboard first.');
+        } else {
+          for (const repository of repositories) {
+            log(`${repository.id}  ${repository.full_name}  (${repository.visibility})`);
+          }
+        }
+        return 0;
+      } catch (error) {
+        throw new CliError(formatUnknownError(error), 1);
+      }
+    });
+  });
+
+program
+  .command('upload [file]')
+  .description('Explicitly upload an existing local JSON report after confirmation')
+  .option('--repository <id>', 'Connected repository ID or owner/name for the upload')
+  .option('--yes', 'Confirm the sanitized upload without an interactive prompt')
+  .action(async (file: string | undefined, options: { repository?: string; yes?: boolean }) => {
+    await main(async () => {
+      const opts = program.opts<GlobalOptions>();
+      try {
+        const runtime = await loadRuntime(opts);
+        const source = path.resolve(
+          process.cwd(),
+          file ?? path.join(runtime.config.report.outputDir, 'latest.json'),
+        );
+        let raw: string;
+        try {
+          const info = await fs.stat(source);
+          if (info.size > 25_000_000) {
+            throw new Error('Report file is larger than the 25 MB safety limit.');
+          }
+          raw = await fs.readFile(source, 'utf8');
+        } catch (error) {
+          throw new Error(
+            error instanceof Error && /25 MB/.test(error.message)
+              ? error.message
+              : `Report not found: ${source}. Run a scan first.`,
+          );
+        }
+        const report = parseReportJson(raw);
+        const base = resolveApiBase(opts.apiUrl);
+        const token = await getTokenOrThrow();
+        const repository = await resolveRepository(
+          base,
+          token,
+          runtime.rootDir,
+          options.repository,
+        );
+        await uploadReport(
+          base,
+          token,
+          report,
+          repository,
+          { yes: options.yes },
+          (message) => log(message),
+          runtime.rootDir,
+        );
+        return 0;
+      } catch (error) {
+        throw new CliError(formatUnknownError(error), 1);
+      }
     });
   });
 

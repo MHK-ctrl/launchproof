@@ -273,8 +273,8 @@ export function ReportViewer() {
                 <th>Status</th>
                 <th>Check</th>
                 <th>Summary</th>
-                <th style={{ textAlign: 'right' }}>Findings</th>
-                <th style={{ textAlign: 'right' }}>Time</th>
+                <th className="text-right">Findings</th>
+                <th className="text-right">Time</th>
               </tr>
             </thead>
             <tbody>

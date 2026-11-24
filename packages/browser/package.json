@@ -1,6 +1,6 @@
 {
   "name": "@launchproof/browser",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "LaunchProof browser verification: Playwright workflows, axe-core accessibility, and navigation performance metrics.",
   "license": "MIT",
   "type": "module",
@@ -23,7 +23,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@launchproof/core": "0.1.0"
+    "@launchproof/core": "1.0.0"
   },
   "peerDependencies": {
     "axe-core": ">=4.9.0",

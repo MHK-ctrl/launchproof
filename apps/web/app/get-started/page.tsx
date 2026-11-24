@@ -50,13 +50,14 @@ export default function GetStartedPage() {
           From checkout to evidence in minutes.
         </h1>
         <p className="mt-4 text-[14.5px] leading-relaxed text-[#9bafc5]">
-          v0.1.0 is a source release. There is no account, cloud dependency, or Docker image. Start
-          with static analysis, then opt into live checks for a system you own.
+          v1.0.0 has no required account, cloud dependency, or Docker image. Start with static
+          analysis, then opt into live checks for a system you own. The optional cloud dashboard is
+          live at launchproof-rose.vercel.app and receives only summaries you explicitly upload.
         </p>
       </div>
 
       <div className="mt-10 grid gap-4 lg:grid-cols-[1fr_360px]">
-        <div className="space-y-4">
+        <div className="min-w-0 space-y-4">
           <section className="panel p-6">
             <div className="flex items-center justify-between gap-3">
               <h2 className="text-[16px] font-semibold text-[#e8eff9]">
@@ -67,8 +68,11 @@ export default function GetStartedPage() {
             </div>
             <pre className="code-block mt-3">{INSTALL}</pre>
             <p className="mt-3 text-[12px] leading-relaxed text-[#7f93aa]">
-              Requires Node.js 22.12+. The npm registry package is not published yet; use this
-              checkout until the first public release.
+              Requires Node.js 22.12+. The public npm name{' '}
+              <code className="font-mono">launchproof</code> belongs to an unrelated project, so
+              install from this checkout (or build a tarball with
+              <code className="font-mono">npm pack -w launchproof</code>) until a scoped package is
+              published.
             </p>
           </section>
 
@@ -125,9 +129,30 @@ node packages/cli/bin/launchproof.mjs scan https://staging.example.com \\
           </section>
 
           <section className="panel p-6">
+            <h2 className="text-[16px] font-semibold text-[#e8eff9]">
+              <span className="mr-2 font-mono text-[11px] text-[#3ddc97]">05</span>
+              Optional cloud history
+            </h2>
+            <pre className="code-block mt-3">
+              {`node packages/cli/bin/launchproof.mjs login
+node packages/cli/bin/launchproof.mjs scan . --upload --yes
+node packages/cli/bin/launchproof.mjs logout`}
+            </pre>
+            <p className="mt-3 text-[12px] leading-relaxed text-[#7f93aa]">
+              Sign in with GitHub, connect a repository in the dashboard, and upload only when you
+              want a hosted history. Uploads are sanitized summaries; source code and secrets are
+              not sent. Read the{' '}
+              <Link href="/privacy" className="text-[#3ddc97]">
+                privacy policy
+              </Link>{' '}
+              first.
+            </p>
+          </section>
+
+          <section className="panel p-6">
             <div className="flex items-center justify-between gap-3">
               <h2 className="text-[16px] font-semibold text-[#e8eff9]">
-                <span className="mr-2 font-mono text-[11px] text-[#3ddc97]">05</span>
+                <span className="mr-2 font-mono text-[11px] text-[#3ddc97]">06</span>
                 Optional browser checks
               </h2>
               <CopyButton value={BROWSER} />
@@ -140,7 +165,7 @@ node packages/cli/bin/launchproof.mjs scan https://staging.example.com \\
           </section>
         </div>
 
-        <aside className="space-y-4">
+        <aside className="min-w-0 space-y-4">
           <div className="panel p-5">
             <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#8499b0]">
               What you get

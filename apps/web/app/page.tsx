@@ -142,7 +142,7 @@ export default function HomePage() {
             <div className="mb-6 flex flex-wrap items-center gap-2">
               <span className="chip !border-[#2c5a46] !text-[#6ef0b6]">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#3ddc97]" />
-                Open source · v0.1.0
+                Open source · v1.0.0
               </span>
               <span className="chip">Local-first</span>
               <span className="chip">MIT</span>
@@ -170,7 +170,7 @@ export default function HomePage() {
               </Link>
             </div>
             <div className="mt-7 flex flex-wrap gap-x-5 gap-y-2 font-mono text-[10.5px] uppercase tracking-[0.08em] text-[#8499b0]">
-              <span>No account</span>
+              <span>No account required</span>
               <span>No Docker</span>
               <span>No telemetry</span>
               <span>Authorization required for remote targets</span>
@@ -400,6 +400,49 @@ export default function HomePage() {
       </section>
 
       <section className="container py-20">
+        <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr]">
+          <div>
+            <p className="eyebrow">Optional cloud dashboard</p>
+            <h2 className="mt-3 text-[2rem] font-semibold tracking-[-0.025em] text-[#edf5ff]">
+              Keep a history when you choose to share.
+            </h2>
+            <p className="mt-4 text-[14px] leading-relaxed text-[#8fa3ba]">
+              Local scans never upload anything. If you want a searchable history, sign in with
+              GitHub, connect a repository, and upload a sanitized summary explicitly. The dashboard
+              stores counts, findings, commit/branch, and repository metadata — never source code,
+              environment values, or local paths.
+            </p>
+            <ul className="mt-4 space-y-2 text-[13px] leading-relaxed text-[#93a6bd]">
+              <li>— GitHub sign-in through Supabase; no separate password.</li>
+              <li>— Repository access uses a 15-minute encrypted cookie, not a stored token.</li>
+              <li>— Downloads are authorized per request; another account gets a 404.</li>
+              <li>
+                — Delete your account to remove its repositories, scans, findings, and CLI tokens.
+              </li>
+            </ul>
+            <div className="mt-6 flex flex-wrap gap-2">
+              <Link href="/login" className="btn btn-primary !py-2 !text-[12.5px]">
+                Open the dashboard <ArrowRight size={14} />
+              </Link>
+              <Link href="/privacy" className="btn btn-secondary !py-2 !text-[12.5px]">
+                What gets stored
+              </Link>
+            </div>
+          </div>
+          <pre className="code-block self-center">
+            {`# optional: authenticate this machine
+launchproof login
+
+# local scan, no upload
+launchproof scan .
+
+# explicit upload of the sanitized summary
+launchproof scan . --upload --yes`}
+          </pre>
+        </div>
+      </section>
+
+      <section className="container py-20">
         <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr]">
           <div>
             <p className="eyebrow">What it will not do</p>
@@ -443,8 +486,8 @@ export default function HomePage() {
                 Point it at the app you just built.
               </h2>
               <p className="mt-2 max-w-lg text-[13.5px] text-[#9bafc5]">
-                Start with the local checkout. No account, no cloud, no Docker. Browser checks are
-                optional and clearly reported when unavailable.
+                Start with the local checkout. No account, cloud, or Docker is required. Browser
+                checks are optional and clearly reported when unavailable; cloud upload is opt-in.
               </p>
             </div>
             <div className="flex shrink-0 flex-wrap gap-2">

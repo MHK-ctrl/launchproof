@@ -4,18 +4,25 @@ Persistent execution checklist for the v0.1.0 source preview. Statuses are updat
 corresponding command was actually run. This file distinguishes implemented, tested-passed,
 not-tested, and blocked work.
 
-Last updated: 2026-11-23
+Last updated: 2026-11-24
 
 ## Release summary
 
 LaunchProof is implemented as a local-first npm-workspaces monorepo with a working CLI, static and
 live verification engine, optional Playwright browser checks, report renderers, demo applications,
-tests, documentation, CI, and a statically exported public website.
+tests, documentation, CI, server-rendered public pages, and an optional server-rendered cloud dashboard.
 
 The source tree has completed the phase 18 release-readiness audit and is published as a public
 source repository at https://github.com/MHK-ctrl/launchproof. Hosted CI passes on Node.js 22 and 24.
-The website is **not** deployed, no npm package is published, and no GitHub release or tag exists. No
-external security audit has been performed, and no real Supabase project or large third-party
+The public site and the cloud dashboard are deployed in **Production** on Vercel at
+https://launchproof-rose.vercel.app (Phase 21.7, commit `73912cf`). No npm package is published and
+no GitHub release or tag exists. No external security audit has been performed. The cloud schema has
+been applied to a hosted Supabase project and the hosted RLS suite passed 17/17 checks with two
+disposable identities. The Supabase GitHub provider is configured, and real GitHub OAuth sign-in,
+the private dashboard, and CLI login/status/revocation have been exercised against the production
+origin. Repository connect/consent and live CLI upload remain untested, as does two-account
+isolation. The compromised GitHub OAuth client secret was rotated in Phase 21.2, the old secret was
+deleted, and the Supabase provider was updated without recording the new value. No large third-party
 application has been validated.
 
 ## Environment
@@ -24,33 +31,47 @@ application has been validated.
 - Node.js 26.0.0, npm 11.12.1, Git 2.39.5
 - Project root: `LaunchProof/`
 - GitHub CLI authenticated as `MHK-ctrl`; public repository published and CI verified
-- Vercel CLI installed but logged out; nothing deployed
+- Vercel CLI authenticated as `mdhamzakhan2k6-4663` (team `hamza-recallai`); project `launchproof`
+  is linked and deployed to Production at `https://launchproof-rose.vercel.app`; Preview and
+  Production variables configured, plus Production `APP_BASE_URL`
+- Hosted Supabase project `launchproof` (`ypqpqgnviphwxddrpieq`); migrations applied manually; local
+  `.env` configured and gitignored; one owner auth user, no retained repositories/scans/findings
+  (both Phase 21.8 synthetic users and their rows were deleted)
 - No system Chrome; Playwright Chromium headless shell installed for tests
 
 ## Phase checklist
 
-| Phase                          | Status       | Notes                                                                                |
-| ------------------------------ | ------------ | ------------------------------------------------------------------------------------ |
-| 0. Environment inspection      | Done         | Tools and resources inspected before scaffolding                                     |
-| 1. Architecture                | Done         | `docs/architecture.md`; package boundaries and scan pipeline documented              |
-| 2. Foundation                  | Done         | npm workspaces, strict TypeScript, ESLint, Prettier, Vitest, tsup                    |
-| 3. Project discovery           | Done         | Frameworks, languages, scripts, routes, env references, deployment, integrations     |
-| 4. Static security             | Done         | Secrets, source rules, repository hygiene, dependencies, Supabase RLS                |
-| 5. HTTP checks                 | Done         | Headers, cookies, CORS, transport, sensitive paths, error leakage                    |
-| 6. API testing                 | Done         | Configured endpoints and OpenAPI paths, identities, anonymous-access checks          |
-| 7. Authorization testing       | Done         | Two-identity BOLA probes, read-only default, env-based identities                    |
-| 8. Browser automation          | Done         | Page load, workflows, links, mobile overflow, screenshots                            |
-| 9. Accessibility + performance | Done         | axe-core and navigation metrics with budgets                                         |
-| 10. Reports                    | Done         | Terminal, self-contained HTML, JSON, SARIF 2.1.0, local storage                      |
-| 11. CLI                        | Done         | All required commands, JSON/quiet/verbose/CI modes, exit codes                       |
-| 12. Demo apps                  | Done         | Intentionally vulnerable and hardened loopback servers                               |
-| 13. Tests                      | Done         | Unit, live integration, browser E2E, CLI smoke; 53/53 passing                        |
-| 14. Website                    | Done locally | 7 content routes plus 404/robots exported; not deployed                              |
-| 15. Documentation + CI         | Done         | README, guides, policies, templates, workflow, deployment configs                    |
-| 16. GitHub publication         | Done         | Public repository `MHK-ctrl/launchproof`; hosted CI green; no release tag yet        |
-| 17. Live deployment            | Blocked      | Requires Vercel authentication and deployment approval                               |
-| 18. Final release audit        | Done         | Security, scanner, browser, report, website, docs, CI, deps verified; CONDITIONAL GO |
-| 19. Public GitHub publication  | Done         | 137 files published; Node 22/24 CI passed; repository metadata and clone verified    |
+| Phase                           | Status       | Notes                                                                                         |
+| ------------------------------- | ------------ | --------------------------------------------------------------------------------------------- |
+| 0. Environment inspection       | Done         | Tools and resources inspected before scaffolding                                              |
+| 1. Architecture                 | Done         | `docs/architecture.md`; package boundaries and scan pipeline documented                       |
+| 2. Foundation                   | Done         | npm workspaces, strict TypeScript, ESLint, Prettier, Vitest, tsup                             |
+| 3. Project discovery            | Done         | Frameworks, languages, scripts, routes, env references, deployment, integrations              |
+| 4. Static security              | Done         | Secrets, source rules, repository hygiene, dependencies, Supabase RLS                         |
+| 5. HTTP checks                  | Done         | Headers, cookies, CORS, transport, sensitive paths, error leakage                             |
+| 6. API testing                  | Done         | Configured endpoints and OpenAPI paths, identities, anonymous-access checks                   |
+| 7. Authorization testing        | Done         | Two-identity BOLA probes, read-only default, env-based identities                             |
+| 8. Browser automation           | Done         | Page load, workflows, links, mobile overflow, screenshots                                     |
+| 9. Accessibility + performance  | Done         | axe-core and navigation metrics with budgets                                                  |
+| 10. Reports                     | Done         | Terminal, self-contained HTML, JSON, SARIF 2.1.0, local storage                               |
+| 11. CLI                         | Done         | All required commands, JSON/quiet/verbose/CI modes, exit codes                                |
+| 12. Demo apps                   | Done         | Intentionally vulnerable and hardened loopback servers                                        |
+| 13. Tests                       | Done         | Unit, live integration, browser E2E, CLI smoke; 53/53 passing                                 |
+| 14. Website                     | Done locally | Public pages server-rendered; optional dashboard is server-rendered; not deployed             |
+| 15. Documentation + CI          | Done         | README, guides, policies, templates, workflow, deployment configs                             |
+| 16. GitHub publication          | Done         | Public repository `MHK-ctrl/launchproof`; hosted CI green; no release tag yet                 |
+| 17. Live deployment             | Done         | Production deployed in Phase 21.7; initial live validation passed                             |
+| 18. Final release audit         | Done         | Security, scanner, browser, report, website, docs, CI, deps verified; CONDITIONAL GO          |
+| 19. Public GitHub publication   | Done         | 137 files published; Node 22/24 CI passed; repository metadata and clone verified             |
+| 20. Cloud dashboard             | Done locally | Auth, repo connect, private scans, CLI upload, RLS tests; **not deployed**                    |
+| 21. Hosted Supabase + preview   | Partial      | Hosted RLS 17/17; OAuth configured; Vercel preview blocked by first-deploy rule               |
+| 21.2 OAuth rotation + gate      | Ready        | Secret rotated, hosted RLS 17/17, Production vars set; deployment approval pending            |
+| 21.3 Pre-production hardening   | Done locally | CSP, headers, Postgres/memory rate limits, token cleanup, observability, tests                |
+| 21.4 Hosted audit + 003 review  | Done         | Hosted read-only audit; service-role 403 defect found and fixed in migration 003              |
+| 21.5 Hosted apply + validation  | Done         | Ledger 001/002/003; 60/60 synthetic hosted checks; zero rows/users left behind                |
+| 21.6 Final pre-deployment audit | Ready        | Local verify/audit pass; hosted read-only re-check matches; no deployment blockers            |
+| 21.7 Production deploy + tests  | Done         | Vercel Production live; auth, dashboard, CLI login/status, headers, gating verified           |
+| 21.8 Post-deploy validation     | Done         | Tenant isolation, CSRF, rate limits, deletion, CLI tokens verified; GitHub/CLI upload blocked |
 
 ## Initial implementation verification (historical)
 
@@ -114,7 +135,7 @@ and lockfile detection during development.
 ## Not verified / limitations
 
 - No external security audit or penetration test of LaunchProof or its findings
-- No real Supabase project or deployed RLS policy tested
+- Hosted Supabase RLS passed 17/17 checks, but no deployed dashboard/runtime or real OAuth test exists
 - No large third-party application or production staging system tested
 - TLS certificate chains, protocol versions, and revocation are not assessed
 - Lighthouse is not bundled; requesting it yields NOT VERIFIED
@@ -329,3 +350,496 @@ check, typecheck, Chromium headless-shell install, tests, website build, and art
 
 Website deployment is the next separate mission. It requires `vercel login`, explicit deployment
 approval, and post-deployment verification before any public URL is claimed.
+
+## Phase 20 — Optional cloud dashboard and explicit CLI upload
+
+Implemented locally on 2026-11-23 on branch `feat/cloud-dashboard`. This phase does **not** claim a
+deployment, a live Supabase run, or a real GitHub OAuth run. Those are blocked on owner credentials.
+
+### Delivered
+
+- Next.js server output (static export removed) with dynamic dashboard/auth/API routes and
+  server-rendered public pages (dynamic for the CSP nonce).
+- Supabase SSR authentication, GitHub sign-in through Supabase, and a separate repository consent
+  flow using GitHub OAuth `repo` scope.
+- Encrypted, user-bound, 15-minute HttpOnly connect cookie for the GitHub provider token. The token is
+  never stored in PostgreSQL or logs.
+- Migration `supabase/migrations/202611230001_cloud_dashboard.sql` with:
+  - `profiles`, `repositories`, `scans`, `findings`, `cli_auth_requests`, `cli_tokens`;
+  - composite tenant foreign keys;
+  - RLS policies and revoked anonymous grants;
+  - profile trigger and `repository_scan_stats` security-invoker view.
+- Private dashboard: overview, repositories, scan history, scan detail, settings, account.
+- APIs for repository connection/listing/deletion, scan upload/list/detail/findings/download/delete,
+  account read/delete, health, and CLI token/me/logout/repositories.
+- CLI browser loopback login with state + PKCE, one-time code, hashed seven-day tokens, revocation,
+  Keychain/0600 storage, and no token printing.
+- Explicit `--upload` on `scan`/`security`, plus `upload`, `repositories`, `status`, `login`, and
+  `logout` commands. Uploads show a sanitized preview and require confirmation unless `--yes`.
+- Server-side strict upload schema, 2 MB limit, 300-check/2,000-finding caps, secret/path redaction,
+  safe relative paths, sensitive-reference rejection, and gate recomputation.
+- Account deletion deletes the auth user first (cascade), then clears session and connect cookie.
+- Documentation: `CLOUD_DASHBOARD_ARCHITECTURE.md`, `MULTI_TENANT_SECURITY_DESIGN.md`,
+  `CLOUD_DASHBOARD_SETUP.md`, `PRIVACY_DATA_FLOW.md`, `LIVE_DEPLOYMENT_REPORT.md`; README and
+  deployment docs updated.
+
+### Verification run on this tree
+
+| Command                                 | Result                                                      |
+| --------------------------------------- | ----------------------------------------------------------- |
+| `npm run build`                         | Exit 0; core, browser, and CLI bundles built                |
+| `npm run typecheck -w @launchproof/web` | Exit 0                                                      |
+| `npm run build:web`                     | Exit 0; public pages `○`, dashboard/auth/CLI/API routes `ƒ` |
+| `npm test`                              | 15 files, 68 tests passed                                   |
+| PGlite RLS suite                        | 9 tests passed                                              |
+| Sanitization suite                      | 6 tests passed                                              |
+| Keychain stdin behavior                 | Add/read/delete of a temporary generic-password item passed |
+
+Branch checkpoint: commit `8c91666` (`feat: add optional cloud dashboard and explicit CLI upload`).
+The branch is local; it has not been pushed or merged.
+
+The RLS suite executes the real migration under PGlite with `auth.uid()` derived from a request
+claim. It covers own-row access, cross-tenant reads and primary-key lookups, spoofed inserts,
+cross-tenant foreign keys, update/delete isolation, the aggregate view, and anonymous denial. It is
+not a hosted Supabase test.
+
+### Not verified / blocked at Phase 20 close
+
+At this checkpoint (before Phase 21), no Supabase project or hosted migration existed. Phase 21 later
+applied the migration and verified hosted RLS; the remaining runtime gaps are recorded below.
+
+- No GitHub OAuth App, callback consent, or provider-token exchange had been exercised.
+- No Vercel login, preview, production deployment, hostname, or deployed header check.
+- No live CLI login, token exchange, upload, download, revocation, account deletion, or two-account
+  isolation test.
+- GitHub Actions/OIDC automatic upload is **not implemented**.
+- The GitHub `repo` scope is broad and cannot be made read-only for private repositories with GitHub
+  OAuth. The server only issues GET requests and does not store the provider token.
+- No MFA, audit logging, distributed rate limiting, monitoring, or scheduled cleanup of expired CLI
+  authorization rows.
+- No external security audit or penetration test.
+
+### Next exact action
+
+Owner supplies a Supabase project (URL, anon key, service-role key, applied migration), a GitHub OAuth
+App, and Vercel authentication/approval. Then follow `CLOUD_DASHBOARD_SETUP.md`: local two-account
+verification, preview deployment, full checklist, explicit production approval, production deploy,
+and record the real hostname. Do not announce a URL before it exists.
+
+## Phase 21 — Hosted Supabase setup and preview gate
+
+Continued on 2026-11-23 on `feat/cloud-dashboard`; migration hardening commit `98af71e` was pushed to
+`origin/feat/cloud-dashboard`. This phase does **not** claim a Vercel deployment, a live GitHub
+sign-in, a live CLI upload, or a production URL.
+
+### Hosted Supabase — completed and verified
+
+- Organization: `LaunchProof` (`hhaljmwqphlagxetcccs`).
+- Project: `launchproof` (`ypqpqgnviphwxddrpieq`, Tokyo, free plan).
+- Applied `202611230001_cloud_dashboard.sql` and the corrective idempotent
+  `202611230002_revoke_default_table_privileges.sql` in the hosted SQL editor.
+- Hosted catalog verified: six tables, RLS enabled on all six, 16 policies, composite tenant foreign
+  keys, profile/scan/finding triggers, and `repository_scan_stats` with `security_invoker=true`.
+- Default bootstrap privileges were revoked from `anon` and `authenticated`; `TRUNCATE` is no longer
+  granted, and `authenticated` retains only the operations the application uses. This closed a real
+  hosted bug where `TRUNCATE` would have bypassed RLS.
+- Two disposable Supabase Auth identities were used for a hosted PostgREST/RLS run. All 17 checks
+  passed: own-row access, tenant-scoped lists, cross-tenant reads/updates/deletes, victim-row
+  preservation, forged `user_id`, cross-tenant scan/finding attachment, aggregate-view isolation,
+  anonymous denial, and cleanup. Both disposable identities were deleted.
+- The run was repeated after commit `98af71e`: **17/17 passed**.
+
+### GitHub OAuth configuration — configured, not exercised
+
+- GitHub OAuth App `LaunchProof`, app ID `4046464`, client ID `Ov23li2D78osdcDjz84Y`.
+- Callback: `https://ypqpqgnviphwxddrpieq.supabase.co/auth/v1/callback`.
+- Supabase GitHub provider is enabled with the client ID and callback above. The repository metadata
+  consent flow is a separate OAuth flow and has not been exercised.
+- **Security action required:** during browser automation, the Supabase provider dialog rendered the
+  client secret unmasked in tool output. The value was not intentionally copied, but it must be
+  treated as exposed. Rotate the GitHub OAuth client secret and update Supabase before any live
+  sign-in test. Do not use the exposed secret for validation.
+- Real GitHub sign-in, session establishment/refresh, sign-out, redirect rejection, repository
+  consent, and provider-token exchange are **BLOCKED / NOT TESTED** until rotation and a reachable
+  application origin exist.
+
+### Vercel — project prepared, no deployment
+
+- Account used: `mdhamzakhan2k6-4663`; team `hamza-recallai`. No account switching occurred.
+- Project `launchproof` (`prj_OMc6CDEwAcGppuZFhEqa3j0X95u3`) created and linked. Root directory `.`,
+  Git repository not connected, no deployments.
+- Preview-scoped variables set without printing values: `NEXT_PUBLIC_SUPABASE_URL`,
+  `NEXT_PUBLIC_SUPABASE_ANON_KEY` (Config), `SUPABASE_SERVICE_ROLE_KEY`,
+  `LAUNCHPROOF_ENCRYPTION_KEY` (Secret). `APP_BASE_URL` is intentionally unset until a real preview
+  origin exists.
+- `vercel deploy --environment preview` was refused by Vercel: **the first deployment of a new
+  project is always Production**. No production deployment was created, no alias/domain exists, and
+  `vercel ls launchproof` reports no deployments.
+- Because preview-only deployment is impossible under that rule without an unauthorized production
+  deployment, the preview URL, `APP_BASE_URL`, Supabase preview callback allowlist, deployed header
+  checks, hosted browser tests, and live CLI upload remain **BLOCKED**.
+
+### Verification run after this phase
+
+| Command                                                         | Result                                                              |
+| --------------------------------------------------------------- | ------------------------------------------------------------------- |
+| `npx vitest run packages/core/test/cloud-dashboard-rls.test.ts` | 9/9 passed                                                          |
+| `npm test`                                                      | 15 files, 68/68 tests passed                                        |
+| Hosted `/tmp/lp-hosted-rls.mjs`                                 | 17/17 checks passed                                                 |
+| `vercel whoami`                                                 | `mdhamzakhan2k6-4663`                                               |
+| `vercel project inspect launchproof`                            | linked, no Git, no deployment                                       |
+| `vercel deploy --environment preview`                           | refused: first deploy is prod                                       |
+| Local dev server against hosted Supabase                        | `/` 200, `/login` 200, `/dashboard` 307 to login, `/api/health` 200 |
+
+### Exact remaining blockers
+
+1. Rotate the exposed GitHub OAuth client secret and update Supabase (owner 2FA).
+2. Vercel requires one Production deployment before any Preview deployment exists. Production is not
+   authorized; owner must explicitly approve that first production deployment or choose a host/plan
+   that permits a preview-only first deployment.
+3. After a reachable preview exists: set `APP_BASE_URL`, add the exact preview callback to Supabase,
+   redeploy, and run the real GitHub OAuth, CLI, two-account, dashboard, header, and performance
+   checks.
+4. No production deployment, merge, tag, release, npm publication, or custom domain has occurred.
+
+## Phase 21.2 — OAuth secret rotation and initial Production gate
+
+Continued on 2026-11-23 from `ded30b5` on `feat/cloud-dashboard`. This phase does **not** claim a
+Vercel deployment, a production URL, or a live OAuth/CLI test. The initial Production deployment
+remains **BLOCKED pending explicit owner authorization**.
+
+### OAuth rotation — completed
+
+- The GitHub OAuth App `LaunchProof` (app ID `4046464`, client ID `Ov23li2D78osdcDjz84Y`) was
+  confirmed before modification.
+- A new client secret was generated without DOM extraction or snapshot capture, saved into the
+  Supabase GitHub provider, and the old secret was **deleted**. One masked secret remains.
+- The clipboard was cleared and generated snapshots removed. The secret was not read back, printed,
+  committed, or placed in a report. No secret value is recorded in this repository.
+- Supabase provider re-check: client ID matches; callback remains
+  `https://ypqpqgnviphwxddrpieq.supabase.co/auth/v1/callback`; provider enabled.
+
+### Supabase after rotation — verified
+
+- Hosted RLS/PostgREST suite re-run: **17/17 passed** with two disposable identities, then both
+  identities were deleted.
+- Hosted SQL audit: six tables all with RLS enabled, 16 policies, zero `anon` grants, zero
+  `authenticated` `TRUNCATE` grants, zero auth users, and zero profile/repository/scan/finding rows.
+- Site URL remains `http://127.0.0.1:3000`; redirect allowlist contains only
+  `http://127.0.0.1:3000/auth/callback`.
+- No unexpected migration or production data exists. The project has no
+  `supabase_migrations.schema_migrations` ledger because both migrations were applied manually in the
+  SQL editor; this is a documented operational gap.
+
+### Vercel — prepared, not deployed
+
+- Account `mdhamzakhan2k6-4663`, team `hamza-recallai`; project `launchproof`
+  (`prj_OMc6CDEwAcGppuZFhEqa3j0X95u3`), root `.`, Next.js, `npm ci`, `npm run build:web`, no Git
+  connection, **no deployments**.
+- Four variables now exist in both Preview and Production without values being printed:
+  `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` (Config);
+  `SUPABASE_SERVICE_ROLE_KEY` and `LAUNCHPROOF_ENCRYPTION_KEY` (Secret).
+- `APP_BASE_URL` remains unset. It must be set to the real Vercel production origin after deployment
+  and the app must then be redeployed.
+- Vercel assigns the first deployment of this project to Production. A preview-only first deployment
+  is not possible; no temporary deployment, alternate project, or account switch was used.
+
+### Production readiness checks
+
+| Check                                      | Result                                                          |
+| ------------------------------------------ | --------------------------------------------------------------- |
+| `npm run verify`                           | Exit 0; 15 files / 68 tests; lint, typecheck, builds, web build |
+| `npm audit --audit-level=high`             | 0 vulnerabilities                                               |
+| Secret scan (exact values, tracked/client) | 200 tracked + 19 client static files; 0 hits                    |
+| Production web build                       | Passed; Proxy recognized as middleware; server output           |
+| Local `next start`                         | `/api/health` 200; public routes 200                            |
+| axe WCAG A/AA, eight public pages          | 0 violations after logo and mobile-overflow fixes               |
+| Mobile 390 px, five public pages           | No horizontal overflow                                          |
+| Signed-out `/dashboard`                    | Redirects to `/login?next=%2Fdashboard`                         |
+
+UI fixes in this phase: the logo link now uses its visible text as the accessible name, and
+`/get-started` grid children use `min-w-0` so long code blocks do not widen the mobile viewport.
+
+### Approval gate and remaining work
+
+1. **No production deployment has been created.** The exact requested authorization is:
+   **"Authorize the initial LaunchProof Production deployment to Vercel."**
+2. After approval: verify the final commit and clean tree, deploy the initial Production build,
+   capture the real URL, set `APP_BASE_URL`, add the exact Supabase callback, and redeploy if needed.
+3. Then run live GitHub sign-in, repository consent, CLI login/upload/download/logout, two-account
+   isolation, account deletion, deployed headers, mobile, and lightweight performance checks.
+4. Not tested: deployed runtime, OAuth provider exchange, CLI upload, CSP/HSTS behavior, monitoring,
+   external audit, and distributed rate limits. No URL is claimed.
+
+## Phase 21.3 — Pre-production hardening
+
+Continued on 2026-11-23 from `215a3e2` on `feat/cloud-dashboard`. This phase prepared and verified
+security hardening locally; it did **not** deploy or mutate hosted Supabase.
+
+### Completed locally
+
+- Per-request nonce CSP with `strict-dynamic`, static security headers in `next.config.ts`, and
+  dynamic public-page rendering so nonces match the HTML.
+- Atomic Postgres fixed-window rate limiting with a bounded in-memory fallback and hashed, trusted
+  client keys only on a verified Vercel runtime.
+- CLI token validity checks and failure-safe opportunistic cleanup.
+- Account-deletion auth/cleanup separation, repository-disconnect cookie clearing, and revocation
+  success/error feedback.
+- Structured JSON logs with request IDs and redacted error names/codes.
+- Additive, idempotent migration `202611230003_security_hardening.sql`, a manual migration-ledger
+  reconciliation script, and `supabase/MIGRATION_TRACKING.md`.
+
+### Verification
+
+`npm run verify` passed with **20 test files / 105 tests**, format, lint, typecheck, builds, and the
+production web build. `npm audit --audit-level=high` reported 0 vulnerabilities. A local production
+server passed header, CSP, page-load, sample-report, and sign-in-message checks. Full evidence and
+status labels are in [`PHASE_21_3_REPORT.md`](PHASE_21_3_REPORT.md).
+
+### Blocked / not tested
+
+- Hosted migration-ledger reconciliation and migration `003` are **BLOCKED** pending owner
+  authorization; neither was run.
+- Vercel deployment, live OAuth, live CLI, authenticated dashboard CSP, two-account browser
+  isolation, and deployed performance remain **NOT TESTED**.
+- The initial Production deployment remains **BLOCKED pending explicit owner authorization**.
+
+## Phase 21.4 — Hosted migration reconciliation and security migration review
+
+Continued on 2026-11-23 from `d15ea3c` on `feat/cloud-dashboard`. This phase re-audited hosted
+Supabase read-only, reviewed migration 003, and validated the limiter/cleanup locally. It did **not**
+mutate hosted Supabase, deploy, merge, tag, release, or publish.
+
+### Hosted read-only audit — VERIFIED — HOSTED
+
+- Exactly the six application tables and `repository_scan_stats` view exist, owned by `postgres`.
+- RLS on all six tables; 16 policies; three triggers; both composite tenant foreign keys; view is
+  `security_invoker=true`.
+- `anon` has no table grants; `authenticated` has no `TRUNCATE`; no auth users and zero application
+  rows.
+- The migration ledger is absent and `rate_limits`/the three new functions are absent.
+
+### Critical defect found — BLOCKED
+
+`service_role` has `bypassrls` but no DML on the application tables. A real PostgREST read with the
+service-role key returned 403 `permission denied for table profiles` (42501). Every server-side
+admin path would fail in a deployment. Migration 003 is revised to grant only the DML the app uses;
+this is **not fixed hosted** until the owner authorizes and applies 003.
+
+### Prepared and locally verified
+
+- Migration 003 now has a preflight, service-role grants, postgres default-ACL hardening, bounded
+  token cleanup (100/call), bounded `cleanup_rate_limits`, and stricter input validation.
+- Reconciliation SQL has stronger guards; a guarded SQL file records 003 only after verifying its
+  objects and grants.
+- `npm run verify`: **20 test files / 109 tests** passed, including migration, limiter, and RLS
+  tests. A temporary PostgreSQL instance accepted 40 concurrent limiter requests with exactly 5
+  allowed and 35 denied. `npm audit --audit-level=high`: 0 vulnerabilities. Secret scan: 0
+  hardcoded-secret findings.
+
+### Blocked / not tested
+
+- Hosted ledger reconciliation, migration 003 application, and the 003 ledger record are **BLOCKED**
+  pending explicit owner authorization. No hosted mutation was performed.
+- Hosted rate-limiter, token-cleanup, service-role REST, and post-003 RLS checks are **NOT TESTED**.
+- Vercel deployment, deployed CSP/OAuth/CLI, and two-account browser isolation remain **NOT TESTED**.
+
+Full evidence and the exact approval request are in [`PHASE_21_4_REPORT.md`](PHASE_21_4_REPORT.md).
+
+## Phase 21.5 — Authorized hosted migration application and synthetic validation
+
+Continued on 2026-11-23 on `feat/cloud-dashboard`. The owner explicitly authorized the reviewed
+hosted operations without a provider backup after confirming the project was empty and accepting the
+limited risk. The operations ran in the authorized order, each from the exact committed file with a
+pre-execution SHA-256 check. No guard was bypassed and no reviewed SQL was altered hosted.
+
+### Completed — VERIFIED — HOSTED
+
+- Ledger reconciliation recorded only `202611230001` and `202611230002` (HTTP 201).
+- Migration `202611230003` applied (HTTP 201); `rate_limits`, its expiry index, and the three
+  security-definer functions were created; service-role DML, function ACLs, default ACL hardening,
+  and RLS were verified independently.
+- The guarded record script recorded `202611230003` (HTTP 201). The final ledger contains exactly
+  three rows with zero unexpected versions.
+- Low-volume hosted synthetic validation passed **60/60** checks: service-role PostgREST reads,
+  anonymous/authenticated denials, profile-trigger creation, repository/scan/finding tenant
+  isolation, `security_invoker` view isolation, rate-limit counting/window reset/isolation, bounded
+  rate-limit cleanup (2 then 1), and CLI token cleanup (2 removed, active preserved).
+- Cleanup left zero auth users and zero rows in all seven tables and the view. No real user or
+  application data was introduced.
+
+### Resolved / residual
+
+- The Phase 21.4 `service_role` 403 defect is resolved; server-side PostgREST reads return 200.
+- `service_role` also retains bootstrap `REFERENCES`/`TRIGGER`/`TRUNCATE` (and `MAINTAIN` where
+  supported) privileges and a broad `arwdDxtm` default ACL. It is server-only, but broader than strict DML least privilege; a future
+  least-privilege migration is a separate decision.
+- `supabase_admin` defaults remain broad; application objects must stay `postgres`-owned.
+- No scheduled cleanup job exists, and no provider backup exists. The saved baseline is catalog
+  evidence, not a data backup.
+
+### Verification and artifacts
+
+- `supabase/manual/PHASE_21_5_ROLLBACK_BASELINE.json` — pre-mutation baseline, 63,394 bytes.
+- `supabase/manual/PHASE_21_5_HOSTED_VALIDATION.json` — sanitized 60/60 hosted results.
+- `npm run verify` passed after documentation updates: format, lint, builds, typecheck, 20 test files
+  / 109 tests, and production web build. `npm audit --audit-level=high` remains 0 vulnerabilities; no
+  dependency changed in this phase.
+
+### Blocked / not tested
+
+- Hosted concurrency/load, `supabase` CLI list/dry-run, deployed Vercel runtime, live GitHub OAuth,
+  live CLI, deployed CSP/HSTS/cookies, and two-browser isolation remain **NOT TESTED**.
+- The initial Vercel Production deployment remains **BLOCKED pending separate explicit owner
+  authorization**. Database readiness does not authorize deployment.
+
+Full evidence is in [`PHASE_21_5_REPORT.md`](PHASE_21_5_REPORT.md).
+
+## Phase 21.6 — Final pre-deployment audit and launch preparation
+
+Continued on 2026-11-23 from `4151a129` on `feat/cloud-dashboard`. This phase audited the exact
+candidate commit, re-verified the hosted state **read-only**, and prepared the first Vercel
+deployment plan and a post-deployment test plan. It did **not** deploy, merge, tag, release, publish,
+modify OAuth secrets, or mutate the hosted database.
+
+### Completed — VERIFIED — LOCAL
+
+- Branch `feat/cloud-dashboard` at `4151a1298fe6217eb358772f3ee99bdd15f21f78`, in sync with
+  `origin/feat/cloud-dashboard`, clean worktree, `git diff --check` exit 0, no untracked files.
+- `npm run verify`: format, lint, core/browser/CLI builds, typecheck, **20 test files / 109 tests**,
+  and the production web build all passed (exit 0).
+- `npm audit --audit-level=high`: 0 vulnerabilities. `npm ci --dry-run`: `up to date` (lockfile in
+  sync with `package.json`). No dependency changed.
+- Focused security review of authentication, session handling, tenant ownership, repository consent,
+  CLI PKCE/token lifecycle, upload validation, download authorization, account deletion,
+  sanitization, rate limiting, error/log hygiene, CSP nonce, security headers, cookies, SSRF, XSS,
+  injection, CSRF, env separation, and RLS/service-role usage. No new vulnerability found; no
+  speculative hardening applied.
+- Secret scan over tracked files found only the project's own redaction regexes and synthetic test
+  strings. `.env` remains gitignored; no local database artifact or test identity is tracked.
+- Local dev-server smoke: `/api/health` 200, `/api/cli/repositories` 401 without a token, `/login`
+  200; the proxy/CSP request pipeline is active.
+
+### Completed — VERIFIED — HOSTED (read-only, no mutation)
+
+- Host `ypqpqgnviphwxddrpieq.supabase.co`; service-role PostgREST reads returned **200** on all eight
+  application relations with `count=0`; anonymous reads returned **401** on all eight.
+- Exposed RPC paths `/rpc/consume_rate_limit`, `/rpc/cleanup_cli_tokens`, `/rpc/cleanup_rate_limits`
+  and the seven tables plus `repository_scan_stats` were present, reconfirming the 003 objects.
+- Auth settings returned 200 with the `github` provider enabled.
+- Migration-ledger rows and the Supabase Site URL/redirect allowlist were **not** re-queried this
+  phase (no read-only management credential in session); no SQL has run since the Phase 21.5
+  verification. The saved Phase 21.5 ledger and baseline evidence remain authoritative.
+
+### Configuration (names and scopes only; no values read)
+
+- Preview and Production: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` (Config).
+- Preview and Production: `SUPABASE_SERVICE_ROLE_KEY`, `LAUNCHPROOF_ENCRYPTION_KEY` (Secret).
+- `APP_BASE_URL`: not set. Safe for the first deployment because `appBaseUrl()` falls back to
+  `VERCEL_PROJECT_PRODUCTION_URL`, which Vercel documents as always set at build and runtime. It must
+  be set to the real origin and redeployed immediately after the first deployment.
+- Vercel project: root `.`, framework Next.js 16.4.6, install `npm ci`, build `npm run build:web`,
+  Node.js `26.x` (locally `26.0.0`; Vercel documents 26.x as available), Git not connected, **no
+  deployments**, region `iad1`.
+
+### Blockers and required post-deployment configuration
+
+- **No genuine deployment blocker was found** in code, tests, build, lockfile, or project config.
+- Required immediately after the origin exists (owner-authorized, part of the same gate): set
+  `APP_BASE_URL=https://<production-origin>` and redeploy; add exactly
+  `https://<production-origin>/auth/callback` to Supabase URL Configuration and set the Site URL to
+  the production origin (keeping localhost for development). Keep the GitHub OAuth callback at the
+  Supabase callback URL. Until then, GitHub sign-in will not complete against production.
+- Hosted database mutations: none. Deployment: none.
+
+### Blocked / not tested
+
+- Deployed Vercel build/runtime, headers, cookies, CSP behavior, HSTS, GitHub OAuth exchange, live
+  CLI login/upload/download/revocation, deployed account deletion, and two-browser isolation remain
+  **NOT TESTED** because no deployment exists.
+- Hosted concurrency/load, `supabase` CLI list/dry-run, and provider backup remain **NOT TESTED**.
+- The initial Vercel Production deployment remains **BLOCKED pending explicit owner authorization**.
+
+Full evidence, the exact deployment plan, and the post-deployment test plan are in
+[`PHASE_21_6_REPORT.md`](PHASE_21_6_REPORT.md).
+
+## Phase 21.7 — Initial Vercel Production deployment and first live validation
+
+Authorized and completed on `feat/cloud-dashboard` at
+`73912cf2d6d8aaf2d65c83cd89baf6079d92c274`. No code changed; only Vercel build settings,
+`APP_BASE_URL`, Supabase Auth URL configuration, and documentation were updated.
+
+- **Production:** https://launchproof-rose.vercel.app — deployment
+  `dpl_HgJwEytzp1F3Z3BNvTv9dn2phMjz`, target Production, status Ready, 40 s build. The deployment
+  alias `launchproof-hamza-recallai.vercel.app` serves the same build behind Vercel Authentication.
+- **Build configuration:** Root Directory remains the repository root; framework Output Directory
+  overridden to `apps/web/.next`; install `npm ci`; build `npm run build:web`; Node.js 26.x; region
+  `iad1`; Git integration not connected.
+- **Deployment attempts:** two failed attempts (`NEXT_OUTPUT_DIR_MISSING` at 34 s, then
+  `BUILD_UTILS_SPAWN_1` at 13 s) were resolved with Vercel project settings only, without touching
+  the authorized commit. Two subsequent deployments were Ready.
+- **`APP_BASE_URL`:** set to `https://launchproof-rose.vercel.app` for Production (Config type) and
+  redeployed. Preview remained unchanged.
+- **Supabase:** Site URL is now the production origin; redirect allowlist has exactly the retained
+  localhost callback plus `https://launchproof-rose.vercel.app/auth/callback`. No wildcard. GitHub
+  OAuth callback unchanged; no OAuth secret change.
+- **Verified in Production:** HTTPS/200 and canonical domain; all public routes and `/api/health`;
+  signed-out dashboard redirects; `401` on all private APIs; sanitized `/auth/callback` error;
+  CSP nonce, HSTS, `X-Frame-Options`, `nosniff`, `Referrer-Policy`, `Permissions-Policy`, `COOP`,
+  and private `no-store`/`noindex`; GitHub sign-in; dashboard Overview/Repositories/Scans/Settings/
+  Account; authenticated account/repository/scan reads; invalid upload `400`; CLI login (loopback +
+  PKCE), `status`, and `logout`; CLI upload correctly refused with no connected repository; sign-out.
+- **Not tested:** two-account isolation, repository connect/consent and provider-token exchange,
+  CLI upload/download/revoke-all, account deletion, live rate limits, deployment performance/load,
+  mobile and accessibility, and runtime-log review.
+- **Observations (open, non-blocking):** signed-out `/dashboard/settings` redirect keeps
+  `next=/dashboard`; Supabase session cookies are client-managed (`HttpOnly=false`, `Secure=false`)
+  and rely on the CSP for mitigation.
+- **Cleanup:** temporary CLI config directory and synthetic scan fixtures were deleted; the CLI token
+  was revoked server-side; the browser session was signed out; the worktree stayed clean.
+- **Restrictions honored:** no merge to `main`, tag, release, publish, database reset, secret
+  exposure, real-user data, load testing, Docker, or deployment of a different commit.
+
+Full evidence and the untested-area list are in [`PHASE_21_7_REPORT.md`](PHASE_21_7_REPORT.md).
+
+## Phase 21.8 — Post-deployment functional, isolation, and security validation
+
+Completed against the pinned Production deployment `dpl_HgJwEytzp1F3Z3BNvTv9dn2phMjz`
+(commit `73912cf`) on `feat/cloud-dashboard`, starting from docs commit `f97edb0`. No deployment.
+
+- **Verdict:** PRODUCTION VALIDATION PASSED WITH NON-BLOCKING ISSUES — 135 checks recorded
+  (127 PASS, 0 FAIL, 2 WARN, 6 NOT VERIFIED). Evidence:
+  [`supabase/manual/PHASE_21_8_VALIDATION.json`](supabase/manual/PHASE_21_8_VALIDATION.json).
+- **Tenant isolation (mandatory gate): PASS** with two disposable synthetic identities. Application
+  APIs returned empty lists/`404` for the other tenant's repositories, scans, findings, downloads,
+  mutations, and uploads; RLS returned `[]` or 0 rows for cross-tenant reads/writes and the victim's
+  data stayed intact.
+- **Authentication:** GitHub sign-in, session refresh, sign-out, cookie clearing, private-route
+  gating, and sanitized callback errors verified. External/protocol-relative `next` values collapse
+  to `/dashboard`.
+- **CSRF:** every authenticated state-changing endpoint rejects foreign or missing `Origin` (403),
+  wrong content types (415), malformed JSON (400), and oversized payloads (413).
+- **Rate limiting:** live per-user download limit enforced — request 61 returned `429` with
+  `Retry-After`; another user was unaffected.
+- **CLI:** login (loopback + PKCE), status, local scan, explicit-upload refusal, logout, and token
+  revocation verified; Settings showed 0 active tokens. CLI upload/download against a connected
+  repository is **not verified**.
+- **Account deletion:** both synthetic users deleted via the app; all tenant rows zeroed, Auth user
+  `404`, stale cookie `401`, stale JWT reads `[]`; owner data untouched.
+- **GitHub repository connection:** initiation and scope inspection passed
+  (`user:email read:user repo`, matching the documented integration), but consent is **BLOCKED** by
+  GitHub sudo mode/2FA ("Use GitHub Mobile"). Provider-token cookie, repository association, and
+  disconnect therefore remain untested; no partial state was created.
+- **Reliability:** runtime logs contained only info-level entries with no errors, stack traces, or
+  secret-like strings; `/api/health` remained 200 and the origin stayed healthy.
+- **Findings:** no P0/P1/P2. P3: deep-link redirect collapse (fixed locally), `Secure=false` session
+  cookies (fixed locally), dashboard horizontal overflow at 390 px (recorded, not changed). Info:
+  broad GitHub `repo` scope is documented by design.
+- **Source changes (not deployed):** proxy path header, dashboard layout redirect target, `Secure`
+  cookie options for browser/server/proxy clients, two small helper modules, and regression tests.
+  `npm run verify` exit 0; `npm test` 21 files / 115 tests.
+- **Cleanup:** both synthetic Auth users and all rows deleted; this phase's owner CLI token and auth
+  request removed by exact ID; temporary config/session/scripts/logs removed; owner row counts and
+  the production deployment unchanged.
+
+Full detail, isolation matrix, and remaining risks: [`PHASE_21_8_REPORT.md`](PHASE_21_8_REPORT.md).

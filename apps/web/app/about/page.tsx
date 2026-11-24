@@ -4,7 +4,7 @@ import Link from 'next/link';
 export const metadata: Metadata = {
   title: 'About',
   description:
-    'Why LaunchProof exists, the principles behind it, the current v0.1.0 status, and the roadmap.',
+    'Why LaunchProof exists, the principles behind it, the current v1.0.0 status, and the roadmap.',
 };
 
 export default function AboutPage() {
@@ -30,8 +30,8 @@ export default function AboutPage() {
             text: 'Every finding states severity, confidence, and whether it was observed, pattern-matched, or inferred. A gate result never appears without the threshold that produced it.',
           },
           {
-            title: 'Local-first, no account',
-            text: 'Core scanning runs on your machine. Reports are written locally. There is no telemetry, hosted dashboard requirement, or hidden upload.',
+            title: 'Local-first, optional cloud',
+            text: 'Core scanning runs on your machine and reports are written locally. There is no telemetry and no automatic upload. An optional cloud dashboard stores only a sanitized summary when you explicitly pass --upload and confirm it.',
           },
           {
             title: 'Safe by default',
@@ -60,7 +60,7 @@ export default function AboutPage() {
       <div className="mt-12 grid gap-4 lg:grid-cols-2">
         <section className="panel p-6">
           <p className="eyebrow">Current status</p>
-          <h2 className="mt-2 text-[19px] font-semibold text-[#e8eff9]">v0.1.0 source preview</h2>
+          <h2 className="mt-2 text-[19px] font-semibold text-[#e8eff9]">v1.0.0, released</h2>
           <ul className="mt-3 space-y-2 text-[13px] leading-relaxed text-[#93a6bd]">
             <li>
               — CLI, static engine, HTTP/API/authorization checks, and report renderers are
@@ -78,20 +78,28 @@ export default function AboutPage() {
               >
                 GitHub
               </a>
-              ; the CLI is not yet published to npm and no hosted service exists.
+              ; the public npm name belongs to an unrelated project, so npm distribution is pending
+              a scoped package decision.
+            </li>
+            <li>
+              — The optional Supabase/Vercel dashboard is live at launchproof-rose.vercel.app:
+              GitHub sign-in, repository connection, private scan history, authorized downloads, and
+              explicit CLI upload.
+            </li>
+            <li>
+              — Tenant isolation, CSRF rejection, live rate limits, and account deletion were tested
+              against production in Phase 21.8. GitHub repository consent and a CLI upload against a
+              connected repository remain unverified because GitHub required owner 2FA.
             </li>
             <li>— Documentation records limitations instead of implying complete coverage.</li>
-            <li>
-              — Deployment configuration for the static website is included; publishing requires the
-              owner’s approval.
-            </li>
           </ul>
         </section>
         <section className="panel p-6">
           <p className="eyebrow">Roadmap</p>
           <h2 className="mt-2 text-[19px] font-semibold text-[#e8eff9]">What comes next</h2>
           <ul className="mt-3 space-y-2 text-[13px] leading-relaxed text-[#93a6bd]">
-            <li>— First tagged release and npm publication.</li>
+            <li>— A scoped npm package name and verified npm publication.</li>
+            <li>— Complete the GitHub connect and CLI upload flow with owner 2FA present.</li>
             <li>— More framework-aware discovery and API route extraction.</li>
             <li>— Improved authenticated browser flows and recorded traces.</li>
             <li>— Richer Supabase policy analysis and optional live write-policy tests.</li>

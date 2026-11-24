@@ -1,7 +1,10 @@
 # Privacy and data handling
 
-LaunchProof is local-first. There is no LaunchProof account, telemetry endpoint, hosted dashboard, or
-cloud storage.
+LaunchProof is local-first: the CLI and local reports need no account and collect no telemetry. An
+optional hosted dashboard exists at [launchproof-rose.vercel.app](https://launchproof-rose.vercel.app)
+and stores only what you explicitly create there. The public policy is at
+[launchproof-rose.vercel.app/privacy](https://launchproof-rose.vercel.app/privacy); this page covers
+the local tool in more detail.
 
 ## What stays local
 
@@ -64,14 +67,20 @@ longer needed.
 ## Retention and deletion
 
 Delete the `.launchproof/` directory to remove local artifacts. CI artifacts follow your retention
-policy. LaunchProof has no remote copy to delete.
+policy. If you explicitly uploaded a report to the optional cloud dashboard, delete the scan or the
+account in the dashboard; local files are not touched by that deletion. See
+[PRIVACY_DATA_FLOW.md](../PRIVACY_DATA_FLOW.md).
 
-## Website
+## Website and optional dashboard
 
-The public website is statically exported. It does not run scans, accept credentials, or collect
-analytics. The sample report viewer fetches a committed JSON file from the same origin.
+The public website pages are server-rendered for the CSP nonce. They do not run scans or collect
+analytics, and the sample report viewer fetches a committed JSON file from the same origin.
 
-## Future changes
-
-If a hosted service is ever added, it must be opt-in, documented here, and must not become a
-requirement for the core workflow. This source preview has no such service.
+The dashboard is deployed at [launchproof-rose.vercel.app](https://launchproof-rose.vercel.app) and
+requires GitHub sign-in through Supabase. It stores a profile, connected repository metadata, and the
+sanitized scan summaries you explicitly upload; source code, environment values, and local paths are
+not uploaded. The GitHub provider token is kept in an encrypted 15-minute cookie rather than the
+database. Delete the account from **Dashboard → Account** to remove the profile, repositories, scans,
+findings, and CLI tokens. See the public
+[privacy policy](https://launchproof-rose.vercel.app/privacy) and
+[PRIVACY_DATA_FLOW.md](../PRIVACY_DATA_FLOW.md) for the field-level flow.
