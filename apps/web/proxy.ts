@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
+import { secureCookieOptions } from '@/lib/cookie-options';
 import { getSupabasePublicConfig, isSupabaseConfigured } from '@/lib/env';
 import { buildContentSecurityPolicy } from '@/lib/security-headers';
 
@@ -27,6 +28,8 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
     const headers = new Headers(request.headers);
     headers.set('x-nonce', nonce);
     headers.set('Content-Security-Policy', contentSecurityPolicy);
+    // Lets the dashboard layout redirect back to the requested page instead of always /dashboard.
+    headers.set('x-launchproof-path', `${request.nextUrl.pathname}${request.nextUrl.search}`);
     return headers;
   };
 
@@ -35,6 +38,7 @@ export async function proxy(request: NextRequest): Promise<NextResponse> {
   if (isSupabaseConfigured()) {
     const { url, anonKey } = getSupabasePublicConfig();
     const supabase = createServerClient(url, anonKey, {
+      cookieOptions: secureCookieOptions(request.nextUrl.origin),
       cookies: {
         getAll() {
           return request.cookies.getAll();

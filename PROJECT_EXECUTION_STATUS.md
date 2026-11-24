@@ -35,41 +35,43 @@ application has been validated.
   is linked and deployed to Production at `https://launchproof-rose.vercel.app`; Preview and
   Production variables configured, plus Production `APP_BASE_URL`
 - Hosted Supabase project `launchproof` (`ypqpqgnviphwxddrpieq`); migrations applied manually; local
-  `.env` configured and gitignored; no auth users or tenant rows
+  `.env` configured and gitignored; one owner auth user, no retained repositories/scans/findings
+  (both Phase 21.8 synthetic users and their rows were deleted)
 - No system Chrome; Playwright Chromium headless shell installed for tests
 
 ## Phase checklist
 
-| Phase                           | Status       | Notes                                                                                |
-| ------------------------------- | ------------ | ------------------------------------------------------------------------------------ |
-| 0. Environment inspection       | Done         | Tools and resources inspected before scaffolding                                     |
-| 1. Architecture                 | Done         | `docs/architecture.md`; package boundaries and scan pipeline documented              |
-| 2. Foundation                   | Done         | npm workspaces, strict TypeScript, ESLint, Prettier, Vitest, tsup                    |
-| 3. Project discovery            | Done         | Frameworks, languages, scripts, routes, env references, deployment, integrations     |
-| 4. Static security              | Done         | Secrets, source rules, repository hygiene, dependencies, Supabase RLS                |
-| 5. HTTP checks                  | Done         | Headers, cookies, CORS, transport, sensitive paths, error leakage                    |
-| 6. API testing                  | Done         | Configured endpoints and OpenAPI paths, identities, anonymous-access checks          |
-| 7. Authorization testing        | Done         | Two-identity BOLA probes, read-only default, env-based identities                    |
-| 8. Browser automation           | Done         | Page load, workflows, links, mobile overflow, screenshots                            |
-| 9. Accessibility + performance  | Done         | axe-core and navigation metrics with budgets                                         |
-| 10. Reports                     | Done         | Terminal, self-contained HTML, JSON, SARIF 2.1.0, local storage                      |
-| 11. CLI                         | Done         | All required commands, JSON/quiet/verbose/CI modes, exit codes                       |
-| 12. Demo apps                   | Done         | Intentionally vulnerable and hardened loopback servers                               |
-| 13. Tests                       | Done         | Unit, live integration, browser E2E, CLI smoke; 53/53 passing                        |
-| 14. Website                     | Done locally | Public pages server-rendered; optional dashboard is server-rendered; not deployed    |
-| 15. Documentation + CI          | Done         | README, guides, policies, templates, workflow, deployment configs                    |
-| 16. GitHub publication          | Done         | Public repository `MHK-ctrl/launchproof`; hosted CI green; no release tag yet        |
-| 17. Live deployment             | Done         | Production deployed in Phase 21.7; initial live validation passed                    |
-| 18. Final release audit         | Done         | Security, scanner, browser, report, website, docs, CI, deps verified; CONDITIONAL GO |
-| 19. Public GitHub publication   | Done         | 137 files published; Node 22/24 CI passed; repository metadata and clone verified    |
-| 20. Cloud dashboard             | Done locally | Auth, repo connect, private scans, CLI upload, RLS tests; **not deployed**           |
-| 21. Hosted Supabase + preview   | Partial      | Hosted RLS 17/17; OAuth configured; Vercel preview blocked by first-deploy rule      |
-| 21.2 OAuth rotation + gate      | Ready        | Secret rotated, hosted RLS 17/17, Production vars set; deployment approval pending   |
-| 21.3 Pre-production hardening   | Done locally | CSP, headers, Postgres/memory rate limits, token cleanup, observability, tests       |
-| 21.4 Hosted audit + 003 review  | Done         | Hosted read-only audit; service-role 403 defect found and fixed in migration 003     |
-| 21.5 Hosted apply + validation  | Done         | Ledger 001/002/003; 60/60 synthetic hosted checks; zero rows/users left behind       |
-| 21.6 Final pre-deployment audit | Ready        | Local verify/audit pass; hosted read-only re-check matches; no deployment blockers   |
-| 21.7 Production deploy + tests  | Done         | Vercel Production live; auth, dashboard, CLI login/status, headers, gating verified  |
+| Phase                           | Status       | Notes                                                                                         |
+| ------------------------------- | ------------ | --------------------------------------------------------------------------------------------- |
+| 0. Environment inspection       | Done         | Tools and resources inspected before scaffolding                                              |
+| 1. Architecture                 | Done         | `docs/architecture.md`; package boundaries and scan pipeline documented                       |
+| 2. Foundation                   | Done         | npm workspaces, strict TypeScript, ESLint, Prettier, Vitest, tsup                             |
+| 3. Project discovery            | Done         | Frameworks, languages, scripts, routes, env references, deployment, integrations              |
+| 4. Static security              | Done         | Secrets, source rules, repository hygiene, dependencies, Supabase RLS                         |
+| 5. HTTP checks                  | Done         | Headers, cookies, CORS, transport, sensitive paths, error leakage                             |
+| 6. API testing                  | Done         | Configured endpoints and OpenAPI paths, identities, anonymous-access checks                   |
+| 7. Authorization testing        | Done         | Two-identity BOLA probes, read-only default, env-based identities                             |
+| 8. Browser automation           | Done         | Page load, workflows, links, mobile overflow, screenshots                                     |
+| 9. Accessibility + performance  | Done         | axe-core and navigation metrics with budgets                                                  |
+| 10. Reports                     | Done         | Terminal, self-contained HTML, JSON, SARIF 2.1.0, local storage                               |
+| 11. CLI                         | Done         | All required commands, JSON/quiet/verbose/CI modes, exit codes                                |
+| 12. Demo apps                   | Done         | Intentionally vulnerable and hardened loopback servers                                        |
+| 13. Tests                       | Done         | Unit, live integration, browser E2E, CLI smoke; 53/53 passing                                 |
+| 14. Website                     | Done locally | Public pages server-rendered; optional dashboard is server-rendered; not deployed             |
+| 15. Documentation + CI          | Done         | README, guides, policies, templates, workflow, deployment configs                             |
+| 16. GitHub publication          | Done         | Public repository `MHK-ctrl/launchproof`; hosted CI green; no release tag yet                 |
+| 17. Live deployment             | Done         | Production deployed in Phase 21.7; initial live validation passed                             |
+| 18. Final release audit         | Done         | Security, scanner, browser, report, website, docs, CI, deps verified; CONDITIONAL GO          |
+| 19. Public GitHub publication   | Done         | 137 files published; Node 22/24 CI passed; repository metadata and clone verified             |
+| 20. Cloud dashboard             | Done locally | Auth, repo connect, private scans, CLI upload, RLS tests; **not deployed**                    |
+| 21. Hosted Supabase + preview   | Partial      | Hosted RLS 17/17; OAuth configured; Vercel preview blocked by first-deploy rule               |
+| 21.2 OAuth rotation + gate      | Ready        | Secret rotated, hosted RLS 17/17, Production vars set; deployment approval pending            |
+| 21.3 Pre-production hardening   | Done locally | CSP, headers, Postgres/memory rate limits, token cleanup, observability, tests                |
+| 21.4 Hosted audit + 003 review  | Done         | Hosted read-only audit; service-role 403 defect found and fixed in migration 003              |
+| 21.5 Hosted apply + validation  | Done         | Ledger 001/002/003; 60/60 synthetic hosted checks; zero rows/users left behind                |
+| 21.6 Final pre-deployment audit | Ready        | Local verify/audit pass; hosted read-only re-check matches; no deployment blockers            |
+| 21.7 Production deploy + tests  | Done         | Vercel Production live; auth, dashboard, CLI login/status, headers, gating verified           |
+| 21.8 Post-deploy validation     | Done         | Tenant isolation, CSRF, rate limits, deletion, CLI tokens verified; GitHub/CLI upload blocked |
 
 ## Initial implementation verification (historical)
 
@@ -799,3 +801,45 @@ Authorized and completed on `feat/cloud-dashboard` at
   exposure, real-user data, load testing, Docker, or deployment of a different commit.
 
 Full evidence and the untested-area list are in [`PHASE_21_7_REPORT.md`](PHASE_21_7_REPORT.md).
+
+## Phase 21.8 — Post-deployment functional, isolation, and security validation
+
+Completed against the pinned Production deployment `dpl_HgJwEytzp1F3Z3BNvTv9dn2phMjz`
+(commit `73912cf`) on `feat/cloud-dashboard`, starting from docs commit `f97edb0`. No deployment.
+
+- **Verdict:** PRODUCTION VALIDATION PASSED WITH NON-BLOCKING ISSUES — 135 checks recorded
+  (127 PASS, 0 FAIL, 2 WARN, 6 NOT VERIFIED). Evidence:
+  [`supabase/manual/PHASE_21_8_VALIDATION.json`](supabase/manual/PHASE_21_8_VALIDATION.json).
+- **Tenant isolation (mandatory gate): PASS** with two disposable synthetic identities. Application
+  APIs returned empty lists/`404` for the other tenant's repositories, scans, findings, downloads,
+  mutations, and uploads; RLS returned `[]` or 0 rows for cross-tenant reads/writes and the victim's
+  data stayed intact.
+- **Authentication:** GitHub sign-in, session refresh, sign-out, cookie clearing, private-route
+  gating, and sanitized callback errors verified. External/protocol-relative `next` values collapse
+  to `/dashboard`.
+- **CSRF:** every authenticated state-changing endpoint rejects foreign or missing `Origin` (403),
+  wrong content types (415), malformed JSON (400), and oversized payloads (413).
+- **Rate limiting:** live per-user download limit enforced — request 61 returned `429` with
+  `Retry-After`; another user was unaffected.
+- **CLI:** login (loopback + PKCE), status, local scan, explicit-upload refusal, logout, and token
+  revocation verified; Settings showed 0 active tokens. CLI upload/download against a connected
+  repository is **not verified**.
+- **Account deletion:** both synthetic users deleted via the app; all tenant rows zeroed, Auth user
+  `404`, stale cookie `401`, stale JWT reads `[]`; owner data untouched.
+- **GitHub repository connection:** initiation and scope inspection passed
+  (`user:email read:user repo`, matching the documented integration), but consent is **BLOCKED** by
+  GitHub sudo mode/2FA ("Use GitHub Mobile"). Provider-token cookie, repository association, and
+  disconnect therefore remain untested; no partial state was created.
+- **Reliability:** runtime logs contained only info-level entries with no errors, stack traces, or
+  secret-like strings; `/api/health` remained 200 and the origin stayed healthy.
+- **Findings:** no P0/P1/P2. P3: deep-link redirect collapse (fixed locally), `Secure=false` session
+  cookies (fixed locally), dashboard horizontal overflow at 390 px (recorded, not changed). Info:
+  broad GitHub `repo` scope is documented by design.
+- **Source changes (not deployed):** proxy path header, dashboard layout redirect target, `Secure`
+  cookie options for browser/server/proxy clients, two small helper modules, and regression tests.
+  `npm run verify` exit 0; `npm test` 21 files / 115 tests.
+- **Cleanup:** both synthetic Auth users and all rows deleted; this phase's owner CLI token and auth
+  request removed by exact ID; temporary config/session/scripts/logs removed; owner row counts and
+  the production deployment unchanged.
+
+Full detail, isolation matrix, and remaining risks: [`PHASE_21_8_REPORT.md`](PHASE_21_8_REPORT.md).

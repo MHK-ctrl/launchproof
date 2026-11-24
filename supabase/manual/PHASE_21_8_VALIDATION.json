@@ -1,0 +1,226 @@
+{
+  "phase": "21.8",
+  "date": "2026-11-24",
+  "productionUrl": "https://launchproof-rose.vercel.app",
+  "productionDeploymentId": "dpl_HgJwEytzp1F3Z3BNvTv9dn2phMjz",
+  "productionCommit": "73912cf2d6d8aaf2d65c83cd89baf6079d92c274",
+  "branch": "feat/cloud-dashboard",
+  "baseCommit": "f97edb095762c450dff584edb86e9fe4fbd3f0e1",
+  "deploymentProhibited": true,
+  "productionUnchanged": true,
+  "summary": {
+    "total": 135,
+    "pass": 127,
+    "fail": 0,
+    "warn": 2,
+    "skipped": 0,
+    "notVerified": 6,
+    "error": 0
+  },
+  "groups": {
+    "baseline": {
+      "publicRoutes": ["/", "/login", "/demo", "/docs", "/get-started", "/security", "/report", "/robots.txt", "/icon.svg"],
+      "health": "/api/health 200 {ok:true}",
+      "unknownRoute": "404",
+      "signedOutPrivatePages": [
+        "/dashboard",
+        "/dashboard/settings",
+        "/dashboard/repositories",
+        "/dashboard/repositories/connect",
+        "/dashboard/scans",
+        "/dashboard/account"
+      ],
+      "signedOutPrivateApis401": [
+        "/api/account",
+        "/api/repositories",
+        "/api/repositories/{uuid}",
+        "/api/scans",
+        "/api/scans/{uuid}",
+        "/api/scans/{uuid}/findings",
+        "/api/scans/{uuid}/download",
+        "/api/cli/me",
+        "/api/cli/repositories"
+      ],
+      "unauthenticatedMutations": {
+        "POST /api/cli/token": 401,
+        "POST /api/cli/logout": 401,
+        "POST /auth/signout": 403,
+        "DELETE /api/account": 401
+      },
+      "cspNonceUniquePerRequest": true,
+      "headers": {
+        "content-security-policy": "nonce + strict-dynamic; frame-ancestors 'none'; object-src 'none'; base-uri 'self'",
+        "strict-transport-security": "max-age=31536000; includeSubDomains",
+        "x-frame-options": "DENY",
+        "x-content-type-options": "nosniff",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "permissions-policy": "camera=(), microphone=(), geolocation=()",
+        "cross-origin-opener-policy": "same-origin",
+        "privatePages": "cache-control private no-store; x-robots-tag noindex, nofollow, noarchive"
+      }
+    },
+    "tenantIsolation": {
+      "accounts": "two disposable synthetic Supabase identities (email/password, email_confirm), distinct cookie sessions and bearer tokens",
+      "userA": { "repositories": 0, "scans": 0, "bResourcesVisible": 0 },
+      "userB": { "repositories": 1, "scans": 2, "findings": 2 },
+      "appLayer": {
+        "A GET /api/repositories": "200 []",
+        "A GET /api/repositories/{B repo}": "404",
+        "A DELETE /api/repositories/{B repo}": "404",
+        "A GET /api/scans": "200 total 0",
+        "A GET /api/scans/{B scan}": "404",
+        "A GET /api/scans/{B scan}/findings": "404",
+        "A GET /api/scans/{B scan}/download": "404",
+        "A DELETE /api/scans/{B scan}": "404",
+        "A POST /api/scans (B repositoryId)": "404 repository_not_found",
+        "A POST /api/scans (client user_id injected)": "400 invalid_scan"
+      },
+      "databaseLayer": {
+        "A select B repository/scan/finding/profile": "[]",
+        "A patch B repository/profile": "200 [] (0 rows)",
+        "B data after A attempts": "unchanged; repository active, profile intact"
+      },
+      "verdict": "PASS"
+    },
+    "csrf": {
+      "crossOriginRejected403": [
+        "POST /api/scans",
+        "POST /api/repositories",
+        "DELETE /api/repositories/{id}",
+        "DELETE /api/scans/{id}",
+        "POST /api/cli/token",
+        "POST /auth/signout",
+        "DELETE /api/account"
+      ],
+      "missingOriginRejected": "POST /api/scans 403",
+      "contentType": "text/plain 415; malformed JSON 400; oversized 2.1MB 413",
+      "validSameOriginCliStart": "200",
+      "getDoesNotMutate": "GET /api/account 200",
+      "unsupportedMethod": "POST /api/account 405; PUT /api/scans/{id} 405"
+    },
+    "cliTokens": {
+      "minting": "one-time code + PKCE via /api/cli/token start/exchange",
+      "replay": "400 invalid_grant",
+      "tokenFormat": "lp_cli_ prefix, 7-day expiry, hash stored in database only",
+      "A me/repos": "own identity; repositories []",
+      "B me/repos": "own identity; own repository only",
+      "A upload to B repository": "404 repository_not_found",
+      "B bearer upload": "201 {scanId, findingsStored}",
+      "A logout": "revokes A only; B token still valid",
+      "B logout": "revokes B; token then 401",
+      "revokeAll": "NOT TESTED (owner tokens protected; synthetic tokens revoked individually)"
+    },
+    "rateLimit": {
+      "endpoint": "GET /api/scans/{uuid}/download",
+      "scope": "per user",
+      "limit": "60 per 60s",
+      "observed": "60 x 404 then 429 rate_limited with Retry-After: 47; bucket count 61",
+      "crossUser": "user B unaffected by user A's exhausted window"
+    },
+    "accountDeletion": {
+      "userB": {
+        "delete": "200 {deleted:true}",
+        "cookieAfter": 401,
+        "oldJwtRlsRead": "[]",
+        "profiles": 0,
+        "repositories": 0,
+        "scans": 0,
+        "findings": 0,
+        "cliTokens": 0,
+        "cliAuthRequests": 0,
+        "authUser": "404 not found"
+      },
+      "userA": {
+        "delete": "200 {deleted:true}",
+        "cookieAfter": 401,
+        "profiles": 0,
+        "repositories": 0,
+        "scans": 0,
+        "findings": 0,
+        "cliTokens": 0,
+        "cliAuthRequests": 0,
+        "authUser": "404 not found"
+      }
+    },
+    "cookies": {
+      "sessionCookie": "sb-ypqpqgnviphwxddrpieq-auth-token (chunked .0/.1)",
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax",
+      "domain": "launchproof-rose.vercel.app",
+      "path": "/",
+      "clientManaged": true,
+      "pkceVerifierCookies": "present; also not HttpOnly/Secure",
+      "assessment": "WARN: Secure is avoidable on production HTTPS and is fixed locally; HttpOnly requires a server-managed session redesign and is documented as a trade-off, not claimed as mitigated by CSP"
+    },
+    "github": {
+      "initiation": "GET /api/github/connect -> 303 GitHub authorize",
+      "requestedScopes": "user:email read:user repo",
+      "documentedScopes": "read:user repo (repo required for private metadata; GET-only usage)",
+      "consentScreen": "Personal user data (read-only); Repositories: Public and private",
+      "completion": "BLOCKED: GitHub sudo mode required; only 'Use GitHub Mobile' 2FA prompt available; no owner device",
+      "providerTokenCookie": "NOT VERIFIED",
+      "repositoryAssociation": "NOT VERIFIED",
+      "cleanup": "no association created; no GitHub grant completed"
+    },
+    "cliOwner": {
+      "login": "loopback + PKCE succeeded; token stored mode-0600 in isolated temp config",
+      "status": "correct production API, GitHub MHK-ctrl, 7-day expiry",
+      "scan": "local scan completed (4 pass, 1 fail, 2 warn, 1 skipped; 1 high, 1 medium, 2 low); no upload",
+      "upload": "refused: no active connected repository; local report preserved; no scan row created",
+      "logout": "server-side revocation + credential deletion; status exits 1 (not signed in)",
+      "settings": "Active CLI tokens: 0"
+    },
+    "authSession": {
+      "signIn": "GitHub OAuth via Supabase; dashboard loaded as MHK-ctrl",
+      "refresh": "navigation and same-origin fetches kept the session working",
+      "signOut": "session cookies removed; /dashboard 307 to login",
+      "openRedirect": "external and protocol-relative next values normalize to /dashboard; no outbound link"
+    },
+    "reliability": {
+      "runtimeLogs": "103 records, all level=info, no errors/exceptions/stack traces/secrets; no 5xx observed",
+      "console": "only expected 401 /api/account before sign-in, loopback favicon 404, and closed-loopback connection refused",
+      "health": "200 throughout"
+    },
+    "mobileAccessibility": {
+      "login390": "no horizontal overflow; visible focus outline; skip link; labelled heading",
+      "dashboard390": "WARN horizontal overflow (docScrollWidth 577 > 390) from single-row dashboard nav; Settings/Account off-screen"
+    },
+    "localFixes": {
+      "o1": {
+        "cause": "dashboard layout redirected with hard-coded /dashboard before the page-level requireUser ran",
+        "fix": "proxy copies requested path into x-launchproof-path; layout uses requestPathFromHeaders",
+        "verified": "local production server: /dashboard/settings, /dashboard/scans, /dashboard/repositories/connect preserve next path"
+      },
+      "o2": {
+        "fix": "cookieOptions secure derived from origin (https true, local http false) in browser, server, and proxy clients",
+        "verified": "unit tests; not deployed"
+      },
+      "sourceChanges": [
+        "apps/web/proxy.ts",
+        "apps/web/app/dashboard/layout.tsx",
+        "apps/web/lib/supabase/server.ts",
+        "apps/web/lib/supabase/client.ts",
+        "apps/web/lib/request-path.ts",
+        "apps/web/lib/cookie-options.ts",
+        "packages/core/test/web-auth-cookies.test.ts"
+      ],
+      "verification": "npm run verify exit 0; npm test 21 files / 115 tests"
+    },
+    "cleanup": {
+      "syntheticAccountsDeleted": 2,
+      "syntheticRowsDeleted": "repositories 2, scans 2, findings 2, profiles 2, cli tokens 3, cli auth requests 3",
+      "ownerCliRecordsDeleted": "token and auth request created by this phase (exact IDs, revoked/consumed)",
+      "ownerRowsBeforeAfter": "profiles 1, repositories 0, scans 0, findings 0; auth users 1 (owner)",
+      "tempFilesRemoved": "/tmp/lp218 (config, session material, scripts, logs, HTML)"
+    }
+  },
+  "notVerified": [
+    "GitHub OAuth consent completion (sudo/2FA gate)",
+    "Provider-token encrypted cookie lifetime and user binding",
+    "Repository listing, selection, persistence, disconnect",
+    "CLI binary upload and report download against a connected repository",
+    "Revoke-all CLI tokens",
+    "Deployed cookie-attribute fix (not deployed in this phase)"
+  ]
+}

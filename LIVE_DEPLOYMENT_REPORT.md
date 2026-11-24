@@ -12,7 +12,9 @@ deployment.
 audit pass; hosted state re-checked read-only; no deployment blockers found; no deployment.
 **Phase 21.7:** authorized initial Production deployment completed; `APP_BASE_URL` and Supabase Auth
 URLs configured; initial live validation passed.
-**Status:** **DEPLOYED — INITIAL VALIDATION PASSED**
+**Phase 21.8:** post-deployment validation of the same pinned deployment; tenant isolation, CSRF, rate
+limiting, account deletion, and CLI tokens verified; GitHub connect and CLI upload blocked by 2FA.
+**Status:** **DEPLOYED — VALIDATED WITH NON-BLOCKING ISSUES**
 **Production URL:** https://launchproof-rose.vercel.app (deployment
 `dpl_HgJwEytzp1F3Z3BNvTv9dn2phMjz`, commit `73912cf`). No custom domain or public preview URL is
 announced; deployment aliases sit behind Vercel Authentication.
@@ -282,3 +284,35 @@ throughout. No merge, tag, release, publish, OAuth secret change, or database re
   session cookies are client-managed (`HttpOnly=false`, `Secure=false`) and rely on the CSP.
 
 Full detail, evidence, and the untested-area list: [`PHASE_21_7_REPORT.md`](PHASE_21_7_REPORT.md).
+
+## 13. Phase 21.8 post-deployment validation (same pinned deployment)
+
+No deployment occurred; the live build remains `dpl_HgJwEytzp1F3Z3BNvTv9dn2phMjz` at commit
+`73912cf`.
+
+- **Result:** PRODUCTION VALIDATION PASSED WITH NON-BLOCKING ISSUES — 127 PASS, 0 FAIL, 2 WARN, 6 NOT
+  VERIFIED across 135 recorded checks.
+- **Tenant isolation:** verified with two disposable synthetic identities at the app-API and
+  database-RLS layers. Cross-tenant reads, mutations, uploads, and downloads returned `[]`/`404`/0
+  rows; the other account's repository, scan, findings, and profile stayed intact.
+- **Authorization and CSRF:** every authenticated state-changing endpoint rejected foreign or missing
+  `Origin` (403); content-type, malformed JSON, oversized payloads, and unsupported methods returned
+  415/400/413/405. Bearer CLI uploads remain token-scoped.
+- **Rate limiting:** live per-user download limit rejected request 61 with `429` and `Retry-After`;
+  another user was unaffected.
+- **Deletion:** both synthetic accounts deleted through the app; all rows reached zero, the Auth user
+  returned 404, stale cookies 401, and stale JWTs read `[]`.
+- **CLI:** login (loopback + PKCE), status, local scan, explicit-upload refusal, logout, and
+  revocation verified against production with an isolated config. Upload/download with a connected
+  repository is not verified.
+- **GitHub:** connect initiation and scopes (`user:email read:user repo`) inspected; consent blocked
+  by GitHub sudo-mode/2FA, so provider-token cookie and repository association remain untested and no
+  partial state exists.
+- **Cookies:** session cookies remain client-managed (`HttpOnly=false`, `Secure=false`). Local fixes
+  for `Secure` and for deep-link redirects are on `feat/cloud-dashboard`, not deployed.
+- **Logs/reliability:** 103 runtime records, all info level, no errors or secret-like strings; the
+  origin and `/api/health` stayed healthy.
+- **Mobile:** login is usable at 390 px; dashboard navigation overflows horizontally (P3, unfixed).
+
+Evidence: [`PHASE_21_8_REPORT.md`](PHASE_21_8_REPORT.md) and
+[`supabase/manual/PHASE_21_8_VALIDATION.json`](supabase/manual/PHASE_21_8_VALIDATION.json).

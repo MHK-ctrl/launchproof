@@ -1,8 +1,10 @@
 import type { Metadata } from 'next';
+import { headers } from 'next/headers';
 import type { ReactNode } from 'react';
 
 import { getProfile } from '@/lib/dashboard-data';
 import { githubIdentity, requireUser } from '@/lib/auth';
+import { requestPathFromHeaders } from '@/lib/request-path';
 import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { DashboardNav } from './dashboard-nav';
 
@@ -14,7 +16,9 @@ export const metadata: Metadata = {
 };
 
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
-  const user = await requireUser('/dashboard');
+  // The proxy copies the requested path so a signed-out deep link returns to the same page.
+  const headerStore = await headers();
+  const user = await requireUser(requestPathFromHeaders((name) => headerStore.get(name)));
   const supabase = await createSupabaseServerClient();
   const profile = await getProfile(supabase, user.id);
   const identity = githubIdentity(user);

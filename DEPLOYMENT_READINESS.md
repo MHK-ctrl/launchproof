@@ -2,7 +2,9 @@
 
 **Status:** implemented and **deployed to Vercel Production**; hosted 001/002/003 schema, ledger,
 grants, and RLS verified hosted; 60/60 low-volume synthetic hosted checks passed; the service-role
-admin path is unblocked; OAuth secret rotated; Phase 21.7 initial live validation passed.
+admin path is unblocked; OAuth secret rotated; Phase 21.7 initial live validation passed; Phase
+21.8 post-deployment validation passed with non-blocking issues (tenant isolation, CSRF, rate limits,
+account deletion, CLI tokens) and two P3 fixes pending deployment.
 **Recommended host:** Vercel with the Next.js server runtime.
 **Required services:** Supabase (Auth + PostgreSQL) and a GitHub OAuth App (configured).
 **Deployment gate:** closed in Phase 21.7 — the authorized Production deployment is live.
@@ -50,16 +52,24 @@ admin path is unblocked; OAuth secret rotated; Phase 21.7 initial live validatio
 ## 2. What is not ready
 
 - Repository connect/consent, the encrypted provider-token cookie, and repository metadata fetch are
-  **NOT TESTED** in Production (require installing/authorizing the GitHub App and selecting a repo).
-- CLI `scan --upload`, report download, and "revoke all" are **NOT TESTED** (upload correctly refused
-  with no connected repository); CLI login, status, and logout are verified in Production.
-- Two-account browser/API isolation against production is **NOT TESTED**; only hosted database RLS,
-  local PGlite, and the Phase 21.5 synthetic suite cover isolation.
-- Account deletion, live rate-limit enforcement, authenticated cross-origin rejection, deployment
-  performance/load, mobile layout, accessibility, and runtime-log review are **NOT TESTED**.
-- No custom domain, monitoring, alerting, audit logging, or MFA requirement is configured.
-- Supabase session cookies are client-managed (`HttpOnly=false`, `Secure=false`) and rely on the CSP
-  for mitigation; cookie-option hardening is a follow-up.
+  **NOT TESTED** in Production: the Phase 21.8 consent attempt was blocked by GitHub sudo-mode/2FA,
+  so no provider token or association was created.
+- CLI `scan --upload` and report download against a connected repository are **NOT TESTED**; the
+  explicit-upload guard works and the API upload/download path was verified with a synthetic bearer
+  token. CLI login, status, local scan, and logout are verified in Production.
+- "Revoke all" CLI tokens is **NOT TESTED** (control disabled with zero active tokens; owner tokens
+  were not revoked).
+- Two-account API **and** database-RLS isolation against production is now **VERIFIED** with two
+  synthetic identities (Phase 21.8); browser isolation with two real GitHub accounts is still
+  **NOT TESTED**.
+- Account deletion (synthetic users), live per-user rate limiting, and authenticated cross-origin
+  rejection are **VERIFIED** in Phase 21.8. Deployment performance/load and assistive-technology
+  auditing remain **NOT TESTED**.
+- Dashboard navigation overflows horizontally at 390 px (P3, unfixed); mobile login is usable.
+- No custom domain, monitoring, alerting, audit logging, backups, or MFA requirement is configured.
+- Supabase session cookies are client-managed (`HttpOnly=false`); `Secure` is fixed on the branch but
+  not deployed. CSP mitigates but does not replace `HttpOnly`; a server-managed session migration is
+  the only real fix.
 - GitHub Actions/OIDC upload is not implemented.
 - No custom domain, monitoring, alerting, audit logging, MFA requirement, or scheduled cleanup job
   for expired CLI authorization rows.
@@ -261,8 +271,11 @@ synthetic suite passed 60/60 checks with verified teardown.
 
 The authorized initial Production deployment is live at https://launchproof-rose.vercel.app, with
 `APP_BASE_URL` set and the Supabase Site URL/redirect allowlist updated. Initial live validation
-passed; the untested items in section 2 still require a second account, a connected repository, or
-load testing. No merge to `main`, tag, GitHub release, or npm publish was performed.
+passed, and Phase 21.8 proved tenant isolation, CSRF rejection, rate limiting, account deletion, and
+CLI-token scoping; the untested items in section 2 still require GitHub 2FA completion for repository
+connect/upload. A follow-up candidate containing two P3 fixes (deep-link redirect, `Secure` cookies)
+awaits separate deployment authorization. No merge to `main`, tag, GitHub release, or npm publish was
+performed.
 
 See [CLOUD_DASHBOARD_SETUP.md](CLOUD_DASHBOARD_SETUP.md) for step-by-step setup,
 [PHASE_21_7_REPORT.md](PHASE_21_7_REPORT.md) for deployment evidence, and
