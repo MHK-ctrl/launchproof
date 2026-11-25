@@ -13,7 +13,7 @@ export function SiteFooter() {
             honest about what was not tested.
           </p>
           <p className="mt-4 font-mono text-[10px] uppercase tracking-[0.15em] text-[#8499b0]">
-            MIT · v1.0.0
+            MIT · v1.1.0
           </p>
         </div>
         <div>

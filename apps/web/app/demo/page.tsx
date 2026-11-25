@@ -53,8 +53,9 @@ node packages/cli/bin/launchproof.mjs analyze
 node packages/cli/bin/launchproof.mjs test`}
           </pre>
           <p className="mt-3 text-[11.5px] leading-relaxed text-[#6e8199]">
-            v1.0.0 is released from the repository; npm distribution is pending a scoped package
-            name.
+            The CLI is published on npm as <code className="font-mono">@hamzakhan2006/launchproof</code>
+            (the unscoped npm name <code className="font-mono">launchproof</code> belongs to an
+            unrelated project). Install the scoped package, or run from a checkout of the repository.
           </p>
           <Link href="/get-started" className="btn btn-primary mt-4 !py-2 !text-[12px]">
             Full setup guide

@@ -39,8 +39,20 @@ removes its repositories, scans, findings, and CLI tokens.
 
 ## Try it
 
-The CLI is distributed from the repository (the public npm name `launchproof` belongs to an
-unrelated project):
+The CLI is available from npm as the scoped package `@hamzakhan2006/launchproof` (binary:
+`launchproof`). The unscoped npm name `launchproof` belongs to an unrelated project, so install the
+scoped package and never `npm install launchproof`.
+
+From npm:
+
+```bash
+npm install --global @hamzakhan2006/launchproof
+launchproof init
+launchproof analyze
+launchproof test
+```
+
+From a checkout of the repository:
 
 ```bash
 git clone https://github.com/MHK-ctrl/launchproof.git

@@ -62,13 +62,18 @@ This page is deliberately blunt. A verification tool is only useful if its blind
 
 ## Operational
 
-- The public npm name `launchproof` belongs to an unrelated project. The package is
-  `@hamzakhan2006/launchproof` and is not published; install from the repository or a `npm run pack:cli`
-  tarball until the first scoped release.
+- The public npm name `launchproof` belongs to an unrelated project. The CLI is published on npm as
+  the scoped package `@hamzakhan2006/launchproof` (version 1.1.0, Node.js 22.12+). Install with
+  `npm install --global @hamzakhan2006/launchproof` or run it with `npx @hamzakhan2006/launchproof@1.1.0`.
+  Install from a checkout of this repository when contributing or when you want the current source.
 - PDF export, and all browser checks, depend on optional Playwright and a Chromium download. Without
   them those commands exit with an explicit error rather than degrading silently.
 - The website and dashboard are deployed at https://launchproof-rose.vercel.app. GitHub repository
   consent and a CLI upload against a connected repository are unverified because GitHub required
-  owner 2FA during validation.
+  owner 2FA during validation. The CLI, website, and dashboard are separate: the CLI is a free,
+  locally-run, MIT-licensed tool; the dashboard is an optional, free, best-effort hosted surface.
+  A separate founder-operated paid assessment service may be offered through the website; do not
+  assume payment checkout is live or that paid assessments are currently accepting customers unless
+  that is independently verified on the site.
 - Windows has not been the primary test platform; bash-compatible commands are used in docs and CI.
 - LaunchProof cannot verify that you have legal authorization to test a target.

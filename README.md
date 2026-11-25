@@ -32,11 +32,11 @@ evidence you can inspect instead of a badge you have to trust.
 - Teams that want a hosted scanner and a badge. The CLI is local-first, has no telemetry, and
   requires no account for the core path.
 
-> **Status: source release and website at v1.0.0; CLI package `@hamzakhan2006/launchproof` pending publish at 1.1.0.** The source is public at
+> **Status: CLI package `@hamzakhan2006/launchproof` is published at 1.1.0.** The source is public at
 > [github.com/MHK-ctrl/launchproof](https://github.com/MHK-ctrl/launchproof) and the website and
 > optional cloud dashboard are live at [launchproof-rose.vercel.app](https://launchproof-rose.vercel.app).
-> The scoped npm package is not published yet, so the CLI is distributed from this repository (or an
-> `npm pack` tarball); do not run `npm install launchproof`—that installs an unrelated project. Tenant isolation, CSRF rejection,
+> The CLI is available from the npm registry as the scoped package `@hamzakhan2006/launchproof`; do
+> not run `npm install launchproof`—that installs an unrelated project. Tenant isolation, CSRF rejection,
 > rate limits, account deletion, GitHub sign-in, and CLI login/revocation were tested against
 > production in Phase 21.8. GitHub repository consent and a CLI upload against a connected
 > repository remain unverified because GitHub required owner 2FA. Read
@@ -88,12 +88,24 @@ one Chromium instance, bounded response bodies, and two Vitest workers.
 
 ## Installation
 
-**There is no registry release yet.** The unscoped npm name `launchproof` belongs to an unrelated
-project, so this project publishes as **`@hamzakhan2006/launchproof`** (binary: `launchproof`) and that
-scoped package has not been published. Until it is, install from source or from a tarball. Do not
-run `npm install launchproof`—that installs someone else's tool.
+The CLI is published on npm as the scoped package **`@hamzakhan2006/launchproof`** (binary:
+`launchproof`). The unscoped npm name `launchproof` belongs to an unrelated project, so install the
+scoped package and never `npm install launchproof`.
 
-From source:
+From npm (recommended):
+
+```bash
+npm install --global @hamzakhan2006/launchproof
+launchproof --version
+```
+
+Run without installing:
+
+```bash
+npx @hamzakhan2006/launchproof@1.1.0 --version
+```
+
+From source (for contributors or when you want the current checkout):
 
 ```bash
 git clone https://github.com/MHK-ctrl/launchproof.git
@@ -103,7 +115,7 @@ npm run build
 node packages/cli/bin/launchproof.mjs --help
 ```
 
-As a global command, without waiting for the registry:
+As a global command from a tarball of the current checkout:
 
 ```bash
 npm run pack:cli                      # builds, then writes artifacts/hamzakhan2006-launchproof-<version>.tgz
@@ -111,7 +123,7 @@ npm install --global ./artifacts/*.tgz
 launchproof --version
 ```
 
-`npm run verify:package` proves this path end to end: it packs a tarball, installs it into an
+`npm run verify:package` proves the packaged CLI end to end: it packs a tarball, installs it into an
 unrelated temporary project, runs a scan, and checks that the secret in the fixture stays masked.
 
 ## 60-second quickstart

@@ -7,10 +7,41 @@ Yes. The source is MIT licensed. There is no paid tier. The optional dashboard i
 
 ### Is it published on npm?
 
-Not yet. The public npm name `launchproof` is owned by an unrelated project, so this project uses the
-scoped name `@hamzakhan2006/launchproof` and no release has been published. Install from the repository
-checkout or from a tarball produced by `npm run pack:cli`. Do not install the similarly named
-unscoped registry package expecting this project.
+Yes. The CLI is published on npm as the scoped package **`@hamzakhan2006/launchproof`** (binary:
+`launchproof`). The unscoped npm name `launchproof` is owned by an unrelated project, so use the
+scoped package and never `npm install launchproof`.
+
+The current published version is 1.1.0, and it requires Node.js 22.12 or newer.
+
+Install as a global command:
+
+```bash
+npm install --global @hamzakhan2006/launchproof
+launchproof --version
+```
+
+Run without installing:
+
+```bash
+npx @hamzakhan2006/launchproof@1.1.0 --version
+```
+
+Install from a checkout of this repository if you want the current source or are contributing:
+
+```bash
+git clone https://github.com/MHK-ctrl/launchproof.git
+cd LaunchProof
+npm ci
+npm run build
+node packages/cli/bin/launchproof.mjs --help
+```
+
+Report issues and read the full documentation on GitHub:
+
+- Issues: https://github.com/MHK-ctrl/launchproof/issues
+- CLI reference: https://github.com/MHK-ctrl/launchproof/blob/main/docs/cli.md
+- Project: https://github.com/MHK-ctrl/launchproof
+- Website: https://launchproof-rose.vercel.app
 
 ### Does the cloud dashboard upload my code?
 

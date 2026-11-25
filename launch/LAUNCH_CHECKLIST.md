@@ -42,8 +42,7 @@ Status reflects the Phase 21.9 release. Do not check an item without evidence.
 - [x] CLI tarball inspected: only `bin`, `dist`, `README`, and package metadata (no source, tests, env).
 - [x] Clean install from a packed tarball on macOS arm64: `--version` 1.0.0, `init`/`analyze`/`test` pass.
 - [x] Version consistent at 1.0.0 across workspaces.
-- [ ] npm publication — **blocked**: the registry name `launchproof` is owned by an unrelated
-      project and no npm account is authenticated. Owner must choose a scoped name and publish.
+- [x] npm publication — completed: the CLI is published on npm as the scoped package `@hamzakhan2006/launchproof` at version 1.1.0. The unscoped npm name `launchproof` is owned by an unrelated project, so the scoped package is the correct install target.
 - [x] Installation instructions describe the actual repository/tarball path.
 - [ ] Windows/Linux clean-install verification (not performed; do not claim).
 

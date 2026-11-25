@@ -23,8 +23,8 @@ npm run build
 node packages/cli/bin/launchproof.mjs --version
 ```
 
-> "The CLI runs from the repository because the public npm name belongs to another project. No
-> account or Docker is needed for local scans."
+> "The CLI is available from npm as the scoped package `@hamzakhan2006/launchproof`, and the public
+> npm name `launchproof` belongs to another project. No account or Docker is needed for local scans."
 
 ## 0:25 — Local scan (20 s)
 

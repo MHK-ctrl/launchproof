@@ -1,12 +1,34 @@
 # CLI reference
 
 The binary is `launchproof`. The package is named `@hamzakhan2006/launchproof` because the unscoped npm
-name belongs to an unrelated project; it has not been published, so install from the repository or
-from a tarball produced by `npm run pack:cli`. From the repository root, invoke it directly:
+name belongs to an unrelated project. The scoped package is published on npm at version 1.1.0 and
+requires Node.js 22.12 or newer.
+
+Install as a global command:
 
 ```bash
+npm install --global @hamzakhan2006/launchproof
+launchproof --version
+```
+
+Run without installing:
+
+```bash
+npx @hamzakhan2006/launchproof@1.1.0 --help
+```
+
+From a checkout of this repository (for contributors or when you want the current source):
+
+```bash
+git clone https://github.com/MHK-ctrl/launchproof.git
+cd LaunchProof
+npm ci
+npm run build
 node packages/cli/bin/launchproof.mjs --help
 ```
+
+You can also build a tarball of the current checkout with `npm run pack:cli` and install that
+globally. For all install paths, see the repository README’s [Installation section](../README.md#installation).
 
 ## Global options
 

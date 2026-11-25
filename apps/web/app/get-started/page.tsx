@@ -6,10 +6,14 @@ import { CopyButton } from '../../components/copy-button';
 export const metadata: Metadata = {
   title: 'Get started',
   description:
-    'Install LaunchProof from source, configure a project, run static and authorized live checks, and inspect the report.',
+    'Install LaunchProof from npm or from source, configure a project, run static and authorized live checks, and inspect the report.',
 };
 
-const INSTALL = `git clone https://github.com/hamzakhan2006/launchproof.git
+const INSTALL = `npm install --global @hamzakhan2006/launchproof
+launchproof --version
+
+# or from a checkout of the repository:
+git clone https://github.com/MHK-ctrl/launchproof.git
 cd LaunchProof
 npm install
 npm run build
@@ -50,9 +54,10 @@ export default function GetStartedPage() {
           From checkout to evidence in minutes.
         </h1>
         <p className="mt-4 text-[14.5px] leading-relaxed text-[#9bafc5]">
-          v1.0.0 has no required account, cloud dependency, or Docker image. Start with static
-          analysis, then opt into live checks for a system you own. The optional cloud dashboard is
-          live at launchproof-rose.vercel.app and receives only summaries you explicitly upload.
+          The free LaunchProof CLI is published on npm as <code className="font-mono">@hamzakhan2006/launchproof</code>
+          and has no required account, cloud dependency, or Docker image. Start with static analysis,
+          then opt into live checks for a system you own. The optional cloud dashboard is live at
+          launchproof-rose.vercel.app and receives only summaries you explicitly upload.
         </p>
       </div>
 
@@ -70,9 +75,9 @@ export default function GetStartedPage() {
             <p className="mt-3 text-[12px] leading-relaxed text-[#7f93aa]">
               Requires Node.js 22.12+. The public npm name{' '}
               <code className="font-mono">launchproof</code> belongs to an unrelated project, so
-              install from this checkout (or build a tarball with
-              <code className="font-mono">npm run pack:cli</code>) until a scoped package is
-              published.
+              install the scoped package <code className="font-mono">@hamzakhan2006/launchproof</code>
+              from npm (or build a tarball of the current checkout with
+              <code className="font-mono">npm run pack:cli</code>).
             </p>
           </section>
 

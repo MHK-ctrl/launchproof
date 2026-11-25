@@ -41,7 +41,9 @@ export default function DocsPage() {
               ))}
             </nav>
             <div className="mt-6 rounded-lg border border-[#1c2938] p-3 text-[11px] leading-relaxed text-[#6e8199]">
-              v1.0.0. Install the CLI from the repository; npm distribution is pending.
+              Free CLI: <code className="font-mono">@hamzakhan2006/launchproof</code> on npm
+              (the unscoped name <code className="font-mono">launchproof</code> belongs to an
+              unrelated project). MIT licensed. Not a penetration test.
             </div>
           </div>
         </aside>
@@ -52,8 +54,12 @@ export default function DocsPage() {
             LaunchProof documentation
           </h1>
           <p className="mt-3 max-w-2xl">
-            LaunchProof is a local-first CLI that verifies AI-built applications and publishes
-            evidence. This page covers the current v1.0.0 release. It intentionally does not promise
+            LaunchProof is a free, local-first CLI that verifies AI-built applications and publishes
+            evidence. It is MIT licensed and published on npm as <code className="font-mono">@hamzakhan2006/launchproof</code>
+            (the unscoped npm name <code className="font-mono">launchproof</code> belongs to an
+            unrelated project). A separate founder-operated paid assessment service may be offered
+            through the website; do not assume it has an active checkout or is currently accepting
+            customers unless that is independently verified on the site. This page does not promise
             capabilities that are not implemented.
           </p>
 
@@ -74,10 +80,10 @@ launchproof report       # render or convert an existing report`}
 
           <h2 id="install">Install from source</h2>
           <p>
-            Node.js 22.12 or newer is required. Docker is not used. The public npm name
-            <code>launchproof</code> is owned by an unrelated project, so the CLI is distributed
-            from the repository checkout (or an <code>npm pack</code> tarball of the CLI workspace)
-            until a scoped package name is chosen by the owner.
+            Node.js 22.12 or newer is required. Docker is not used. Install the CLI from npm as the
+            scoped package <code>@hamzakhan2006/launchproof</code>, or run it from a checkout of the
+            repository. The unscoped npm name <code>launchproof</code> is owned by an unrelated
+            project, so do not install <code>launchproof</code> expecting this project.
           </p>
           <div className="code-block my-4">
             {`git clone https://github.com/MHK-ctrl/launchproof.git

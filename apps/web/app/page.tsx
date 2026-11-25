@@ -142,7 +142,7 @@ export default function HomePage() {
             <div className="mb-6 flex flex-wrap items-center gap-2">
               <span className="chip !border-[#2c5a46] !text-[#6ef0b6]">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#3ddc97]" />
-                Open source · v1.0.0
+                Open source · v1.1.0 (npm)
               </span>
               <span className="chip">Local-first</span>
               <span className="chip">MIT</span>

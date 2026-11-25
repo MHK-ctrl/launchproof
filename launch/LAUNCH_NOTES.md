@@ -37,9 +37,7 @@ limitations.
 There is an optional dashboard (GitHub sign-in, explicit sanitized upload, scan history, authorized
 downloads). It is not required for local work. Upload is opt-in, never automatic.
 
-The public npm name is owned by another project, so v1.0 installs from the repository. Docs and the
-report are at https://launchproof-rose.vercel.app. Feedback and false-positive reports are welcome
-through GitHub issues.
+The public npm name is owned by another project, so the project publishes as the scoped package `@hamzakhan2006/launchproof`. v1.0 installed from the repository; the current CLI is available from npm at version 1.1.0. Docs and the report are at https://launchproof-rose.vercel.app. Feedback and false-positive reports are welcome through GitHub issues.
 
 ## Do not say
 
