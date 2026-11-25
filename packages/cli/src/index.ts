@@ -43,6 +43,7 @@ import {
   uploadReport,
 } from './cloud/commands.js';
 import { cloudRequest, resolveApiBase } from './cloud/http.js';
+import { renderPdfFile } from './report-pdf.js';
 import { login } from './cloud/login.js';
 import { deleteStoredToken, getStoredToken } from './cloud/token-store.js';
 
@@ -891,7 +892,7 @@ program
 program
   .command('report [file]')
   .description('Render, convert, or open an existing JSON report')
-  .option('--format <format>', 'terminal, json, html, or sarif', 'terminal')
+  .option('--format <format>', 'terminal, json, html, sarif, or pdf', 'terminal')
   .option('--out <path>', 'Write converted output to a specific path')
   .option('--open', 'Open the HTML report in the default browser')
   .action(
@@ -926,6 +927,17 @@ program
           process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
           return 0;
         }
+        if (format === 'pdf') {
+          const destination = path.resolve(
+            process.cwd(),
+            options.out ?? path.join(runtime.config.report.outputDir, 'report.pdf'),
+          );
+          const pdf = await renderPdfFile(renderHtml(report), destination);
+          if (!pdf.ok) throw new CliError(pdf.reason ?? 'PDF export failed.', 2);
+          if (opts.json) printArtifacts([destination], opts);
+          else process.stdout.write(`${destination}\n`);
+          return 0;
+        }
         if (format === 'html' || format === 'sarif') {
           const html = format === 'html';
           const content = html ? renderHtml(report) : renderSarif(report);
@@ -943,7 +955,7 @@ program
         }
         if (format !== 'terminal') {
           throw new CliError(
-            `Unknown report format "${format}". Use terminal, json, html, or sarif.`,
+            `Unknown report format "${format}". Use terminal, json, html, sarif, or pdf.`,
           );
         }
         process.stdout.write(

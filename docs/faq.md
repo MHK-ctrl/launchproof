@@ -7,9 +7,10 @@ Yes. The source is MIT licensed. There is no paid tier. The optional dashboard i
 
 ### Is it published on npm?
 
-No. The public npm name `launchproof` is owned by an unrelated project, so v1.0.0 is distributed from
-the repository checkout or an `npm pack -w launchproof` tarball. Do not install the similarly named
-registry package expecting this project; a scoped package name is an owner decision.
+Not yet. The public npm name `launchproof` is owned by an unrelated project, so this project uses the
+scoped name `@hamzakhan2006/launchproof` and no release has been published. Install from the repository
+checkout or from a tarball produced by `npm run pack:cli`. Do not install the similarly named
+unscoped registry package expecting this project.
 
 ### Does the cloud dashboard upload my code?
 

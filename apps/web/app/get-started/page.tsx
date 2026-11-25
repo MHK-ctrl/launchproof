@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     'Install LaunchProof from source, configure a project, run static and authorized live checks, and inspect the report.',
 };
 
-const INSTALL = `git clone https://github.com/MHK-ctrl/launchproof.git
+const INSTALL = `git clone https://github.com/hamzakhan2006/launchproof.git
 cd LaunchProof
 npm install
 npm run build
@@ -71,7 +71,7 @@ export default function GetStartedPage() {
               Requires Node.js 22.12+. The public npm name{' '}
               <code className="font-mono">launchproof</code> belongs to an unrelated project, so
               install from this checkout (or build a tarball with
-              <code className="font-mono">npm pack -w launchproof</code>) until a scoped package is
+              <code className="font-mono">npm run pack:cli</code>) until a scoped package is
               published.
             </p>
           </section>

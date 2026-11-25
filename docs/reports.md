@@ -47,7 +47,24 @@ decision. Use `--fail-on critical` only if you knowingly accept high findings.
 
 The HTML report is a single file with inline CSS and a small filter/search script. It has no remote
 fonts, scripts, or images, so it can be opened offline, attached to a ticket, or archived. It includes
-the project profile, configuration summary, checks table, evidence, limitations, and print styles.
+the assessment scope and authorization statement, the project profile, configuration summary, checks
+table, evidence, limitations, and print styles.
+
+The scope section states the project, assessment date, tool version, mode, target, selected check
+counts, and the authority under which a live target was tested. It states explicitly that the
+document is not a penetration test or certification and that LaunchProof does not verify
+authorization.
+
+## PDF
+
+```bash
+launchproof report --format pdf --out report.pdf
+```
+
+PDF export renders the same HTML in headless Chromium through the optional Playwright dependency and
+prints it to A4 with page numbers and a "not a penetration test" footer. There is intentionally no
+second layout, so the PDF cannot disagree with the HTML or JSON it came from. If Playwright or
+Chromium is missing, the command exits `2` with the install command; the HTML report is unaffected.
 
 ## SARIF
 

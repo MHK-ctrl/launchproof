@@ -4,6 +4,38 @@ All notable changes to LaunchProof are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project intends to follow
 [Semantic Versioning](https://semver.org/).
 
+## [1.1.0] — 2026-11-25
+
+Packaging and first-paid-report preparation. Detection rules, thresholds, redaction behavior, and the
+report schema are unchanged.
+
+### Added
+
+- `launchproof report --format pdf` prints the existing HTML report to A4 with page numbers and a
+  "not a penetration test" footer, reusing the optional Playwright dependency.
+- An assessment scope and authorization statement now opens every HTML and PDF report: project,
+  date, tool version, mode, target, selected check counts, and the authority for any live target.
+- `npm run verify:package` packs a tarball, installs it into an unrelated temporary project, runs a
+  scan, and asserts the fixture secret never appears in output or in the HTML report.
+- `npm run pack:cli` builds and packs the CLI workspace into `artifacts/`.
+- Regression tests for package identity, tarball contents, and bundled workspace dependencies.
+
+### Changed
+
+- The CLI package is now `@hamzakhan2006/launchproof`; the binary is still `launchproof`. The unscoped npm
+  name belongs to an unrelated project and nothing has been published.
+- `npm test` builds first through `pretest`, so a fresh clone can run the suite without a manual build.
+- The CLI tarball ships a `LICENSE` file plus `repository`, `homepage`, `bugs`, and `publishConfig`
+  metadata.
+
+### Fixed
+
+- A clean clone could not run the test suite: four test files resolved `@launchproof/core` before any
+  build existed.
+- `npm ci` rejected the lockfile after the workspace rename until `package-lock.json` was updated.
+
+## [Unreleased]
+
 ## [1.0.0] — 2026-11-24
 
 First supported release. The CLI and verification engine are unchanged in capability from the

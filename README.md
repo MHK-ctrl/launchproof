@@ -8,17 +8,35 @@
 [launchproof-rose.vercel.app/docs](https://launchproof-rose.vercel.app/docs) · **Dashboard:**
 [launchproof-rose.vercel.app/login](https://launchproof-rose.vercel.app/login)
 
-LaunchProof is an open-source, local-first verification CLI for applications built with AI. It
-checks security posture, secrets, API contracts, object-level authorization, real browser
-workflows, accessibility, and performance—then writes evidence you can inspect instead of a
-badge you have to trust.
+**LaunchProof is a local-first CLI that checks an AI-built web app for the security and
+release-readiness mistakes that most often reach production, and writes an evidence-backed report
+you can read, archive, or hand to a client.**
 
-> **Status: v1.0.0.** The source is public at
+It is open source under the MIT licence. It checks security posture, secrets, API contracts,
+object-level authorization, real browser workflows, accessibility, and performance—then writes
+evidence you can inspect instead of a badge you have to trust.
+
+### Who it is for
+
+- **Individual developers shipping an app built with an AI coding tool**, who want a concrete list of
+  what to fix before strangers can reach it.
+- **Freelancers and small agencies**, who need a defensible written record of what was checked on a
+  client's app and what remains unknown.
+- **Anyone inheriting a vibe-coded codebase**, who needs a fast profile of routes, secrets, headers,
+  and risky sinks before touching it.
+
+### Who it is not for
+
+- Anyone who needs a penetration test, exploit demonstration, compliance attestation, or security
+  certificate. LaunchProof is none of those, and every report says so explicitly.
+- Teams that want a hosted scanner and a badge. The CLI is local-first, has no telemetry, and
+  requires no account for the core path.
+
+> **Status: source release and website at v1.0.0; CLI package `@hamzakhan2006/launchproof` pending publish at 1.1.0.** The source is public at
 > [github.com/MHK-ctrl/launchproof](https://github.com/MHK-ctrl/launchproof) and the website and
 > optional cloud dashboard are live at [launchproof-rose.vercel.app](https://launchproof-rose.vercel.app).
-> The public npm name `launchproof` belongs to an unrelated project, so the CLI is distributed from
-> this repository (or an `npm pack` tarball) until a scoped npm package is published; do not install
-> the similarly named registry package expecting this project. Tenant isolation, CSRF rejection,
+> The scoped npm package is not published yet, so the CLI is distributed from this repository (or an
+> `npm pack` tarball); do not run `npm install launchproof`—that installs an unrelated project. Tenant isolation, CSRF rejection,
 > rate limits, account deletion, GitHub sign-in, and CLI login/revocation were tested against
 > production in Phase 21.8. GitHub repository consent and a CLI upload against a connected
 > repository remain unverified because GitHub required owner 2FA. Read
@@ -55,7 +73,7 @@ It is intentionally conservative about what it claims:
 | Browser            | Chromium page load, console/network errors, configured workflows, internal links, mobile overflow                          |
 | Accessibility      | axe-core against sampled pages with WCAG tags                                                                              |
 | Performance        | FCP, LCP, CLS, load time, JS transfer, request count, DOM size against configurable budgets                                |
-| Reporting          | Terminal summary, self-contained HTML, JSON, SARIF 2.1.0                                                                   |
+| Reporting          | Terminal summary, self-contained HTML, print-ready PDF, JSON, SARIF 2.1.0                                                 |
 
 ## Requirements
 
@@ -68,37 +86,53 @@ It is intentionally conservative about what it claims:
 Defaults are sized for a laptop: 8,000-file walk cap, 50 HTTP requests per scan, 4 requests/second,
 one Chromium instance, bounded response bodies, and two Vitest workers.
 
-## Quick start (from source)
+## Installation
 
-The CLI is not installable from the public npm registry under the name `launchproof` (that name is
-an unrelated package). Clone and build it locally, or install a tarball built with
-`npm pack -w launchproof`.
+**There is no registry release yet.** The unscoped npm name `launchproof` belongs to an unrelated
+project, so this project publishes as **`@hamzakhan2006/launchproof`** (binary: `launchproof`) and that
+scoped package has not been published. Until it is, install from source or from a tarball. Do not
+run `npm install launchproof`—that installs someone else's tool.
+
+From source:
 
 ```bash
 git clone https://github.com/MHK-ctrl/launchproof.git
 cd LaunchProof
-npm install
+npm ci
 npm run build
 node packages/cli/bin/launchproof.mjs --help
 ```
 
-Initialize a project and run the offline path:
+As a global command, without waiting for the registry:
 
 ```bash
-node packages/cli/bin/launchproof.mjs init
-node packages/cli/bin/launchproof.mjs analyze
-node packages/cli/bin/launchproof.mjs test
+npm run pack:cli                      # builds, then writes artifacts/hamzakhan2006-launchproof-<version>.tgz
+npm install --global ./artifacts/*.tgz
+launchproof --version
 ```
 
-`test` runs filesystem checks only with the generated defaults (`scan.network: false`). Browser
-checks also require the optional runtime:
+`npm run verify:package` proves this path end to end: it packs a tarball, installs it into an
+unrelated temporary project, runs a scan, and checks that the secret in the fixture stays masked.
+
+## 60-second quickstart
+
+```bash
+cd ~/code/my-app                          # any Express, Next.js, Vite, or Supabase project
+launchproof init                          # writes launchproof.config.json; network stays off
+launchproof test                          # static security, secrets, hygiene, repository checks
+launchproof report --format html --open   # opens the full report
+```
+
+With the defaults written by `init` (`scan.network: false`), `test` runs filesystem checks only and
+makes no network requests. To add browser, accessibility, and HTTP checks, install the optional
+runtime and enable them:
 
 ```bash
 npm install --save-dev playwright axe-core
 PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npx playwright install --only-shell chromium
 ```
 
-Then enable `browser.enabled` and `app.url` in `launchproof.config.json`.
+Then set `app.url` and `browser.enabled` in `launchproof.config.json`.
 
 ### Local demos
 
@@ -174,7 +208,7 @@ scanner does not treat this demo output as proof of security for any other appli
 | `launchproof browser [url]`       | Workflows, links, mobile layout, axe, performance               |
 | `launchproof accessibility [url]` | axe-core checks only                                            |
 | `launchproof performance [url]`   | Navigation metrics and budgets                                  |
-| `launchproof report [file]`       | Render/convert terminal, HTML, JSON, or SARIF                   |
+| `launchproof report [file]`       | Render/convert terminal, HTML, PDF, JSON, or SARIF             |
 | `launchproof config`              | Print the effective configuration without secret values         |
 | `launchproof doctor`              | Check Node, config, Playwright, Chromium, axe, and git          |
 | `launchproof login`               | Browser authorization; stores a revocable CLI token             |
@@ -237,9 +271,19 @@ own or have written authorization to test.
 ## Reports and data handling
 
 Each scan writes `.launchproof/<scan-id>/report.{json,html,sarif}` plus `latest.json` and
-`latest.html`. HTML is fully self-contained and offline. Reports include the configuration summary,
-a project profile, every check (including skipped/not-verified), findings with impact and
-remediation, and an explicit limitations section.
+`latest.html`. HTML is fully self-contained and offline. Reports begin with an assessment scope and
+authorization statement (project, date, tool version, mode, target, check counts, and on what
+authority the target was tested), then include the configuration summary, a project profile, every
+check (including skipped/not-verified), findings with impact and remediation, and an explicit
+limitations section.
+
+### PDF
+
+`launchproof report --format pdf` prints that same HTML to A4 with page numbers and a footer note
+that the document is not a penetration test. PDF export reuses the optional Playwright dependency,
+so it needs Chromium installed (`npx playwright install chromium`); without it the command exits `2`
+with instructions and the HTML report still works. There is no second report layout, so the PDF can
+never disagree with the HTML or JSON it was generated from.
 
 Credential-like values are masked at finding creation. HTTP response bodies are not copied into
 evidence, and environment file contents are never reported. LaunchProof has no telemetry. Optional
@@ -323,6 +367,21 @@ certificate. Static rules are heuristics. TLS certificate/protocol validation is
 HTTP checks are unauthenticated by default. Performance is a single local measurement. Lighthouse is
 not bundled. Supabase static analysis cannot prove deployed policy state. Read the full
 [limitations](docs/limitations.md) and the limitations section of every report.
+
+## Development
+
+```bash
+npm ci                  # install workspaces
+npm run build           # build core, browser, then the CLI
+npm test                # builds first, then runs the full Vitest suite
+npm run verify          # format, lint, build, typecheck, test, build website
+npm run verify:package  # pack + clean install + scan + redaction check
+npm run typecheck       # all four workspaces
+```
+
+The CLI bundle is self-contained: `tsup` inlines `packages/core` and `packages/browser`, so a
+published tarball has no dependency on unpublished workspace packages. `npm pack` is verified by
+`scripts/verify-package.mjs` rather than assumed.
 
 ## Contributing, security, license
 

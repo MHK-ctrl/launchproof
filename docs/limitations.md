@@ -62,8 +62,11 @@ This page is deliberately blunt. A verification tool is only useful if its blind
 
 ## Operational
 
-- The public npm name `launchproof` belongs to an unrelated project; v1.0.0 installs from the
-  repository or an `npm pack` tarball until a scoped package is published.
+- The public npm name `launchproof` belongs to an unrelated project. The package is
+  `@hamzakhan2006/launchproof` and is not published; install from the repository or a `npm run pack:cli`
+  tarball until the first scoped release.
+- PDF export, and all browser checks, depend on optional Playwright and a Chromium download. Without
+  them those commands exit with an explicit error rather than degrading silently.
 - The website and dashboard are deployed at https://launchproof-rose.vercel.app. GitHub repository
   consent and a CLI upload against a connected repository are unverified because GitHub required
   owner 2FA during validation.

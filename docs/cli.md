@@ -1,8 +1,8 @@
 # CLI reference
 
-The binary is `launchproof`. The public npm name belongs to an unrelated project, so v1.0.0 is
-distributed from the repository (or an `npm pack -w launchproof` tarball). From the repository root,
-invoke it directly:
+The binary is `launchproof`. The package is named `@hamzakhan2006/launchproof` because the unscoped npm
+name belongs to an unrelated project; it has not been published, so install from the repository or
+from a tarball produced by `npm run pack:cli`. From the repository root, invoke it directly:
 
 ```bash
 node packages/cli/bin/launchproof.mjs --help
@@ -79,11 +79,14 @@ Reads a saved JSON report (default `.launchproof/latest.json`).
 
 ```bash
 node packages/cli/bin/launchproof.mjs report --format html --out report.html
+node packages/cli/bin/launchproof.mjs report --format pdf  --out report.pdf
 node packages/cli/bin/launchproof.mjs report --format sarif
 node packages/cli/bin/launchproof.mjs report --open
 ```
 
-Formats: `terminal`, `json`, `html`, `sarif`.
+Formats: `terminal`, `json`, `html`, `pdf`, `sarif`. `pdf` prints the same HTML to A4 and needs the
+optional Playwright dependency plus Chromium; if either is missing the command exits `2` with
+instructions and no partial file is written.
 
 ### `config`
 

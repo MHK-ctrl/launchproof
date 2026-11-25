@@ -120,6 +120,39 @@ function severityBar(report: ScanReport): string {
     .join('');
 }
 
+/**
+ * Scope and authorization statement. Every commercial report must state what was assessed, when,
+ * with which tool version, and on what authority, before it states any finding.
+ */
+function renderScope(report: ScanReport, dateLabel: string): string {
+  const { meta, summary } = report;
+  const target = meta.target ? escapeHtml(meta.target) : null;
+  const authorization = target
+    ? `The operator states that written authorization exists to test <code>${target}</code>. LaunchProof does not verify that authorization and cannot confirm it.`
+    : 'No live target was tested in this run. Scope is limited to the local project files named above.';
+  return `<section class="panel" id="scope">
+  <h2>Assessment scope and authorization</h2>
+  <div class="config-grid">
+    <div><span>Project</span>${escapeHtml(meta.projectName)}</div>
+    <div><span>Assessment date</span>${escapeHtml(dateLabel)}</div>
+    <div><span>Tool version</span>LaunchProof v${escapeHtml(VERSION)} (report schema ${safeNumber(meta.schemaVersion)})</div>
+    <div><span>Mode</span>${escapeHtml(meta.mode)}</div>
+    <div><span>Target</span>${target ? `<code>${target}</code>` : 'Local files only'}</div>
+    <div><span>Checks</span>${safeNumber(summary.totalChecks)} selected · ${safeNumber(summary.byStatus.pass)} passed · ${safeNumber(safeCount(summary.byStatus.skipped) + safeCount(summary.byStatus['not-verified']))} skipped or unverified</div>
+  </div>
+  <div class="callout" style="margin-top:16px">
+    <strong>Authorization.</strong> ${authorization}
+  </div>
+  <div class="callout" style="margin-top:10px">
+    <strong>What this document is.</strong> An evidence-backed record of the automated checks listed
+    below, run on the date shown. It is not a penetration test, security certification, compliance
+    attestation, or guarantee that the application is secure. Findings are observations and
+    pattern matches; confirm and reproduce each one before acting on it. Read the Limitations
+    section before making a release or purchasing decision based on this report.
+  </div>
+</section>`;
+}
+
 function renderProject(report: ScanReport): string {
   const project = report.project;
   if (!project) return '';
@@ -314,6 +347,8 @@ footer{margin-top:36px;color:var(--gray);font-size:11.5px;border-top:1px solid v
   <strong>Read this before acting.</strong> LaunchProof distinguishes what was observed, pattern-matched, or inferred. A passing check is not proof that the application is secure, and a clean report is not a substitute for code review or manual testing.
   ${meta.target ? `Target tested: <code>${escapeHtml(meta.target)}</code>.` : 'This scan analyzed local files only; no live target was tested.'}
 </section>
+
+${renderScope(report, dateLabel)}
 
 ${renderProject(report)}
 

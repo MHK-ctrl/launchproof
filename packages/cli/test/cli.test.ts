@@ -31,7 +31,7 @@ describe('CLI', () => {
   it('prints the version and exits successfully', () => {
     const result = run(['--version']);
     expect(result.status).toBe(0);
-    expect(result.stdout.trim()).toBe('1.0.0');
+    expect(result.stdout.trim()).toBe('1.1.0');
   });
 
   it('documents the required commands', () => {

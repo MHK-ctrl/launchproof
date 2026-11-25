@@ -45,3 +45,6 @@ npm-debug.log*
 
 # Generated website content
 apps/web/.content/
+
+# Packaged artifacts
+artifacts/

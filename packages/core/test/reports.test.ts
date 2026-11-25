@@ -97,6 +97,37 @@ describe('report renderers', () => {
     expect(output).not.toContain('\u001b[');
   });
 
+  it('states assessment scope, date, tool version, and authorization', () => {
+    const html = renderHtml(sampleReport());
+    expect(html).toContain('Assessment scope and authorization');
+    expect(html).toContain('2026-01-01 00:00:00 UTC');
+    expect(html).toContain('LaunchProof v');
+    expect(html).toContain('http://127.0.0.1:3000');
+    expect(html).toContain('written authorization exists to test');
+  });
+
+  it('does not imply the tool verified authorization or performed a penetration test', () => {
+    const html = renderHtml(sampleReport());
+    expect(html).toContain('does not verify that authorization');
+    expect(html).toContain('not a penetration test');
+  });
+
+  it('states that no live target was tested when the scan was local', () => {
+    const report = sampleReport();
+    report.meta.target = null;
+    const html = renderHtml(report);
+    expect(html).toContain('No live target was tested');
+    expect(html).not.toContain('written authorization exists to test');
+  });
+
+  it('escapes the target in the scope section', () => {
+    const report = sampleReport();
+    report.meta.target = 'http://127.0.0.1:3000/<script>alert(1)</script>';
+    const html = renderHtml(report);
+    expect(html).not.toContain('<script>alert(1)</script>');
+    expect(html).toContain('&lt;script&gt;');
+  });
+
   it('neutralizes untrusted status, severity, and reference fields', () => {
     const report = sampleReport();
     (report.findings[0] as unknown as { severity: string }).severity =

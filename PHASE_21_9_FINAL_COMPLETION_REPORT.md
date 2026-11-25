@@ -215,7 +215,7 @@ authorization.
 ## L. Recommended next actions
 
 1. Complete GitHub repository consent and one CLI upload/download with owner 2FA present.
-2. Choose a scoped npm name (for example `@mhk-ctrl/launchproof`) and publish with provenance; keep the
+2. Choose a scoped npm name (for example `@hamzakhan2006/launchproof`) and publish with provenance; keep the
    current repo/tarball path as fallback.
 3. Connect the Vercel project to GitHub so future Production deployments carry commit metadata.
 4. Configure automated Supabase backups and a lightweight uptime/error alert suitable for a free tier.
